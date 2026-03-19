@@ -66,7 +66,7 @@
   --secondary-foreground: oklch(0.205 0 0);
   --muted: oklch(0.97 0 0);
   --muted-foreground: oklch(0.556 0 0);
-  --accent: #ff5640;
+  --accent: #2563eb; /* Changed to professional blue */
   --accent-foreground: oklch(0.205 0 0);
   --destructive: #d4403b;
   --warning: #eb9410;
@@ -166,5 +166,23 @@
   }
   .glow-accent {
     box-shadow: var(--glow-accent);
+  }
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+
+  .print-area,
+  .print-area * {
+    visibility: visible;
+  }
+
+  .print-area {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
   }
 }

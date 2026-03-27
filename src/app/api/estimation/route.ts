@@ -10,9 +10,78 @@ const SYSTEM_PROMPT = [
   "Do NOT include markdown, code fences, or extra text.",
   "You do NOT have access to live pricing. Clearly label prices as estimates.",
   "Include pricing page links for each provider (general official pricing pages).",
+  "Any enforced architecture rules included in the request are mandatory and must be reflected in the estimate breakdown and assumptions.",
   `Use region ${REGION} for all estimates.`,
   `Currency is always ${CURRENCY}.`,
 ].join(" ");
+
+type EstimationRequestBody = {
+  providers?: string[];
+  usage?: Record<string, string>;
+  notes?: string;
+  enforcedArchitectureRules?: string[];
+};
+
+function normalizeBackendVmCount(rawBackendVmCount?: string) {
+  if (!rawBackendVmCount) {
+    return 2;
+  }
+
+  if (rawBackendVmCount === "6+") {
+    return 6;
+  }
+
+  const parsedCount = Number.parseInt(rawBackendVmCount, 10);
+
+  if (Number.isNaN(parsedCount)) {
+    return 2;
+  }
+
+  return Math.max(2, parsedCount);
+}
+
+function buildEstimationRequest(body: EstimationRequestBody): EstimationRequestBody {
+  const usage = { ...(body.usage ?? {}) };
+  const enforcedArchitectureRules = [...(body.enforcedArchitectureRules ?? [])];
+
+  if (usage.backendDeployment === "Serverless functions") {
+    delete usage.backendSize;
+    delete usage.backendScaling;
+    delete usage.backendVmCount;
+  }
+
+  if (usage.backendDeployment === "Single VM") {
+    usage.backendScaling = "Single instance only";
+    delete usage.backendVmCount;
+  }
+
+  if (usage.backendDeployment === "Containers (Kubernetes)") {
+    delete usage.backendVmCount;
+    if (usage.backendScaling === "Single instance only") {
+      usage.backendScaling = "Fixed number of instances";
+    }
+  }
+
+  if (usage.backendDeployment === "Multiple VMs with load balancer") {
+    const backendVmCount = normalizeBackendVmCount(usage.backendVmCount);
+    if (usage.backendScaling === "Single instance only") {
+      usage.backendScaling = "Fixed number of instances";
+    }
+    usage.backendVmCount = String(backendVmCount);
+
+    enforcedArchitectureRules.push(
+      `For 'Multiple VMs with load balancer', estimate a high-availability baseline with ${backendVmCount} backend VMs distributed across at least 2 different availability zones.`,
+      `Apply the selected backend instance size to each of the ${backendVmCount} backend VMs.`,
+      `Include the load balancer as a separate billed component in front of the ${backendVmCount} backend VMs.`,
+    );
+  }
+
+  return {
+    ...body,
+    usage,
+    enforcedArchitectureRules,
+  };
+}
 
 export const SCHEMA_OPEN_AI = {
   type: "object",
@@ -128,6 +197,7 @@ const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 export async function POST(req: NextRequest) {
   try {
     const { body } = await req.json();
+    const estimationRequest = buildEstimationRequest(body as EstimationRequestBody);
 
     const today = new Date().toISOString().slice(0, 10);
 
@@ -144,7 +214,7 @@ export async function POST(req: NextRequest) {
           content: JSON.stringify({
             task: "Estimate infrastructure costs for the given project for each selected provider.",
             asOf: today,
-            request: body,
+            request: estimationRequest,
           }),
         },
       ],

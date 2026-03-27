@@ -8,7 +8,17 @@ import {
   Zap,
 } from "lucide-react";
 
-export const usageQuestions = [
+export type UsageAnswers = Record<string, string>;
+
+export type UsageQuestion = {
+  id: string;
+  label: string;
+  options: string[] | ((answers: UsageAnswers) => string[]);
+  category: string;
+  showWhen?: (answers: UsageAnswers) => boolean;
+};
+
+export const usageQuestions: UsageQuestion[] = [
   // =========================
   // Application Usage
   // =========================
@@ -54,6 +64,25 @@ export const usageQuestions = [
     category: "Backend",
   },
   {
+    id: "serverlessWorkloadType",
+    label: "Serverless workload type",
+    options: [
+      "HTTP / light API",
+      "Event-driven processing",
+      "Background jobs / scheduled tasks",
+    ],
+    category: "Backend",
+    showWhen: (answers) => answers.backendDeployment === "Serverless functions",
+  },
+  {
+    id: "backendVmCount",
+    label: "How many backend VMs do you want behind the load balancer?",
+    options: ["2", "3", "4", "5", "6+"],
+    category: "Backend",
+    showWhen: (answers) =>
+      answers.backendDeployment === "Multiple VMs with load balancer",
+  },
+  {
     id: "backendSize",
     label: "Backend instance size (per instance)",
     options: [
@@ -62,16 +91,28 @@ export const usageQuestions = [
       "Large (4+ vCPU, 8+ GB RAM)",
     ],
     category: "Backend",
+    showWhen: (answers) => answers.backendDeployment !== "Serverless functions",
   },
   {
     id: "backendScaling",
     label: "Backend scaling strategy",
-    options: [
-      "Single instance only",
-      "Fixed number of instances",
-      "Auto-scaling enabled",
-    ],
+    options: (answers) => {
+      if (answers.backendDeployment === "Single VM") {
+        return ["Single instance only"];
+      }
+
+      if (answers.backendDeployment === "Multiple VMs with load balancer") {
+        return ["Fixed number of instances", "Auto-scaling enabled"];
+      }
+
+      if (answers.backendDeployment === "Containers (Kubernetes)") {
+        return ["Fixed number of instances", "Auto-scaling enabled"];
+      }
+
+      return [];
+    },
     category: "Backend",
+    showWhen: (answers) => answers.backendDeployment !== "Serverless functions",
   },
 
   // =========================
@@ -154,6 +195,16 @@ export const usageQuestions = [
     category: "Availability",
   },
 ];
+
+export function isQuestionVisible(question: UsageQuestion, answers: UsageAnswers) {
+  return question.showWhen ? question.showWhen(answers) : true;
+}
+
+export function getQuestionOptions(question: UsageQuestion, answers: UsageAnswers) {
+  return typeof question.options === "function"
+    ? question.options(answers)
+    : question.options;
+}
 
 export const categoryMeta: Record<
   string,

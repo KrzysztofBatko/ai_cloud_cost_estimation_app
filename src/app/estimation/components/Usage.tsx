@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
 import {
   Card,
@@ -23,7 +23,13 @@ import {
 } from "@/components/ui/collapsible";
 
 import { ChevronDownIcon, Monitor, XIcon } from "lucide-react";
-import { categoryMeta, usageQuestions } from "@/app/estimation/configuration";
+import {
+  categoryMeta,
+  getQuestionOptions,
+  isQuestionVisible,
+  usageQuestions,
+  type UsageQuestion,
+} from "@/app/estimation/configuration";
 
 interface Props {
   answers: Record<string, string>;
@@ -34,16 +40,21 @@ type Group = {
   category: string;
   label: string;
   Icon: React.ElementType;
-  items: typeof usageQuestions;
+  items: UsageQuestion[];
 };
 
 export default function UsageModern({ answers, setAnswers }: Props) {
   const [open, setOpen] = useState(true);
 
+  const visibleQuestions = useMemo(
+    () => usageQuestions.filter((question) => isQuestionVisible(question, answers)),
+    [answers],
+  );
+
   const groups = useMemo(() => {
     const byCat = new Map<string, Group>();
 
-    for (const q of usageQuestions) {
+    for (const q of visibleQuestions) {
       const meta = categoryMeta[q.category];
       const Icon = meta?.icon ?? Monitor;
       const label = meta?.label ?? "Unknown";
@@ -53,21 +64,55 @@ export default function UsageModern({ answers, setAnswers }: Props) {
           category: q.category,
           label,
           Icon,
-          items: [] as typeof usageQuestions,
+          items: [],
         });
       }
       byCat.get(q.category)!.items.push(q);
     }
 
     return Array.from(byCat.values());
-  }, []);
+  }, [visibleQuestions]);
 
-  const total = usageQuestions.length;
-  const answered = usageQuestions.reduce(
-    (acc, q) => acc + (answers[q.id] ? 1 : 0),
+  const total = visibleQuestions.length;
+  const answered = visibleQuestions.reduce(
+    (acc, q) =>
+      acc +
+      (answers[q.id] && getQuestionOptions(q, answers).includes(answers[q.id])
+        ? 1
+        : 0),
     0,
   );
   const progress = Math.round((answered / Math.max(1, total)) * 100);
+
+  useEffect(() => {
+    setAnswers((prev) => {
+      let changed = false;
+      const next = { ...prev };
+
+      for (const question of usageQuestions) {
+        const selected = next[question.id];
+
+        if (!selected) {
+          continue;
+        }
+
+        const isVisible = isQuestionVisible(question, next);
+        if (!isVisible) {
+          delete next[question.id];
+          changed = true;
+          continue;
+        }
+
+        const validOptions = getQuestionOptions(question, next);
+        if (!validOptions.includes(selected)) {
+          delete next[question.id];
+          changed = true;
+        }
+      }
+
+      return changed ? next : prev;
+    });
+  }, [answers, setAnswers]);
 
   const clearQuestion = (id: string) => {
     setAnswers((prev) => {
@@ -140,7 +185,11 @@ export default function UsageModern({ answers, setAnswers }: Props) {
           <CardContent className="space-y-8">
             {groups.map((g, gi) => {
               const answeredInGroup = g.items.reduce(
-                (acc, q) => acc + (answers[q.id] ? 1 : 0),
+                (acc, q) =>
+                  acc +
+                  (answers[q.id] && getQuestionOptions(q, answers).includes(answers[q.id])
+                    ? 1
+                    : 0),
                 0,
               );
 
@@ -162,6 +211,11 @@ export default function UsageModern({ answers, setAnswers }: Props) {
                   <div className="grid gap-4">
                     {g.items.map((q) => {
                       const selected = answers[q.id] ?? "";
+                      const options = getQuestionOptions(q, answers);
+
+                      if (options.length === 0) {
+                        return null;
+                      }
 
                       return (
                         <div
@@ -196,7 +250,7 @@ export default function UsageModern({ answers, setAnswers }: Props) {
                             className="mt-3"
                           >
                             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
-                              {q.options.map((opt) => (
+                              {options.map((opt) => (
                                 <label
                                   key={opt}
                                   className="flex items-center gap-2 cursor-pointer rounded-lg border border-border px-3 py-3 transition-colors hover:bg-muted data-[selected=true]:border-primary data-[selected=true]:bg-primary/5 shadow-xs"

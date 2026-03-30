@@ -9,6 +9,7 @@ const SYSTEM_PROMPT = [
   "Return ONLY valid JSON matching the requested schema.",
   "Do NOT include markdown, code fences, or extra text.",
   "You do NOT have access to live pricing. Clearly label prices as estimates.",
+  "Keep estimates deterministic: for the same request payload and date, use the same assumptions and arithmetic so totals remain consistent across reruns.",
   "Include pricing page links for each provider (general official pricing pages).",
   "Any enforced architecture rules included in the request are mandatory and must be reflected in the estimate breakdown and assumptions.",
   `Use region ${REGION} for all estimates.`,
@@ -38,6 +39,58 @@ function normalizeBackendVmCount(rawBackendVmCount?: string) {
   }
 
   return Math.max(2, parsedCount);
+}
+
+function isOracleProviderSelected(providers?: string[]) {
+  return (providers ?? []).some((provider) =>
+    provider.toLowerCase().includes("oracle"),
+  );
+}
+
+function clarifyIaasDbWording(text: string) {
+  return text
+    .replace(
+      /self-managed sql server on vm\/bare metal/gi,
+      "customer-managed SQL Server on IaaS compute (VM/bare metal)",
+    )
+    .replace(
+      /self-managed sql server on vm/gi,
+      "customer-managed SQL Server on IaaS VM",
+    )
+    .replace(/self-managed sql server/gi, "customer-managed SQL Server on IaaS")
+    .replace(/self-managed mssql/gi, "customer-managed MS SQL on IaaS")
+    .replace(/self-managed ms sql/gi, "customer-managed MS SQL on IaaS")
+    .replace(/self-managed/gi, "customer-managed on IaaS");
+}
+
+function normalizeEstimateWording(json: any) {
+  if (!json?.estimates || !Array.isArray(json.estimates)) {
+    return json;
+  }
+
+  const next = {
+    ...json,
+    estimates: json.estimates.map((est: any) => ({
+      ...est,
+      assumptions: Array.isArray(est.assumptions)
+        ? est.assumptions.map((a: string) => clarifyIaasDbWording(a))
+        : est.assumptions,
+      recommendation:
+        typeof est.recommendation === "string"
+          ? clarifyIaasDbWording(est.recommendation)
+          : est.recommendation,
+      breakdown: Array.isArray(est.breakdown)
+        ? est.breakdown.map((b: any) => ({
+            ...b,
+            item: typeof b.item === "string" ? clarifyIaasDbWording(b.item) : b.item,
+            notes:
+              typeof b.notes === "string" ? clarifyIaasDbWording(b.notes) : b.notes,
+          }))
+        : est.breakdown,
+    })),
+  };
+
+  return next;
 }
 
 function buildEstimationRequest(body: EstimationRequestBody): EstimationRequestBody {
@@ -73,6 +126,53 @@ function buildEstimationRequest(body: EstimationRequestBody): EstimationRequestB
       `For 'Multiple VMs with load balancer', estimate a high-availability baseline with ${backendVmCount} backend VMs distributed across at least 2 different availability zones.`,
       `Apply the selected backend instance size to each of the ${backendVmCount} backend VMs.`,
       `Include the load balancer as a separate billed component in front of the ${backendVmCount} backend VMs.`,
+    );
+  }
+
+  const backendVmCountForRules =
+    usage.backendDeployment === "Multiple VMs with load balancer"
+      ? normalizeBackendVmCount(usage.backendVmCount)
+      : undefined;
+
+  if (usage.dbHighAvailability === "Multi-zone (HA)") {
+    enforcedArchitectureRules.push(
+      "For database high availability, estimate at least 2 database instances/nodes distributed across at least 2 different availability zones.",
+      "Do not price database HA as a single database instance; include replication/failover overhead in the breakdown.",
+      "State explicitly in assumptions that DB HA uses primary + secondary topology.",
+    );
+  }
+
+  const isOracleWithMsSql =
+    isOracleProviderSelected(body.providers) && usage.dbEngine === "MS SQL";
+
+  if (isOracleWithMsSql) {
+    enforcedArchitectureRules.push(
+      "For Oracle Cloud with MS SQL, treat the database as self-managed SQL Server on VM or bare metal only (not a managed Oracle database service).",
+      "Use explicit wording: 'customer-managed SQL Server on IaaS compute (VM/bare metal)' to avoid ambiguity.",
+      "Reflect this Oracle+MS SQL constraint explicitly in assumptions and recommendation.",
+      "In the cost breakdown, include OS/license and operational overhead consistent with self-managed SQL Server hosting.",
+    );
+
+    if (usage.dbHighAvailability === "Multi-zone (HA)") {
+      enforcedArchitectureRules.push(
+        "For Oracle Cloud + MS SQL + DB HA, include 2 SQL Server VMs minimum (primary + secondary) across different availability zones.",
+      );
+    }
+  }
+
+  const isMsSqlDbHa =
+    usage.dbEngine === "MS SQL" && usage.dbHighAvailability === "Multi-zone (HA)";
+
+  if (
+    isMsSqlDbHa &&
+    usage.backendDeployment === "Multiple VMs with load balancer" &&
+    backendVmCountForRules
+  ) {
+    enforcedArchitectureRules.push(
+      "Do not reuse backend VMs as database VMs for MS SQL HA; backend and DB must be separate compute pools.",
+      `For this configuration, include ${backendVmCountForRules} backend VMs plus 2 dedicated SQL Server VMs (primary + secondary), i.e. at least ${backendVmCountForRules + 2} total VMs before any optional extras.`,
+      "Show backend VM costs and DB VM costs as separate breakdown line items.",
+      "In assumptions, explicitly state that backend VMs and DB VMs are not shared.",
     );
   }
 
@@ -204,6 +304,7 @@ export async function POST(req: NextRequest) {
     // Tell the model EXACTLY what JSON to output
     const response = await openai.responses.create({
       model: "gpt-4.1-mini",
+      temperature: 0,
       input: [
         {
           role: "system",
@@ -238,8 +339,9 @@ export async function POST(req: NextRequest) {
 
     // Ensure we return JSON (and fail loudly if the model didn't comply)
     const json = JSON.parse(text);
+    const normalizedJson = normalizeEstimateWording(json);
 
-    return NextResponse.json(json, {
+    return NextResponse.json(normalizedJson, {
       status: 200,
       headers: {
         // Optional: helps if you want the browser to download it as a file

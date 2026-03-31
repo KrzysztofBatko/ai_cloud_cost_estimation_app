@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
+import { buildDeterministicEstimates } from "@/lib/pricing/deterministic-estimator";
 
 const CURRENCY = "USD";
-const REGION = "EU-WEST-1";
 
 const SYSTEM_PROMPT = [
   "You are a cloud cost estimation assistant.",
@@ -12,7 +12,10 @@ const SYSTEM_PROMPT = [
   "Keep estimates deterministic: for the same request payload and date, use the same assumptions and arithmetic so totals remain consistent across reruns.",
   "Include pricing page links for each provider (general official pricing pages).",
   "Any enforced architecture rules included in the request are mandatory and must be reflected in the estimate breakdown and assumptions.",
-  `Use region ${REGION} for all estimates.`,
+  "Use the explicitly provided provider region for each estimate. If a provider region is missing, fall back to that provider's default region.",
+  "For each service component (compute, database, networking, and frontend runtime), evaluate available alternatives for the selected provider and region, then choose the most cost-optimal feasible option.",
+  "Always include a short availability-check note and option comparison rationale in assumptions when selecting a service option.",
+  "For MS SQL, evaluate managed and customer-managed options; choose the most cost-optimal option that is available in the selected provider region and explain the decision.",
   `Currency is always ${CURRENCY}.`,
 ].join(" ");
 
@@ -20,6 +23,7 @@ type EstimationRequestBody = {
   providers?: string[];
   usage?: Record<string, string>;
   notes?: string;
+  providerRegions?: Record<string, string>;
   enforcedArchitectureRules?: string[];
 };
 
@@ -41,12 +45,6 @@ function normalizeBackendVmCount(rawBackendVmCount?: string) {
   return Math.max(2, parsedCount);
 }
 
-function isOracleProviderSelected(providers?: string[]) {
-  return (providers ?? []).some((provider) =>
-    provider.toLowerCase().includes("oracle"),
-  );
-}
-
 function clarifyIaasDbWording(text: string) {
   return text
     .replace(
@@ -63,39 +61,84 @@ function clarifyIaasDbWording(text: string) {
     .replace(/self-managed/gi, "customer-managed on IaaS");
 }
 
-function normalizeEstimateWording(json: any) {
-  if (!json?.estimates || !Array.isArray(json.estimates)) {
+type UnknownRecord = Record<string, unknown>;
+
+function normalizeEstimateWording<T>(json: T): T {
+  if (!json || typeof json !== "object") {
     return json;
   }
 
+  const root = json as UnknownRecord;
+  if (!Array.isArray(root.estimates)) {
+    return json;
+  }
+
+  const estimates = root.estimates as UnknownRecord[];
   const next = {
-    ...json,
-    estimates: json.estimates.map((est: any) => ({
+    ...root,
+    estimates: estimates.map((est) => ({
       ...est,
       assumptions: Array.isArray(est.assumptions)
-        ? est.assumptions.map((a: string) => clarifyIaasDbWording(a))
+        ? est.assumptions.map((assumption) =>
+            typeof assumption === "string"
+              ? clarifyIaasDbWording(assumption)
+              : String(assumption),
+          )
         : est.assumptions,
       recommendation:
         typeof est.recommendation === "string"
           ? clarifyIaasDbWording(est.recommendation)
           : est.recommendation,
       breakdown: Array.isArray(est.breakdown)
-        ? est.breakdown.map((b: any) => ({
-            ...b,
-            item: typeof b.item === "string" ? clarifyIaasDbWording(b.item) : b.item,
-            notes:
-              typeof b.notes === "string" ? clarifyIaasDbWording(b.notes) : b.notes,
-          }))
+        ? est.breakdown.map((breakdownItem) => {
+            const itemRecord =
+              breakdownItem && typeof breakdownItem === "object"
+                ? (breakdownItem as UnknownRecord)
+                : ({} as UnknownRecord);
+
+            return {
+              ...itemRecord,
+              item:
+                typeof itemRecord.item === "string"
+                  ? clarifyIaasDbWording(itemRecord.item)
+                  : itemRecord.item,
+              notes:
+                typeof itemRecord.notes === "string"
+                  ? clarifyIaasDbWording(itemRecord.notes)
+                  : itemRecord.notes,
+            };
+          })
         : est.breakdown,
     })),
   };
 
-  return next;
+  return next as T;
+}
+
+function enrichEstimateMetadata<T>(json: T, metadata: { pricingAsOf: string; calculatedAt: string }): T {
+  if (!json || typeof json !== "object") {
+    return json;
+  }
+
+  const root = json as UnknownRecord;
+  const next = {
+    ...root,
+    asOf: metadata.pricingAsOf,
+    pricingAsOf: metadata.pricingAsOf,
+    calculatedAt: metadata.calculatedAt,
+  };
+
+  return next as T;
 }
 
 function buildEstimationRequest(body: EstimationRequestBody): EstimationRequestBody {
   const usage = { ...(body.usage ?? {}) };
-  const enforcedArchitectureRules = [...(body.enforcedArchitectureRules ?? [])];
+  const enforcedArchitectureRules = [
+    ...(body.enforcedArchitectureRules ?? []),
+    "For each major service component (compute, frontend runtime, database, network egress), evaluate at least two feasible options when available in the selected provider region.",
+    "Use provider-region availability checks before selecting the service option.",
+    "Choose the most cost-optimal feasible option and state in assumptions what was compared and why the selected option won.",
+  ];
 
   if (usage.backendDeployment === "Serverless functions") {
     delete usage.backendSize;
@@ -142,22 +185,12 @@ function buildEstimationRequest(body: EstimationRequestBody): EstimationRequestB
     );
   }
 
-  const isOracleWithMsSql =
-    isOracleProviderSelected(body.providers) && usage.dbEngine === "MS SQL";
-
-  if (isOracleWithMsSql) {
+  if (usage.dbEngine === "MS SQL") {
     enforcedArchitectureRules.push(
-      "For Oracle Cloud with MS SQL, treat the database as self-managed SQL Server on VM or bare metal only (not a managed Oracle database service).",
-      "Use explicit wording: 'customer-managed SQL Server on IaaS compute (VM/bare metal)' to avoid ambiguity.",
-      "Reflect this Oracle+MS SQL constraint explicitly in assumptions and recommendation.",
-      "In the cost breakdown, include OS/license and operational overhead consistent with self-managed SQL Server hosting.",
+      "For MS SQL, evaluate both managed and customer-managed deployment options where applicable.",
+      "Perform service availability checks for the selected provider region before choosing an MS SQL deployment model.",
+      "Choose the most cost-optimal MS SQL option among the available options and state why.",
     );
-
-    if (usage.dbHighAvailability === "Multi-zone (HA)") {
-      enforcedArchitectureRules.push(
-        "For Oracle Cloud + MS SQL + DB HA, include 2 SQL Server VMs minimum (primary + secondary) across different availability zones.",
-      );
-    }
   }
 
   const isMsSqlDbHa =
@@ -169,10 +202,10 @@ function buildEstimationRequest(body: EstimationRequestBody): EstimationRequestB
     backendVmCountForRules
   ) {
     enforcedArchitectureRules.push(
-      "Do not reuse backend VMs as database VMs for MS SQL HA; backend and DB must be separate compute pools.",
-      `For this configuration, include ${backendVmCountForRules} backend VMs plus 2 dedicated SQL Server VMs (primary + secondary), i.e. at least ${backendVmCountForRules + 2} total VMs before any optional extras.`,
-      "Show backend VM costs and DB VM costs as separate breakdown line items.",
-      "In assumptions, explicitly state that backend VMs and DB VMs are not shared.",
+      "If customer-managed SQL is chosen, do not reuse backend VMs as database VMs; backend and DB must be separate compute pools.",
+      `If customer-managed SQL is chosen, include ${backendVmCountForRules} backend VMs plus 2 dedicated SQL Server VMs (primary + secondary), i.e. at least ${backendVmCountForRules + 2} total VMs before any optional extras.`,
+      "If customer-managed SQL is chosen, show backend VM costs and DB VM costs as separate breakdown line items.",
+      "If customer-managed SQL is chosen, explicitly state that backend VMs and DB VMs are not shared.",
     );
   }
 
@@ -186,11 +219,19 @@ function buildEstimationRequest(body: EstimationRequestBody): EstimationRequestB
 export const SCHEMA_OPEN_AI = {
   type: "object",
   additionalProperties: false,
-  required: ["asOf", "estimates"],
+  required: ["asOf", "pricingAsOf", "calculatedAt", "estimates"],
   properties: {
     asOf: {
       type: "string",
-      description: "Date of estimation in YYYY-MM-DD format",
+      description: "Legacy alias for pricingAsOf in YYYY-MM-DD format",
+    },
+    pricingAsOf: {
+      type: "string",
+      description: "Date of the pricing snapshot in YYYY-MM-DD format",
+    },
+    calculatedAt: {
+      type: "string",
+      description: "Timestamp when the estimate was generated in ISO-8601 format",
     },
     estimates: {
       type: "array",
@@ -213,6 +254,14 @@ export const SCHEMA_OPEN_AI = {
           provider: {
             type: "string",
             description: "Cloud provider name",
+          },
+          region: {
+            type: "string",
+            description: "Provider-specific region identifier",
+          },
+          regionLabel: {
+            type: "string",
+            description: "Human-readable provider region label",
           },
           currency: {
             type: "string",
@@ -275,8 +324,13 @@ export const SCHEMA_OPEN_AI = {
 };
 export interface EstimateResponse {
   asOf: string;
+  pricingAsOf: string;
+  calculatedAt: string;
+  snapshotSource?: string;
   estimates: {
     provider: string;
+    region?: string;
+    regionLabel?: string;
     currency: string;
     monthlyTotal: number;
     dailyTotal: number;
@@ -298,6 +352,24 @@ export async function POST(req: NextRequest) {
   try {
     const { body } = await req.json();
     const estimationRequest = buildEstimationRequest(body as EstimationRequestBody);
+    const calculatedAt = new Date().toISOString();
+
+    const deterministicResponse = await buildDeterministicEstimates(estimationRequest);
+    if (deterministicResponse) {
+      const normalizedDeterministic = enrichEstimateMetadata(
+        normalizeEstimateWording(deterministicResponse),
+        {
+          pricingAsOf: deterministicResponse.pricingAsOf,
+          calculatedAt,
+        },
+      );
+      return NextResponse.json(normalizedDeterministic, {
+        status: 200,
+        headers: {
+          "Content-Disposition": `attachment; filename="cost-estimate-${deterministicResponse.pricingAsOf}.json"`,
+        },
+      });
+    }
 
     const today = new Date().toISOString().slice(0, 10);
 
@@ -315,6 +387,8 @@ export async function POST(req: NextRequest) {
           content: JSON.stringify({
             task: "Estimate infrastructure costs for the given project for each selected provider.",
             asOf: today,
+            pricingAsOf: today,
+            calculatedAt,
             request: estimationRequest,
           }),
         },
@@ -339,7 +413,10 @@ export async function POST(req: NextRequest) {
 
     // Ensure we return JSON (and fail loudly if the model didn't comply)
     const json = JSON.parse(text);
-    const normalizedJson = normalizeEstimateWording(json);
+    const normalizedJson = enrichEstimateMetadata(normalizeEstimateWording(json), {
+      pricingAsOf: today,
+      calculatedAt,
+    });
 
     return NextResponse.json(normalizedJson, {
       status: 200,
@@ -348,9 +425,10 @@ export async function POST(req: NextRequest) {
         "Content-Disposition": `attachment; filename="cost-estimate-${today}.json"`,
       },
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
     return NextResponse.json(
-      { error: "Bad Request", message: err?.message ?? String(err) },
+      { error: "Bad Request", message },
       { status: 400 },
     );
   }

@@ -121,7 +121,7 @@ export const usageQuestions: UsageQuestion[] = [
   {
     id: "dbEngine",
     label: "Database engine",
-    options: ["PostgreSQL", "MySQL", "MS SQL", "Other"],
+    options: ["PostgreSQL", "MySQL", "MS SQL", "Oracle Database", "Other"],
     category: "Database",
   },
   {

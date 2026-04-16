@@ -9,11 +9,13 @@ export function useSendToAI() {
     selectedProvidersNames: string[],
     answers: Record<string, string>,
     notes: string,
+    providerRegions: Record<string, string>,
   ) => {
     const body = {
       providers: selectedProvidersNames,
       usage: answers,
       notes,
+      providerRegions,
     };
     setLoading(true);
     setResults(null);

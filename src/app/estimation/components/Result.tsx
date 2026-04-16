@@ -6,6 +6,21 @@ import { ExternalLink, Info, Lightbulb, Cloud, Globe, Database, Triangle } from 
 
 import { EstimateResponse } from "@/app/api/estimation/route";
 
+function formatCalculatedAt(value: string) {
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) {
+    return value;
+  }
+
+  return new Intl.DateTimeFormat(undefined, {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(parsed);
+}
+
 const confidenceVariant = (c: string) => {
   if (c === "high") return "default" as const;
   if (c === "medium") return "warning" as const;
@@ -49,7 +64,12 @@ const ProvidersEstimatesTable = ({
                 {iconMap[est.provider.toLowerCase() as keyof typeof iconMap] ?? (
                   <Cloud className="w-5 h-5 text-muted-foreground" />
                 )}
-                <span>{est.provider}</span>
+                <div>
+                  <div>{est.provider}</div>
+                  {est.regionLabel ? (
+                    <div className="text-xs text-muted-foreground">{est.regionLabel}</div>
+                  ) : null}
+                </div>
               </TableCell>
               <TableCell className="font-mono">${est.monthlyTotal}</TableCell>
               <TableCell className="font-mono">${est.dailyTotal}</TableCell>
@@ -80,7 +100,12 @@ const ProvidersEstimatesTable = ({
               {iconMap[est.provider.toLowerCase() as keyof typeof iconMap] ?? (
                 <Cloud className="w-5 h-5 text-muted-foreground" />
               )}
-              <span className="font-semibold">{est.provider}</span>
+              <div>
+                <div className="font-semibold">{est.provider}</div>
+                {est.regionLabel ? (
+                  <div className="text-xs text-muted-foreground">{est.regionLabel}</div>
+                ) : null}
+              </div>
             </div>
             <Badge variant={confidenceVariant(est.confidence)}>
               {est.confidence}
@@ -111,6 +136,16 @@ const ProvidersEstimatesTable = ({
       {isOpen && (
         <div className="rounded-lg border bg-card p-4 mt-4">
           <div className="flex flex-col gap-3">
+            {est.regionLabel || est.region ? (
+              <div>
+                <h3 className="text-sm font-semibold">Region</h3>
+                <p className="text-xs text-muted-foreground">
+                  {est.regionLabel ?? est.region}
+                  {est.regionLabel && est.region ? ` (${est.region})` : ""}
+                </p>
+              </div>
+            ) : null}
+
             <div>
               <h3 className="text-sm font-semibold">Assumptions</h3>
               <ul className="list-disc pl-5 text-xs text-muted-foreground">
@@ -185,18 +220,19 @@ const Results = ({ results }: { results: EstimateResponse }) => {
       <CardHeader>
         <CardTitle className="flex items-center justify-between flex-wrap gap-2">
           <span>Cost Estimates</span>
-          <span className="text-sm font-normal text-muted-foreground">
-            As of {results.asOf}
-          </span>
+          <div className="text-right text-sm font-normal text-muted-foreground">
+            <div>Pricing snapshot: {results.pricingAsOf}</div>
+            <div>Calculated at: {formatCalculatedAt(results.calculatedAt)}</div>
+          </div>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         {results.estimates.map((est) => (
           <ProvidersEstimatesTable
-            key={est.provider}
+            key={`${est.provider}-${est.region ?? "default"}`}
             est={est}
-            isOpen={openProviders[est.provider] ?? false}
-            onToggle={() => toggle(est.provider)}
+            isOpen={openProviders[`${est.provider}:${est.region ?? "default"}`] ?? false}
+            onToggle={() => toggle(`${est.provider}:${est.region ?? "default"}`)}
           />
         ))}
       </CardContent>

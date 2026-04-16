@@ -11,9 +11,11 @@ import Results from "@/app/estimation/components/Result";
 import Providers, { Provider } from "@/app/estimation/components/Providers";
 import { useStatistics } from "@/app/estimation/hooks/useStatistics";
 import { useSendToAI } from "@/app/estimation/hooks/useSendToAi";
+import { getDefaultProviderRegion, type ProviderKey } from "@/lib/pricing/catalog";
 
 export default function EstimationPage() {
   const [selectedProviders, setSelectedProviders] = useState<Provider[]>([]);
+  const [providerRegions, setProviderRegions] = useState<Record<string, string>>({});
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [notes, setNotes] = useState("");
 
@@ -21,11 +23,37 @@ export default function EstimationPage() {
   const { sendToAI, loading, results, setResults } = useSendToAI();
 
   const toggleProvider = (provider: Provider) => {
-    setSelectedProviders((prev) =>
-      prev.some((p) => p.id === provider.id)
+    setSelectedProviders((prev) => {
+      const isSelected = prev.some((p) => p.id === provider.id);
+
+      setProviderRegions((current) => {
+        if (isSelected) {
+          const next = { ...current };
+          if (provider.providerKey) {
+            delete next[provider.providerKey];
+          }
+          return next;
+        }
+
+        if (!provider.providerKey) {
+          return current;
+        }
+
+        return {
+          ...current,
+          [provider.providerKey]:
+            current[provider.providerKey] ?? getDefaultProviderRegion(provider.providerKey),
+        };
+      });
+
+      return isSelected
         ? prev.filter((p) => p.id !== provider.id)
-        : [...prev, provider],
-    );
+        : [...prev, provider];
+    });
+  };
+
+  const handleProviderRegionChange = (providerKey: ProviderKey, region: string) => {
+    setProviderRegions((prev) => ({ ...prev, [providerKey]: region }));
   };
 
   const handleEstimation = async () => {
@@ -34,6 +62,7 @@ export default function EstimationPage() {
         selectedProviders.map((p) => p.name),
         answers,
         notes,
+        providerRegions,
       ),
       saveStatistics(selectedProviders),
     ]);
@@ -41,6 +70,7 @@ export default function EstimationPage() {
 
   const restart = () => {
     setSelectedProviders([]);
+    setProviderRegions({});
     setAnswers({});
     setNotes("");
     setResults(null);
@@ -56,11 +86,15 @@ export default function EstimationPage() {
     const lines: string[] = [];
 
     lines.push("Cloud cost estimate");
-    lines.push(`Date: ${results.asOf}`);
+    lines.push(`Pricing snapshot: ${results.pricingAsOf}`);
+    lines.push(`Calculated at: ${results.calculatedAt}`);
     lines.push("--------------------------------------------------");
 
     results.estimates.forEach((est) => {
       lines.push(`${est.provider} (${est.confidence.toUpperCase()})`);
+      if (est.regionLabel || est.region) {
+        lines.push(`  Region:  ${est.regionLabel ?? est.region}`);
+      }
       lines.push(`  Monthly: ${est.monthlyTotal} ${est.currency}`);
       lines.push(`  Daily:   ${est.dailyTotal} ${est.currency}`);
 
@@ -111,7 +145,9 @@ export default function EstimationPage() {
           {/* Section 1 - Providers */}
           <Providers
             selectedProviders={selectedProviders}
+            selectedRegions={providerRegions}
             onToggleProvider={toggleProvider}
+            onRegionChange={handleProviderRegionChange}
           />
 
           {/* Section 2 - Usage */}

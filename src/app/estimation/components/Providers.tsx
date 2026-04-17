@@ -3,13 +3,13 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Cloud, Globe, Database, Triangle, Loader2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import {
   getDefaultProviderRegion,
   getProviderRegionOptions,
-  normalizeProviderKey,
   type ProviderKey,
 } from "@/lib/pricing/catalog";
+import { useActiveProviders } from "@/app/estimation/hooks/useActiveProviders";
 
 export interface Provider {
   id: string;
@@ -31,6 +31,7 @@ const iconMap = {
   gcp: <Globe className="w-6 h-6 text-blue-400" />,
   oracle: <Database className="w-6 h-6 text-red-500" />,
   vercel: <Triangle className="w-6 h-6 text-black" />,
+  default: <Cloud className="w-6 h-6 text-muted-foreground" />,
 };
 
 export default function Providers({
@@ -39,39 +40,10 @@ export default function Providers({
   onToggleProvider,
   onRegionChange,
 }: Props) {
-  const [providers, setProviders] = useState<Provider[]>([]);
-  const [loading, setLoading] = useState(false);
+  const { providers, loading, fetchProviders } = useActiveProviders();
 
   useEffect(() => {
-    const fetchProviders = async () => {
-      setLoading(true);
-      try {
-        const res = await fetch("/api/providers");
-        if (!res.ok) throw new Error("Fetch failed");
-        const json = await res.json();
-        const data = Array.isArray(json?.data) ? json.data : [];
-        setProviders(
-          data.map((p: { id: string; name: string }) => {
-            const providerKey = normalizeProviderKey(p.name);
-
-            return {
-              ...p,
-              providerKey,
-              icon:
-                (providerKey ? iconMap[providerKey] : null) ?? (
-                  <Cloud className="w-6 h-6 text-muted-foreground" />
-                ),
-            };
-          }),
-        );
-      } catch (error) {
-        console.error("Failed to load providers", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProviders();
+    fetchProviders(iconMap);
   }, []);
 
   return (
@@ -87,11 +59,13 @@ export default function Providers({
         ) : (
           providers.map((p) => {
             const isSelected = selectedProviders.some((sp) => sp.id === p.id);
-            const regionOptions = p.providerKey ? getProviderRegionOptions(p.providerKey) : [];
-            const selectedRegion =
-              p.providerKey
-                ? (selectedRegions[p.providerKey] ?? getDefaultProviderRegion(p.providerKey))
-                : "";
+            const regionOptions = p.providerKey
+              ? getProviderRegionOptions(p.providerKey)
+              : [];
+            const selectedRegion = p.providerKey
+              ? (selectedRegions[p.providerKey] ??
+                getDefaultProviderRegion(p.providerKey))
+              : "";
 
             return (
               <div
@@ -116,7 +90,8 @@ export default function Providers({
                     <select
                       value={selectedRegion}
                       onChange={(event) =>
-                        p.providerKey && onRegionChange(p.providerKey, event.target.value)
+                        p.providerKey &&
+                        onRegionChange(p.providerKey, event.target.value)
                       }
                       className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                     >

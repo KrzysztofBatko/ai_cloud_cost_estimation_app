@@ -62,22 +62,31 @@ export default function CloudProviders() {
               key={p.id}
               className="flex items-center justify-between px-4 py-3 hover:bg-muted/30 transition-colors"
             >
-              <div className="flex items-center gap-3">
-                <span className="font-medium text-foreground">{p.name}</span>
-                <span
-                  className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                    p.isActive
-                      ? "bg-emerald-100 text-emerald-700"
-                      : "bg-muted text-muted-foreground"
-                  }`}
-                >
-                  {p.isActive ? "Active" : "Inactive"}
-                </span>
+              <div className="space-y-2">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-base font-semibold text-foreground">
+                    {p.name}
+                  </span>
+                  <span
+                    className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ${
+                      p.isActive
+                        ? "bg-emerald-100 text-emerald-700"
+                        : "bg-slate-100 text-slate-600"
+                    }`}
+                  >
+                    {p.isActive ? "Active" : "Inactive"}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  {p.isActive
+                    ? "Visible in the estimation experience"
+                    : "Hidden from active selection"}
+                </div>
               </div>
               <div className="flex items-center gap-2">
                 <Button
                   variant="outline"
-                  size="sm"
+                  size="xs"
                   onClick={() => setProviderActive(p.id, !p.isActive)}
                   disabled={loading}
                 >

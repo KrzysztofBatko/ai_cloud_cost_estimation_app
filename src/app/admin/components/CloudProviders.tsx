@@ -12,7 +12,10 @@ export default function CloudProviders() {
     fetchingProviders,
     addProvider,
     deleteProvider,
+    setProviderActive,
     setNewProvider,
+    providerError,
+    canBeDeactivated,
   } = useProviders();
 
   return (
@@ -21,6 +24,17 @@ export default function CloudProviders() {
         <CardTitle>Cloud Providers</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
+        {providerError && (
+          <div className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+            {providerError}
+            {canBeDeactivated && (
+              <div className="mt-2 text-sm text-muted-foreground">
+                You can deactivate the provider instead.
+              </div>
+            )}
+          </div>
+        )}
+
         <div className="flex gap-3">
           <Input
             placeholder="New provider name..."
@@ -48,15 +62,37 @@ export default function CloudProviders() {
               key={p.id}
               className="flex items-center justify-between px-4 py-3 hover:bg-muted/30 transition-colors"
             >
-              <span className="font-medium text-foreground">{p.name}</span>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => deleteProvider(p.id)}
-                className="text-destructive hover:text-destructive"
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
+              <div className="flex items-center gap-3">
+                <span className="font-medium text-foreground">{p.name}</span>
+                <span
+                  className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+                    p.isActive
+                      ? "bg-emerald-100 text-emerald-700"
+                      : "bg-muted text-muted-foreground"
+                  }`}
+                >
+                  {p.isActive ? "Active" : "Inactive"}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setProviderActive(p.id, !p.isActive)}
+                  disabled={loading}
+                >
+                  {p.isActive ? "Deactivate" : "Activate"}
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => deleteProvider(p.id)}
+                  className="text-destructive hover:text-destructive"
+                  disabled={loading}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
           ))}
           {fetchingProviders && (

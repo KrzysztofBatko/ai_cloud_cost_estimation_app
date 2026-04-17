@@ -3,21 +3,51 @@ import { authOptions } from "../auth/[...nextauth]/route";
 import { getServerSession, Session } from "next-auth";
 import { NextResponse } from "next/server";
 
-export async function GET() {
+type ProviderRow = {
+  id: string;
+  name: string;
+  is_active?: boolean;
+};
+
+function toProviderDto(provider: ProviderRow) {
+  return {
+    id: provider.id,
+    name: provider.name,
+    isActive: provider.is_active ?? false,
+  };
+}
+
+export async function GET(req: Request) {
   const session: Session | null = await getServerSession(authOptions);
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { data, error } = await supabase
+  const { searchParams } = new URL(req.url);
+  const includeInactive = searchParams.get("includeInactive") === "true";
+  const isAdmin =
+    session.user?.role === "admin" || session.user?.role === "superadmin";
+
+  let query = supabase
     .from("providers")
-    .select("id, name")
+    .select("id, name, is_active")
     .order("name", { ascending: true });
+
+  if (!includeInactive || !isAdmin) {
+    query = query.eq("is_active", true);
+  }
+
+  const { data, error } = await query;
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
-  return NextResponse.json({ data });
+
+  const mappedData = (data ?? []).map((provider) =>
+    toProviderDto(provider as ProviderRow),
+  );
+
+  return NextResponse.json({ data: mappedData });
 }
 
 export async function POST(req: Request) {
@@ -42,13 +72,16 @@ export async function POST(req: Request) {
 
   const { data, error } = await supabase
     .from("providers")
-    .insert({ name })
-    .select("id, name")
+    .insert({ name, is_active: true })
+    .select("id, name, is_active")
     .single();
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  return NextResponse.json({ data }, { status: 201 });
+  return NextResponse.json(
+    { data: data ? toProviderDto(data as ProviderRow) : null },
+    { status: 201 },
+  );
 }

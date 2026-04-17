@@ -1,0 +1,177 @@
+import { useSession } from "next-auth/react";
+import { useEffect, useState } from "react";
+
+type Provider = {
+  id: string;
+  name: string;
+  isActive: boolean;
+};
+
+export function useProviders() {
+  const { data: session } = useSession();
+  const [providers, setProviders] = useState<Provider[]>([]);
+  const [newProvider, setNewProvider] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [fetchingProviders, setFetchingProviders] = useState(false);
+  const [providerError, setProviderError] = useState<string | null>(null);
+  const [canBeDeactivated, setCanBeDeactivated] = useState(false);
+
+  const isAdmin =
+    session?.user?.role === "admin" || session?.user?.role === "superadmin";
+
+  useEffect(() => {
+    if (isAdmin) fetchProviders(true);
+  }, [isAdmin]);
+
+  const fetchProviders = async (isInitial?: boolean) => {
+    try {
+      setProviderError(null);
+      if (isInitial) setFetchingProviders(true);
+      const response = await fetch("/api/providers?includeInactive=true");
+      if (!response.ok) {
+        const errorBody = await response.json().catch(() => null);
+        throw new Error(
+          errorBody?.error || `HTTP error! status: ${response.status}`,
+        );
+      }
+
+      const result = await response.json();
+
+      if (result.data) {
+        setProviders(result.data);
+      }
+    } catch (error) {
+      console.error("Error fetching providers:", error);
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Could not fetch providers. Please try again.";
+      setProviderError(message);
+    } finally {
+      setFetchingProviders(false);
+    }
+  };
+
+  const addProvider = async () => {
+    if (!newProvider.trim()) return;
+
+    try {
+      setLoading(true);
+      const response = await fetch("/api/providers", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: newProvider.trim() }),
+      });
+
+      if (!response.ok) {
+        const errorBody = await response.json().catch(() => null);
+        throw new Error(
+          errorBody?.error || `HTTP error! status: ${response.status}`,
+        );
+      }
+
+      setNewProvider("");
+      await fetchProviders();
+    } catch (error) {
+      console.error("Error adding provider:", error);
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Could not add provider. Please try again.";
+      setProviderError(message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const setProviderActive = async (id: string, isActive: boolean) => {
+    try {
+      setProviderError(null);
+      setCanBeDeactivated(false);
+      setLoading(true);
+
+      const response = await fetch(`/api/providers/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isActive }),
+      });
+
+      if (!response.ok) {
+        const errorBody = await response.json().catch(() => null);
+        throw new Error(
+          errorBody?.error || `HTTP error! status: ${response.status}`,
+        );
+      }
+
+      const result = await response.json();
+      const updated = result?.data;
+
+      if (updated?.id) {
+        setProviders((prev) =>
+          prev.map((provider) =>
+            provider.id === updated.id
+              ? {
+                  ...provider,
+                  isActive: updated.isActive ?? isActive,
+                }
+              : provider,
+          ),
+        );
+      } else {
+        await fetchProviders();
+      }
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Could not update provider status.";
+      setProviderError(message);
+      console.error("Error updating provider status:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const deleteProvider = async (id: string) => {
+    try {
+      setProviderError(null);
+      setCanBeDeactivated(false);
+      setLoading(true);
+      const response = await fetch(`/api/providers/${id}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        const errorBody = await response.json().catch(() => null);
+        if (response.status === 409) setCanBeDeactivated(true);
+        throw new Error(
+          errorBody?.error || `HTTP error! status: ${response.status}`,
+        );
+      }
+
+      await fetchProviders();
+    } catch (error: unknown) {
+      setProviderError(
+        (error as { message: string })?.message ||
+          "An error occurred while deleting the provider.",
+      );
+      console.error("Error deleting provider:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return {
+    providers,
+    newProvider,
+    loading,
+    fetchingProviders,
+    fetchProviders,
+    addProvider,
+    deleteProvider,
+    setProviderActive,
+    setNewProvider,
+    providerError,
+    canBeDeactivated,
+  };
+}

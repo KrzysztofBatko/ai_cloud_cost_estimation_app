@@ -21,6 +21,7 @@ import responseCompareMock from "../../data/statisticsResponseCompare.json";
 import TopProviders from "@/app/admin/components/TopProviders";
 import ProviderCharts from "@/app/admin/components/ProviderCharts";
 import { format } from "date-fns";
+import { useProviders } from "@/app/admin/hooks/useProviders";
 
 interface SingleResponse {
   provider: string;
@@ -37,25 +38,19 @@ function formatDate(date: Date | null, mode: (typeof VIEW_MODES)[number]) {
     : format(date, "LLL yyyy");
 }
 
-interface Props {
-  providers: {
-    id: string;
-    name: string;
-  }[];
-}
+const currentDate = new Date();
+const currentMonth = new Date();
+const previousMonth = new Date(
+  currentMonth.getFullYear(),
+  currentMonth.getMonth() - 1,
+  1,
+);
 
-export default function EstimationDashboard({ providers }: Props) {
-  const currentMonth = new Date();
-  const previousMonth = new Date(
-    currentMonth.getFullYear(),
-    currentMonth.getMonth() - 1,
-    1,
-  );
-
+export default function EstimationDashboard() {
   const [mode, setMode] = useState<ChartMode>("single");
   const [singleValue, setSingleValue] = useState<MonthOrDayPickerValue>({
     mode: "months",
-    date: new Date(),
+    date: currentDate,
   });
   const [rangeValue, setRangeValue] = useState<RangeMonthOrDayPickerValue>({
     mode: "months",
@@ -65,6 +60,8 @@ export default function EstimationDashboard({ providers }: Props) {
 
   const [fetching, setFetching] = useState(false);
   const [responseSingle, setResponseSingle] = useState<SingleResponse[]>();
+
+  const { providers } = useProviders();
 
   async function getStatistics(singleValue: MonthOrDayPickerValue) {
     const date = format(

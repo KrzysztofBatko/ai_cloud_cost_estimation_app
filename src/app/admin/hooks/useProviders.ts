@@ -1,11 +1,6 @@
+import { Provider } from "@/types/api";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
-
-type Provider = {
-  id: string;
-  name: string;
-  isActive: boolean;
-};
 
 export function useProviders() {
   const { data: session } = useSession();

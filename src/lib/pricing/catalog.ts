@@ -1,44 +1,19 @@
-export type ProviderKey = "aws" | "azure" | "gcp" | "oracle";
-
-export type ProviderPricing = {
-  vmMonthly: {
-    small: number;
-    medium: number;
-    large: number;
-  };
-  loadBalancerMonthly: number;
-  outboundPerTbMonthly: number;
-  staticCdnMonthly: number;
-  ssrComputeMonthly: number;
-  managedDbMonthly: {
-    postgresql: number;
-    mysql: number;
-    other: number;
-  };
-  windowsLicenseMonthly: number;
-  msSqlLicenseMonthly: number;
-  opsOverheadMonthly: number;
-  pricingLinks: string[];
-};
-
-export type ProviderRegionOption = {
-  value: string;
-  label: string;
-};
-
-export type ProviderRegionCatalog = {
-  defaultRegion: string;
-  regions: Record<string, { label: string; pricing: ProviderPricing }>;
-};
-
-export type LegacyPricingCatalog = Record<ProviderKey, ProviderPricing>;
-export type PricingCatalog = Record<ProviderKey, ProviderRegionCatalog>;
-export type StoredPricingCatalog = PricingCatalog | LegacyPricingCatalog;
+import {
+  PricingCatalog,
+  ProviderKey,
+  ProviderPricing,
+  ProviderRegionCatalog,
+  ProviderRegionOption,
+  StoredPricingCatalog,
+} from "@/types/api";
 
 export const DEFAULT_SNAPSHOT_REGION = "MULTI-REGION";
 export const DEFAULT_CATALOG_AS_OF = "2026-03-30";
 
-export const PROVIDER_REGION_OPTIONS: Record<ProviderKey, ProviderRegionOption[]> = {
+export const PROVIDER_REGION_OPTIONS: Record<
+  ProviderKey,
+  ProviderRegionOption[]
+> = {
   aws: [
     { value: "eu-west-1", label: "Europe (Ireland)" },
     { value: "eu-central-1", label: "Europe (Frankfurt)" },
@@ -73,12 +48,13 @@ export const PROVIDER_REGION_OPTIONS: Record<ProviderKey, ProviderRegionOption[]
   ],
 };
 
-export const DEFAULT_PROVIDER_REGION_BY_PROVIDER: Record<ProviderKey, string> = {
-  aws: "eu-west-1",
-  azure: "westeurope",
-  gcp: "europe-west1",
-  oracle: "eu-frankfurt-1",
-};
+export const DEFAULT_PROVIDER_REGION_BY_PROVIDER: Record<ProviderKey, string> =
+  {
+    aws: "eu-west-1",
+    azure: "westeurope",
+    gcp: "europe-west1",
+    oracle: "eu-frankfurt-1",
+  };
 
 const AWS_LINKS = [
   "https://aws.amazon.com/pricing/",
@@ -496,7 +472,9 @@ function isProviderPricing(value: unknown): value is ProviderPricing {
   return !!candidate.vmMonthly && Array.isArray(candidate.pricingLinks);
 }
 
-function isProviderRegionCatalog(value: unknown): value is ProviderRegionCatalog {
+function isProviderRegionCatalog(
+  value: unknown,
+): value is ProviderRegionCatalog {
   if (!value || typeof value !== "object") {
     return false;
   }
@@ -509,10 +487,14 @@ export function getDefaultProviderRegion(providerKey: ProviderKey) {
   return DEFAULT_PROVIDER_REGION_BY_PROVIDER[providerKey];
 }
 
-export function getProviderRegionLabel(providerKey: ProviderKey, region: string) {
+export function getProviderRegionLabel(
+  providerKey: ProviderKey,
+  region: string,
+) {
   return (
-    PROVIDER_REGION_OPTIONS[providerKey].find((option) => option.value === region)?.label ??
-    region
+    PROVIDER_REGION_OPTIONS[providerKey].find(
+      (option) => option.value === region,
+    )?.label ?? region
   );
 }
 
@@ -541,8 +523,9 @@ export function resolveProviderPricing(
   }
 
   const region =
-    (requestedRegion && entry.regions[requestedRegion] ? requestedRegion : undefined) ??
-    entry.defaultRegion;
+    (requestedRegion && entry.regions[requestedRegion]
+      ? requestedRegion
+      : undefined) ?? entry.defaultRegion;
   const regionEntry = entry.regions[region];
 
   if (!regionEntry) {
@@ -557,7 +540,12 @@ export function resolveProviderPricing(
 }
 
 export function isProviderKey(value: string): value is ProviderKey {
-  return value === "aws" || value === "azure" || value === "gcp" || value === "oracle";
+  return (
+    value === "aws" ||
+    value === "azure" ||
+    value === "gcp" ||
+    value === "oracle"
+  );
 }
 
 export function normalizeProviderKey(providerName: string): ProviderKey | null {

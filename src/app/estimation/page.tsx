@@ -4,18 +4,30 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, RefreshCw, RotateCcw, Send, Printer, Mail } from "lucide-react";
+import {
+  Loader2,
+  RefreshCw,
+  RotateCcw,
+  Send,
+  Printer,
+  Mail,
+} from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Usage from "@/app/estimation/components/Usage";
 import Results from "@/app/estimation/components/Result";
 import Providers, { Provider } from "@/app/estimation/components/Providers";
 import { useStatistics } from "@/app/estimation/hooks/useStatistics";
 import { useSendToAI } from "@/app/estimation/hooks/useSendToAi";
-import { getDefaultProviderRegion, type ProviderKey } from "@/lib/pricing/catalog";
+import {
+  getDefaultProviderRegion,
+  type ProviderKey,
+} from "@/lib/pricing/catalog";
 
 export default function EstimationPage() {
   const [selectedProviders, setSelectedProviders] = useState<Provider[]>([]);
-  const [providerRegions, setProviderRegions] = useState<Record<string, string>>({});
+  const [providerRegions, setProviderRegions] = useState<
+    Record<string, string>
+  >({});
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [notes, setNotes] = useState("");
 
@@ -42,7 +54,8 @@ export default function EstimationPage() {
         return {
           ...current,
           [provider.providerKey]:
-            current[provider.providerKey] ?? getDefaultProviderRegion(provider.providerKey),
+            current[provider.providerKey] ??
+            getDefaultProviderRegion(provider.providerKey),
         };
       });
 
@@ -52,7 +65,10 @@ export default function EstimationPage() {
     });
   };
 
-  const handleProviderRegionChange = (providerKey: ProviderKey, region: string) => {
+  const handleProviderRegionChange = (
+    providerKey: ProviderKey,
+    region: string,
+  ) => {
     setProviderRegions((prev) => ({ ...prev, [providerKey]: region }));
   };
 
@@ -106,7 +122,9 @@ export default function EstimationPage() {
       if (est.breakdown.length) {
         lines.push("  Breakdown:");
         est.breakdown.forEach((b) =>
-          lines.push(`    • ${b.item}: ${b.monthly} ${est.currency} (${b.notes})`),
+          lines.push(
+            `    • ${b.item}: ${b.monthly} ${est.currency} (${b.notes})`,
+          ),
         );
       }
 
@@ -154,7 +172,7 @@ export default function EstimationPage() {
           <Usage answers={answers} setAnswers={setAnswers} />
 
           {/* Section 3 - Notes */}
-          <Card className="shadow-card">
+          <Card className="shadow-card gap-2">
             <CardHeader>
               <CardTitle>3. Custom Infrastructure Notes</CardTitle>
             </CardHeader>
@@ -211,10 +229,18 @@ export default function EstimationPage() {
 
                 {/* Section 6 - Actions */}
                 <div className="mt-6 flex justify-center gap-4">
-                  <Button variant="outline" onClick={handlePrint} disabled={!results}>
+                  <Button
+                    variant="outline"
+                    onClick={handlePrint}
+                    disabled={!results}
+                  >
                     <Printer className="mr-2 h-4 w-4" /> Export PDF
                   </Button>
-                  <Button variant="outline" onClick={handleEmail} disabled={!results}>
+                  <Button
+                    variant="outline"
+                    onClick={handleEmail}
+                    disabled={!results}
+                  >
                     <Mail className="mr-2 h-4 w-4" /> Email me
                   </Button>
                   <Button
@@ -251,9 +277,18 @@ export default function EstimationPage() {
             © 2026 Cloud Cost Estimation. All rights reserved.
           </p>
           <div className="flex justify-center gap-6 text-sm">
-            <a href="#" className="text-primary hover:underline">Privacy Policy</a>
-            <a href="#" className="text-primary hover:underline">Terms of Service</a>
-            <a href="mailto:support@cloudcost.com" className="text-primary hover:underline">Contact Support</a>
+            <a href="#" className="text-primary hover:underline">
+              Privacy Policy
+            </a>
+            <a href="#" className="text-primary hover:underline">
+              Terms of Service
+            </a>
+            <a
+              href="mailto:support@cloudcost.com"
+              className="text-primary hover:underline"
+            >
+              Contact Support
+            </a>
           </div>
         </div>
       </footer>

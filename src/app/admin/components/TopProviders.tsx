@@ -71,7 +71,7 @@ export default function TopProviders({ mode, statistics }: Props) {
         </CardHeader>
         <CardContent>
           {statistics.length === 0 ? (
-            <div className="text-xs">
+            <div className="text-xs text-muted-foreground">
               No data available for the selected period.
             </div>
           ) : (

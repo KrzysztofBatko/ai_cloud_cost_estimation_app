@@ -18,10 +18,7 @@ export default function PricingSnapshot() {
   return (
     <Card className="shadow-card mt-8">
       <CardHeader className="flex flex-row items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <Database className="h-5 w-5 text-accent" />
-          <CardTitle>Pricing Snapshot</CardTitle>
-        </div>
+        <CardTitle>Pricing Snapshot</CardTitle>
         <div className="flex gap-2">
           <Button
             variant="outline"

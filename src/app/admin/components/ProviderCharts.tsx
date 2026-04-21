@@ -297,13 +297,22 @@ const ProviderCharts = ({
           </Tabs>
         )}
       </CardHeader>
-      <CardContent>
-        {mode === "single"
-          ? chartType === "bar"
-            ? renderSingleBar()
-            : renderSinglePie()
-          : renderCompareBar()}
-      </CardContent>
+      {singleData.length === 0 && (
+        <CardContent>
+          <p className="text-sm text-muted-foreground">
+            No data available for the selected period.
+          </p>
+        </CardContent>
+      )}
+      {singleData.length !== 0 && (
+        <CardContent>
+          {mode === "single"
+            ? chartType === "bar"
+              ? renderSingleBar()
+              : renderSinglePie()
+            : renderCompareBar()}
+        </CardContent>
+      )}
     </Card>
   );
 };

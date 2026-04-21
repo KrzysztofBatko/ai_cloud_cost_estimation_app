@@ -49,7 +49,7 @@ export default function Providers({
   return (
     <Card className="shadow-card gap-3">
       <CardHeader>
-        <CardTitle className="text-lg">1. Cloud Providers</CardTitle>
+        <CardTitle>1. Cloud Providers</CardTitle>
       </CardHeader>
       <CardContent className="flex flex-wrap gap-4">
         {loading ? (

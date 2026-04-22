@@ -483,21 +483,6 @@ function isProviderRegionCatalog(
   return typeof candidate.defaultRegion === "string" && !!candidate.regions;
 }
 
-export function getDefaultProviderRegion(providerKey: ProviderKey) {
-  return DEFAULT_PROVIDER_REGION_BY_PROVIDER[providerKey];
-}
-
-export function getProviderRegionLabel(
-  providerKey: ProviderKey,
-  region: string,
-) {
-  return (
-    PROVIDER_REGION_OPTIONS[providerKey].find(
-      (option) => option.value === region,
-    )?.label ?? region
-  );
-}
-
 export function getProviderRegionOptions(providerKey: ProviderKey) {
   return PROVIDER_REGION_OPTIONS[providerKey];
 }
@@ -510,11 +495,14 @@ export function resolveProviderPricing(
   const entry = catalog[providerKey];
 
   if (isProviderPricing(entry)) {
-    const fallbackRegion = getDefaultProviderRegion(providerKey);
+    const fallbackRegion = DEFAULT_PROVIDER_REGION_BY_PROVIDER[providerKey];
     return {
       pricing: entry,
       region: fallbackRegion,
-      regionLabel: getProviderRegionLabel(providerKey, fallbackRegion),
+      regionLabel:
+        PROVIDER_REGION_OPTIONS[providerKey].find(
+          (option) => option.value === fallbackRegion,
+        )?.label ?? fallbackRegion,
     };
   }
 

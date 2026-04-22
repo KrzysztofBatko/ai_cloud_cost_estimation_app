@@ -4,18 +4,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Cloud, Globe, Database, Triangle, Loader2 } from "lucide-react";
 import { useEffect } from "react";
-import {
-  getDefaultProviderRegion,
-  getProviderRegionOptions,
-  type ProviderKey,
-} from "@/lib/pricing/catalog";
 import { useActiveProviders } from "@/app/estimation/hooks/useActiveProviders";
+import { ProviderKey, ProviderRegion } from "@/types/api";
 
 export interface Provider {
   id: string;
   name: string;
   providerKey: ProviderKey | null;
   icon: React.ReactNode;
+  defaultRegion: string | null;
+  regions: ProviderRegion[];
 }
 
 interface Props {
@@ -43,8 +41,8 @@ export default function Providers({
   const { providers, loading, fetchProviders } = useActiveProviders();
 
   useEffect(() => {
-    fetchProviders(iconMap);
-  }, []);
+    void fetchProviders(iconMap);
+  }, [fetchProviders]);
 
   return (
     <Card className="shadow-card gap-3">
@@ -60,11 +58,13 @@ export default function Providers({
           providers.map((p) => {
             const isSelected = selectedProviders.some((sp) => sp.id === p.id);
             const regionOptions = p.providerKey
-              ? getProviderRegionOptions(p.providerKey)
+              ? p.regions.map((region) => ({
+                  value: region.value,
+                  label: region.label,
+                }))
               : [];
             const selectedRegion = p.providerKey
-              ? (selectedRegions[p.providerKey] ??
-                getDefaultProviderRegion(p.providerKey))
+              ? (selectedRegions[p.providerKey] ?? p.defaultRegion)
               : "";
 
             return (

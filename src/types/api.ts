@@ -28,9 +28,18 @@ export type Provider = {
   id: string;
   name: string;
   isActive: boolean;
+  defaultRegion?: string | null;
+  regions?: ProviderRegion[];
 };
 
 export type ProviderKey = "aws" | "azure" | "gcp" | "oracle";
+
+export type ProviderRegion = {
+  id: string;
+  value: string;
+  label: string;
+  isDefault: boolean;
+};
 
 export type ProviderPricing = {
   vmMonthly: {
@@ -52,6 +61,7 @@ export type ProviderPricing = {
   opsOverheadMonthly: number;
   pricingLinks: string[];
 };
+
 export type ProviderRegionOption = {
   value: string;
   label: string;

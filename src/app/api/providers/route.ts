@@ -1,24 +1,61 @@
 import { supabase } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
-import { Provider } from "@/types/api";
+import {
+  attachProviderRegions,
+  toProviderDto,
+  type ProviderRegionRow,
+  type ProviderRow,
+  type ProviderWithRegionRows,
+} from "@/lib/providers/regions";
 import {
   commonErrorResponse,
   isAdmin,
   requireSession,
 } from "@/lib/api/apiAuth";
 
-export type ProviderRow = {
-  id: string;
-  name: string;
-  is_active?: boolean;
-};
+async function loadProvidersWithRegions(input?: {
+  providerId?: string;
+  includeInactive?: boolean;
+}) {
+  let providersQuery = supabase
+    .from("providers")
+    .select("id, name, is_active")
+    .order("name", { ascending: true });
 
-export function toProviderDto(provider: ProviderRow): Provider {
-  return {
-    id: provider.id,
-    name: provider.name,
-    isActive: provider.is_active ?? false,
-  };
+  if (!input?.includeInactive) {
+    providersQuery = providersQuery.eq("is_active", true);
+  }
+
+  if (input?.providerId) {
+    providersQuery = providersQuery.eq("id", input.providerId);
+  }
+
+  const { data: providers, error: providersError } = await providersQuery;
+
+  if (providersError) {
+    throw providersError;
+  }
+
+  const providerRows = (providers ?? []) as ProviderRow[];
+
+  if (providerRows.length === 0) {
+    return [];
+  }
+
+  const providerIds = providerRows.map((provider) => provider.id);
+  const { data: regions, error: regionsError } = await supabase
+    .from("provider_regions")
+    .select("id, provider_id, value, label, is_default")
+    .in("provider_id", providerIds);
+
+  if (regionsError) {
+    throw regionsError;
+  }
+
+  return attachProviderRegions(
+    providerRows,
+    (regions ?? []) as ProviderRegionRow[],
+  );
 }
 
 export async function GET(req: Request) {
@@ -31,26 +68,15 @@ export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const includeInactive = searchParams.get("includeInactive") === "true";
 
-  let query = supabase
-    .from("providers")
-    .select("id, name, is_active")
-    .order("name", { ascending: true });
-
-  if (!includeInactive || !isAdmin(auth.session)) {
-    query = query.eq("is_active", true);
-  }
-
   try {
-    const { data, error } = await query;
-
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
+    const data = await loadProvidersWithRegions({
+      includeInactive: includeInactive && isAdmin(auth.session),
+    });
 
     return NextResponse.json(
       {
         data: (data ?? []).map((provider) =>
-          toProviderDto(provider as ProviderRow),
+          toProviderDto(provider as ProviderWithRegionRows),
         ),
       },
       { status: 200 },
@@ -86,7 +112,12 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json(
-      { data: data ? toProviderDto(data as ProviderRow) : null },
+      {
+        data: toProviderDto({
+          ...(data as ProviderRow),
+          provider_regions: [],
+        }),
+      },
       { status: 201 },
     );
   } catch (error: unknown) {

@@ -4,7 +4,7 @@ import { Shield, CheckCircle2 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import EstimationDashboard from "@/app/admin/components/EstimationDashboard";
-import CloudProviders from "@/app/admin/components/CloudProviders";
+import CloudProvidersList from "@/app/admin/components/CloudProvidersList";
 import UserManagement from "@/app/admin/components/UserManagement";
 import PricingSnapshot from "@/app/admin/components/PricingSnapshot";
 
@@ -43,7 +43,7 @@ export default function Admin() {
           />
         </div>
 
-        <CloudProviders />
+        <CloudProvidersList />
         <PricingSnapshot />
 
         {isSuperAdmin && <UserManagement />}

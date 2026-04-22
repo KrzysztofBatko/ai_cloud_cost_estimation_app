@@ -1,6 +1,11 @@
 import { supabase } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
-import { ProviderRow, toProviderDto } from "@/app/api/providers/route";
+import {
+  attachProviderRegions,
+  toProviderDto,
+  type ProviderRegionRow,
+  type ProviderRow,
+} from "@/lib/providers/regions";
 import { commonErrorResponse, requireSession } from "@/lib/api/apiAuth";
 
 export async function DELETE(
@@ -86,8 +91,22 @@ export async function PATCH(
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
+    const { data: regions, error: regionsError } = await supabase
+      .from("provider_regions")
+      .select("id, provider_id, value, label, is_default")
+      .eq("provider_id", id);
+
+    if (regionsError) {
+      return NextResponse.json({ error: regionsError.message }, { status: 500 });
+    }
+
+    const [providerWithRegions] = attachProviderRegions(
+      [data as ProviderRow],
+      (regions ?? []) as ProviderRegionRow[],
+    );
+
     return NextResponse.json({
-      data: data ? toProviderDto(data as ProviderRow) : null,
+      data: providerWithRegions ? toProviderDto(providerWithRegions) : null,
     });
   } catch (error: unknown) {
     return commonErrorResponse(error);

@@ -18,10 +18,7 @@ import Results from "@/app/estimation/components/Result";
 import Providers, { Provider } from "@/app/estimation/components/Providers";
 import { useStatistics } from "@/app/estimation/hooks/useStatistics";
 import { useSendToAI } from "@/app/estimation/hooks/useSendToAi";
-import {
-  getDefaultProviderRegion,
-  type ProviderKey,
-} from "@/lib/pricing/catalog";
+import { ProviderKey } from "@/types/api";
 
 export default function EstimationPage() {
   const [selectedProviders, setSelectedProviders] = useState<Provider[]>([]);
@@ -54,8 +51,7 @@ export default function EstimationPage() {
         return {
           ...current,
           [provider.providerKey]:
-            current[provider.providerKey] ??
-            getDefaultProviderRegion(provider.providerKey),
+            current[provider.providerKey] ?? provider.defaultRegion,
         };
       });
 

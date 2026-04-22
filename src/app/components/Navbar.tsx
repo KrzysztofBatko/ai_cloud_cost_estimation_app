@@ -11,6 +11,7 @@ export default function Navbar() {
   const pathname = usePathname();
   const isAuthRoute = pathname?.startsWith("/auth");
   const isAdminActive = pathname === "/admin";
+  const isStatisticsActive = pathname === "/statistics";
   const isEstimationActive = pathname?.startsWith("/estimation");
 
   const isAdmin =
@@ -38,6 +39,16 @@ export default function Navbar() {
               <Link href="/admin">
                 <Button variant={isAdminActive ? "outline" : "ghost"} size="sm">
                   Admin
+                </Button>
+              </Link>
+            )}
+            {isAdmin && session?.user && (
+              <Link href="/statistics">
+                <Button
+                  variant={isStatisticsActive ? "outline" : "ghost"}
+                  size="sm"
+                >
+                  Statistics
                 </Button>
               </Link>
             )}

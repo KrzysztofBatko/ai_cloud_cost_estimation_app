@@ -2,6 +2,7 @@ import { supabase } from "@/lib/supabase/server";
 import { authOptions } from "../auth/[...nextauth]/route";
 import { Session, getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
+import { requireSession } from "@/lib/api/apiAuth";
 
 type Body = {
   providerIds: string[];
@@ -53,10 +54,11 @@ function getRangeFromQuery(day: string | null, month: string | null) {
 }
 
 export async function GET(req: Request) {
-  const session: Session | null = await getServerSession(authOptions);
-  if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const auth = await requireSession({
+    allowedRoles: ["superadmin", "admin"],
+    forbiddenMessage: "Only admins can perform this action ",
+  });
+  if (auth.response) return auth.response;
 
   const { searchParams } = new URL(req.url);
   const day = searchParams.get("day");

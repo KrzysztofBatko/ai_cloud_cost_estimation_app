@@ -85,3 +85,8 @@ export type PricingSnapshot = {
   createdAt: string;
   createdBy: string | null;
 };
+
+export type SingleStatistics = {
+  provider: string;
+  count: number;
+};

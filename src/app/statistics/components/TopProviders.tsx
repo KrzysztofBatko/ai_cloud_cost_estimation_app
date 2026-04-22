@@ -1,8 +1,11 @@
-import { DEFAULT_COLOR, PROVIDER_HEX } from "@/app/admin/components/Legend";
+import {
+  DEFAULT_COLOR,
+  PROVIDER_HEX,
+} from "@/app/statistics/components/Legend";
 import {
   StatisticsCompare,
   StatisticsSingle,
-} from "@/app/admin/components/SummaryTable";
+} from "@/app/statistics/components/SummaryTable";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 function Stats({ stats, max }: { stats: StatisticsSingle[]; max: number }) {

@@ -47,7 +47,8 @@ export default function UsageModern({ answers, setAnswers }: Props) {
   const [open, setOpen] = useState(true);
 
   const visibleQuestions = useMemo(
-    () => usageQuestions.filter((question) => isQuestionVisible(question, answers)),
+    () =>
+      usageQuestions.filter((question) => isQuestionVisible(question, answers)),
     [answers],
   );
 
@@ -132,7 +133,7 @@ export default function UsageModern({ answers, setAnswers }: Props) {
         <CardHeader className="gap-4">
           <div className="flex items-start justify-between gap-4">
             <div className="space-y-1">
-              <CardTitle className="text-lg">2. Usage</CardTitle>
+              <CardTitle>2. Usage</CardTitle>
               <CardDescription>
                 If it&apos;s not applicable, leave the question unanswered. The
                 more you answer, the better the estimate!
@@ -187,7 +188,8 @@ export default function UsageModern({ answers, setAnswers }: Props) {
               const answeredInGroup = g.items.reduce(
                 (acc, q) =>
                   acc +
-                  (answers[q.id] && getQuestionOptions(q, answers).includes(answers[q.id])
+                  (answers[q.id] &&
+                  getQuestionOptions(q, answers).includes(answers[q.id])
                     ? 1
                     : 0),
                 0,

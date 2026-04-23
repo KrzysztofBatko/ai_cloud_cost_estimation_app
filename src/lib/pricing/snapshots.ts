@@ -3,8 +3,8 @@ import {
   DEFAULT_CATALOG_AS_OF,
   DEFAULT_PRICING_CATALOG,
   DEFAULT_SNAPSHOT_REGION,
-  type StoredPricingCatalog,
 } from "@/lib/pricing/catalog";
+import { PricingSnapshot, StoredPricingCatalog } from "@/types/api";
 
 type PricingSnapshotRow = {
   id: string;
@@ -15,17 +15,6 @@ type PricingSnapshotRow = {
   notes: string | null;
   created_at: string;
   created_by: string | null;
-};
-
-export type PricingSnapshot = {
-  id: string;
-  region: string;
-  pricingAsOf: string;
-  source: string;
-  catalog: StoredPricingCatalog;
-  notes: string | null;
-  createdAt: string;
-  createdBy: string | null;
 };
 
 function mapSnapshotRow(row: PricingSnapshotRow): PricingSnapshot {
@@ -54,10 +43,14 @@ export function getDefaultPricingSnapshot(): PricingSnapshot {
   };
 }
 
-export async function getLatestPricingSnapshot(region = DEFAULT_SNAPSHOT_REGION) {
+export async function getLatestPricingSnapshot(
+  region = DEFAULT_SNAPSHOT_REGION,
+) {
   const { data, error } = await supabase
     .from("pricing_snapshots")
-    .select("id, region, pricing_as_of, source, catalog, notes, created_at, created_by")
+    .select(
+      "id, region, pricing_as_of, source, catalog, notes, created_at, created_by",
+    )
     .eq("region", region)
     .order("created_at", { ascending: false })
     .limit(1)
@@ -88,7 +81,9 @@ export async function createPricingSnapshot(input: {
       notes: input.notes ?? null,
       created_by: input.createdBy ?? null,
     })
-    .select("id, region, pricing_as_of, source, catalog, notes, created_at, created_by")
+    .select(
+      "id, region, pricing_as_of, source, catalog, notes, created_at, created_by",
+    )
     .single();
 
   if (error) {

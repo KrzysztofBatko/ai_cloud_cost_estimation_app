@@ -12,7 +12,10 @@ import {
   Pie,
   ResponsiveContainer,
 } from "recharts";
-import { DEFAULT_COLOR, PROVIDER_HEX } from "@/app/admin/components/Legend";
+import {
+  DEFAULT_COLOR,
+  PROVIDER_HEX,
+} from "@/app/statistics/components/Legend";
 
 interface SingleData {
   provider: string;
@@ -297,13 +300,22 @@ const ProviderCharts = ({
           </Tabs>
         )}
       </CardHeader>
-      <CardContent>
-        {mode === "single"
-          ? chartType === "bar"
-            ? renderSingleBar()
-            : renderSinglePie()
-          : renderCompareBar()}
-      </CardContent>
+      {singleData.length === 0 && (
+        <CardContent>
+          <p className="text-sm text-muted-foreground">
+            No data available for the selected period.
+          </p>
+        </CardContent>
+      )}
+      {singleData.length !== 0 && (
+        <CardContent>
+          {mode === "single"
+            ? chartType === "bar"
+              ? renderSingleBar()
+              : renderSinglePie()
+            : renderCompareBar()}
+        </CardContent>
+      )}
     </Card>
   );
 };

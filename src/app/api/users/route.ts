@@ -1,49 +1,59 @@
 import { supabase } from "@/lib/supabase/server";
-import { authOptions } from "../auth/[...nextauth]/route";
-import { getServerSession, Session } from "next-auth";
 import { NextResponse } from "next/server";
+import { hasAllowedRole, ROLES, User, Role } from "@/types/api";
+import { commonErrorResponse, requireSession } from "@/lib/api/apiAuth";
 
-export async function GET() {
-  const session: Session | null = await getServerSession(authOptions);
-  if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+type UserRow = {
+  email: string;
+  name: string;
+  role: string;
+};
 
-  if (session.user?.role !== "superadmin") {
-    return NextResponse.json(
-      { error: "Only superadmins can perform this action" },
-      { status: 401 },
-    );
-  }
-
-  const { data, error } = await supabase
-    .from("users")
-    .select("email, name, role")
-    .order("name", { ascending: true });
-
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
-  return NextResponse.json({ data });
+function toUserDto(user: UserRow): User {
+  return {
+    email: user.email,
+    name: user.name,
+    role: user.role as Role,
+  };
 }
 
-export async function POST(req: Request) {
-  const session: Session | null = await getServerSession(authOptions);
-  if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+export async function GET() {
+  const auth = await requireSession({
+    allowedRoles: ["superadmin"],
+    forbiddenMessage: "Only superadmins can perform this action ",
+  });
 
-  if (session.user?.role !== "superadmin") {
+  if (auth.response) return auth.response;
+
+  try {
+    const { data, error } = await supabase
+      .from("users")
+      .select("email, name, role")
+      .order("name", { ascending: true });
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
     return NextResponse.json(
-      { error: "Only superadmins can perform this action" },
-      { status: 401 },
+      { data: (data ?? []).map((user) => toUserDto(user)) },
+      { status: 200 },
     );
+  } catch (error: unknown) {
+    return commonErrorResponse(error);
   }
+}
+
+export async function PUT(req: Request) {
+  const auth = await requireSession({
+    allowedRoles: ["superadmin"],
+    forbiddenMessage: "Only superadmins can perform this action ",
+  });
+
+  if (auth.response) return auth.response;
 
   const body = await req.json().catch(() => null);
   const emailRaw = body?.email?.trim();
   const role = body?.role?.trim();
-  const allowedRoles = ["admin", "user", "superadmin"];
 
   if (!emailRaw) {
     return NextResponse.json(
@@ -53,7 +63,7 @@ export async function POST(req: Request) {
   }
 
   const email = emailRaw.toLowerCase();
-  const requesterEmail = session.user?.email?.toLowerCase();
+  const requesterEmail = auth.session.user?.email?.toLowerCase();
 
   if (requesterEmail && email === requesterEmail) {
     return NextResponse.json(
@@ -62,29 +72,35 @@ export async function POST(req: Request) {
     );
   }
 
-  if (!role || !allowedRoles.includes(role)) {
+  if (!hasAllowedRole(role)) {
     return NextResponse.json(
-      { error: "Role must be either 'admin', 'user', or 'superadmin'" },
+      { error: `Role must be one of: ${ROLES.join(", ")}` },
       { status: 400 },
     );
   }
+  try {
+    const { data, error } = await supabase
+      .from("users")
+      .update({ role, updated_at: new Date().toISOString() })
+      .eq("email", email)
+      .select("email, name, role")
+      .single();
 
-  const { data, error } = await supabase
-    .from("users")
-    .update({ role, updated_at: new Date().toISOString() })
-    .eq("email", email)
-    .select("email, name, role")
-    .single();
-
-  if (error) {
-    if (error.code === "PGRST116") {
-      return NextResponse.json(
-        { error: "User not found for the provided email" },
-        { status: 404 },
-      );
+    if (error) {
+      if (error.code === "PGRST116") {
+        return NextResponse.json(
+          { error: "User not found for the provided email" },
+          { status: 404 },
+        );
+      }
+      return NextResponse.json({ error: error.message }, { status: 500 });
     }
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
 
-  return NextResponse.json({ data }, { status: 200 });
+    return NextResponse.json(
+      { data: data ? toUserDto(data as UserRow) : null },
+      { status: 200 },
+    );
+  } catch (error: unknown) {
+    return commonErrorResponse(error);
+  }
 }

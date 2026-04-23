@@ -1,14 +1,12 @@
 import {
   normalizeProviderKey,
   resolveProviderPricing,
-  type ProviderKey,
-  type ProviderPricing,
 } from "@/lib/pricing/catalog";
 import {
   getDefaultPricingSnapshot,
   getLatestPricingSnapshot,
-  type PricingSnapshot,
 } from "@/lib/pricing/snapshots";
+import { PricingSnapshot, ProviderKey, ProviderPricing } from "@/types/api";
 
 type UsageAnswers = Record<string, string>;
 
@@ -100,10 +98,31 @@ const MANAGED_ORACLE_DB_SERVICE_NAME: Record<ProviderKey, string> = {
 };
 
 const MANAGED_ORACLE_DB_AVAILABILITY: Record<ProviderKey, string[]> = {
-  aws: ["eu-west-1", "eu-central-1", "us-east-1", "us-west-2", "ap-southeast-1", "ap-northeast-1"],
-  azure: ["westeurope", "northeurope", "eastus", "westus3", "southeastasia", "japaneast"],
+  aws: [
+    "eu-west-1",
+    "eu-central-1",
+    "us-east-1",
+    "us-west-2",
+    "ap-southeast-1",
+    "ap-northeast-1",
+  ],
+  azure: [
+    "westeurope",
+    "northeurope",
+    "eastus",
+    "westus3",
+    "southeastasia",
+    "japaneast",
+  ],
   gcp: [],
-  oracle: ["eu-frankfurt-1", "eu-amsterdam-1", "us-ashburn-1", "us-phoenix-1", "ap-singapore-1", "ap-tokyo-1"],
+  oracle: [
+    "eu-frankfurt-1",
+    "eu-amsterdam-1",
+    "us-ashburn-1",
+    "us-phoenix-1",
+    "ap-singapore-1",
+    "ap-tokyo-1",
+  ],
 };
 
 const MANAGED_ORACLE_DB_COST_MULTIPLIER: Record<ProviderKey, number> = {
@@ -114,9 +133,30 @@ const MANAGED_ORACLE_DB_COST_MULTIPLIER: Record<ProviderKey, number> = {
 };
 
 const MANAGED_APP_PLATFORM_AVAILABILITY: Record<ProviderKey, string[]> = {
-  aws: ["eu-west-1", "eu-central-1", "us-east-1", "us-west-2", "ap-southeast-1", "ap-northeast-1"],
-  azure: ["westeurope", "northeurope", "eastus", "westus3", "southeastasia", "japaneast"],
-  gcp: ["europe-west1", "europe-west3", "us-east1", "us-west1", "asia-southeast1", "asia-northeast1"],
+  aws: [
+    "eu-west-1",
+    "eu-central-1",
+    "us-east-1",
+    "us-west-2",
+    "ap-southeast-1",
+    "ap-northeast-1",
+  ],
+  azure: [
+    "westeurope",
+    "northeurope",
+    "eastus",
+    "westus3",
+    "southeastasia",
+    "japaneast",
+  ],
+  gcp: [
+    "europe-west1",
+    "europe-west3",
+    "us-east1",
+    "us-west1",
+    "asia-southeast1",
+    "asia-northeast1",
+  ],
   oracle: [],
 };
 
@@ -138,14 +178,29 @@ const MANAGED_GENERIC_DB_AVAILABILITY: Record<ProviderKey, string[]> = {
   aws: MANAGED_APP_PLATFORM_AVAILABILITY.aws,
   azure: MANAGED_APP_PLATFORM_AVAILABILITY.azure,
   gcp: MANAGED_APP_PLATFORM_AVAILABILITY.gcp,
-  oracle: ["eu-frankfurt-1", "eu-amsterdam-1", "us-ashburn-1", "us-phoenix-1", "ap-singapore-1", "ap-tokyo-1"],
+  oracle: [
+    "eu-frankfurt-1",
+    "eu-amsterdam-1",
+    "us-ashburn-1",
+    "us-phoenix-1",
+    "ap-singapore-1",
+    "ap-tokyo-1",
+  ],
 };
 
-function isAvailable(availability: Record<ProviderKey, string[]>, providerKey: ProviderKey, region: string) {
+function isAvailable(
+  availability: Record<ProviderKey, string[]>,
+  providerKey: ProviderKey,
+  region: string,
+) {
   return availability[providerKey].includes(region);
 }
 
-function optionScore(monthly: number, opsComplexity: number, pricing: ProviderPricing) {
+function optionScore(
+  monthly: number,
+  opsComplexity: number,
+  pricing: ProviderPricing,
+) {
   return round2(monthly + opsComplexity * pricing.opsOverheadMonthly * 0.5);
 }
 
@@ -173,7 +228,11 @@ function selectMostOptimalOption(input: {
   const selected = ranked[0];
   const comparison = ranked
     .map((option) => {
-      const score = optionScore(option.monthly, option.opsComplexity, input.pricing);
+      const score = optionScore(
+        option.monthly,
+        option.opsComplexity,
+        input.pricing,
+      );
       return `${option.label}: ${round2(option.monthly)} USD (score ${score})`;
     })
     .join("; ");
@@ -199,14 +258,21 @@ function getManagedMsSqlMonthly(
   pricing: ProviderPricing,
   dbHa: boolean,
 ) {
-  const base = pricing.managedDbMonthly.other * MANAGED_MS_SQL_COST_MULTIPLIER[providerKey];
+  const base =
+    pricing.managedDbMonthly.other *
+    MANAGED_MS_SQL_COST_MULTIPLIER[providerKey];
   const haMultiplier = dbHa ? 2 : 1;
   return round2(base * haMultiplier);
 }
 
-function getIaasMsSqlMonthly(pricing: ProviderPricing, vmUnitMonthly: number, dbHa: boolean) {
+function getIaasMsSqlMonthly(
+  pricing: ProviderPricing,
+  vmUnitMonthly: number,
+  dbHa: boolean,
+) {
   const dbVmCount = dbHa ? 2 : 1;
-  const dbVmMonthly = vmUnitMonthly + pricing.windowsLicenseMonthly + pricing.msSqlLicenseMonthly;
+  const dbVmMonthly =
+    vmUnitMonthly + pricing.windowsLicenseMonthly + pricing.msSqlLicenseMonthly;
   const dbVmTotal = dbVmMonthly * dbVmCount;
   const opsTotal = pricing.opsOverheadMonthly * dbVmCount;
   return {
@@ -222,12 +288,18 @@ function getManagedOracleDbMonthly(
   pricing: ProviderPricing,
   dbHa: boolean,
 ) {
-  const base = pricing.managedDbMonthly.other * MANAGED_ORACLE_DB_COST_MULTIPLIER[providerKey];
+  const base =
+    pricing.managedDbMonthly.other *
+    MANAGED_ORACLE_DB_COST_MULTIPLIER[providerKey];
   const haMultiplier = dbHa ? 2 : 1;
   return round2(base * haMultiplier);
 }
 
-function getIaasOracleDbMonthly(pricing: ProviderPricing, vmUnitMonthly: number, dbHa: boolean) {
+function getIaasOracleDbMonthly(
+  pricing: ProviderPricing,
+  vmUnitMonthly: number,
+  dbHa: boolean,
+) {
   const dbVmCount = dbHa ? 2 : 1;
   const oracleLicenseMonthly = round2(pricing.msSqlLicenseMonthly * 0.75);
   const dbVmMonthly = vmUnitMonthly + oracleLicenseMonthly;
@@ -324,7 +396,9 @@ function nonProdRuntimeFactor(usage: UsageAnswers) {
   }
 }
 
-function dbManagedBase(dbEngine?: string): keyof ProviderPricing["managedDbMonthly"] {
+function dbManagedBase(
+  dbEngine?: string,
+): keyof ProviderPricing["managedDbMonthly"] {
   if (dbEngine === "PostgreSQL") {
     return "postgresql";
   }
@@ -355,7 +429,8 @@ function multiplyInfraForNonProd(monthly: number, usage: UsageAnswers) {
     return monthly;
   }
 
-  const factor = 1 + envCount * nonProdScale(usage) * nonProdRuntimeFactor(usage);
+  const factor =
+    1 + envCount * nonProdScale(usage) * nonProdRuntimeFactor(usage);
   return monthly * factor;
 }
 
@@ -386,7 +461,8 @@ function estimateForProvider(
   const vmUnitMonthly = pricing.vmMonthly[sizeTier];
   const breakdown: EstimateBreakdown[] = [];
   const assumptions: string[] = [];
-  let recommendation = "Use managed database services where available to reduce operations overhead.";
+  let recommendation =
+    "Use managed database services where available to reduce operations overhead.";
 
   const backendDeployment = usage.backendDeployment;
 
@@ -408,19 +484,29 @@ function estimateForProvider(
           id: "managed-app-runtime",
           label: "Managed app runtime",
           monthly: round2(pricing.ssrComputeMonthly * 0.9),
-          available: isAvailable(MANAGED_APP_PLATFORM_AVAILABILITY, providerKey, region),
-          notes: "Managed application runtime with integrated scaling and operations.",
+          available: isAvailable(
+            MANAGED_APP_PLATFORM_AVAILABILITY,
+            providerKey,
+            region,
+          ),
+          notes:
+            "Managed application runtime with integrated scaling and operations.",
           opsComplexity: 0.5,
         },
       ],
     });
 
     breakdown.push({
-      item: selected.id === "managed-app-runtime" ? "Managed backend runtime" : "Serverless backend compute",
+      item:
+        selected.id === "managed-app-runtime"
+          ? "Managed backend runtime"
+          : "Serverless backend compute",
       monthly: round2(selected.monthly),
       notes: selected.notes,
     });
-    assumptions.push("Backend deployment is serverless-oriented; VM backend costs are not included.");
+    assumptions.push(
+      "Backend deployment is serverless-oriented; VM backend costs are not included.",
+    );
   } else if (backendDeployment === "Containers (Kubernetes)") {
     const nodeCount = usage.backendScaling === "Auto-scaling enabled" ? 4 : 3;
     const selected = selectMostOptimalOption({
@@ -440,7 +526,11 @@ function estimateForProvider(
           id: "managed-container-runtime",
           label: "Managed container runtime",
           monthly: round2(vmUnitMonthly * nodeCount * 0.85),
-          available: isAvailable(MANAGED_APP_PLATFORM_AVAILABILITY, providerKey, region),
+          available: isAvailable(
+            MANAGED_APP_PLATFORM_AVAILABILITY,
+            providerKey,
+            region,
+          ),
           notes: "Managed container service with lower operations overhead.",
           opsComplexity: 0.8,
         },
@@ -455,7 +545,9 @@ function estimateForProvider(
       monthly: round2(selected.monthly),
       notes: selected.notes,
     });
-    assumptions.push(`Container baseline evaluates around ${nodeCount} worker-equivalent capacity.`);
+    assumptions.push(
+      `Container baseline evaluates around ${nodeCount} worker-equivalent capacity.`,
+    );
   } else {
     const backendVmCount =
       backendDeployment === "Multiple VMs with load balancer"
@@ -464,7 +556,9 @@ function estimateForProvider(
 
     const iaasBackendMonthly =
       round2(vmUnitMonthly * backendVmCount) +
-      (backendDeployment === "Multiple VMs with load balancer" ? round2(pricing.loadBalancerMonthly) : 0);
+      (backendDeployment === "Multiple VMs with load balancer"
+        ? round2(pricing.loadBalancerMonthly)
+        : 0);
 
     const selected = selectMostOptimalOption({
       serviceName: "Application hosting",
@@ -483,7 +577,11 @@ function estimateForProvider(
           id: "managed-app-platform",
           label: "Managed app platform",
           monthly: round2(iaasBackendMonthly * 0.9),
-          available: isAvailable(MANAGED_APP_PLATFORM_AVAILABILITY, providerKey, region),
+          available: isAvailable(
+            MANAGED_APP_PLATFORM_AVAILABILITY,
+            providerKey,
+            region,
+          ),
           notes: "Managed compute platform with built-in scaling and patching.",
           opsComplexity: 0.9,
         },
@@ -517,7 +615,8 @@ function estimateForProvider(
     breakdown.push({
       item: "Backend operations baseline",
       monthly: 0,
-      notes: "Operations overhead is modeled in optimization scoring, not as direct line-item charge.",
+      notes:
+        "Operations overhead is modeled in optimization scoring, not as direct line-item charge.",
     });
 
     if (backendDeployment === "Multiple VMs with load balancer") {
@@ -527,7 +626,10 @@ function estimateForProvider(
     }
   }
 
-  if (usage.frontendType === "Static site (SSG) + CDN" || usage.frontendType === "Hybrid (SSG + SSR)") {
+  if (
+    usage.frontendType === "Static site (SSG) + CDN" ||
+    usage.frontendType === "Hybrid (SSG + SSR)"
+  ) {
     const cdnMultiplier = usage.frontendType === "Hybrid (SSG + SSR)" ? 1.5 : 1;
     const selected = selectMostOptimalOption({
       serviceName: "Frontend static delivery",
@@ -563,10 +665,14 @@ function estimateForProvider(
     });
   }
 
-  if (usage.frontendType === "Server-side rendering (SSR)" || usage.frontendType === "Hybrid (SSG + SSR)") {
-    const ssrBaseline = usage.frontendType === "Hybrid (SSG + SSR)"
-      ? round2(pricing.ssrComputeMonthly * 0.7)
-      : round2(pricing.ssrComputeMonthly);
+  if (
+    usage.frontendType === "Server-side rendering (SSR)" ||
+    usage.frontendType === "Hybrid (SSG + SSR)"
+  ) {
+    const ssrBaseline =
+      usage.frontendType === "Hybrid (SSG + SSR)"
+        ? round2(pricing.ssrComputeMonthly * 0.7)
+        : round2(pricing.ssrComputeMonthly);
 
     const selected = selectMostOptimalOption({
       serviceName: "SSR runtime",
@@ -593,7 +699,10 @@ function estimateForProvider(
     });
 
     breakdown.push({
-      item: selected.id === "vm-ssr-runtime" ? "Frontend SSR compute (VM runtime)" : "Frontend SSR compute",
+      item:
+        selected.id === "vm-ssr-runtime"
+          ? "Frontend SSR compute (VM runtime)"
+          : "Frontend SSR compute",
       monthly: round2(selected.monthly),
       notes: selected.notes,
     });
@@ -608,7 +717,10 @@ function estimateForProvider(
       : null;
     const iaas = getIaasOracleDbMonthly(pricing, vmUnitMonthly, dbHa);
 
-    const useManaged = managedAvailable && managedMonthly !== null && managedMonthly <= iaas.combinedTotal;
+    const useManaged =
+      managedAvailable &&
+      managedMonthly !== null &&
+      managedMonthly <= iaas.combinedTotal;
 
     if (useManaged && managedMonthly !== null) {
       breakdown.push({
@@ -626,7 +738,9 @@ function estimateForProvider(
         `Oracle DB option comparison (monthly): managed ${managedMonthly} USD vs customer-managed IaaS ${iaas.combinedTotal} USD. Managed selected as cost-optimal.`,
       );
       if (dbHa) {
-        assumptions.push("Managed Oracle DB HA pricing assumes primary + standby topology across zones.");
+        assumptions.push(
+          "Managed Oracle DB HA pricing assumes primary + standby topology across zones.",
+        );
       }
     } else {
       breakdown.push({
@@ -638,7 +752,8 @@ function estimateForProvider(
       breakdown.push({
         item: "Operational overhead for customer-managed Oracle DB",
         monthly: iaas.opsTotal,
-        notes: "Patching, backup operations, monitoring, and failover runbooks.",
+        notes:
+          "Patching, backup operations, monitoring, and failover runbooks.",
       });
 
       recommendation =
@@ -654,11 +769,15 @@ function estimateForProvider(
         );
       }
       if (dbHa) {
-        assumptions.push("Oracle DB HA on IaaS uses 2 dedicated DB VMs (primary + secondary) in separate zones.");
+        assumptions.push(
+          "Oracle DB HA on IaaS uses 2 dedicated DB VMs (primary + secondary) in separate zones.",
+        );
       }
 
       if (usage.backendDeployment === "Multiple VMs with load balancer") {
-        assumptions.push("Backend VM pool and Oracle DB VM pool are separate and not shared.");
+        assumptions.push(
+          "Backend VM pool and Oracle DB VM pool are separate and not shared.",
+        );
       }
     }
   } else if (usage.dbEngine === "MS SQL") {
@@ -670,7 +789,9 @@ function estimateForProvider(
     const iaas = getIaasMsSqlMonthly(pricing, vmUnitMonthly, dbHa);
 
     const selectedMode: MsSqlDeploymentMode =
-      managedAvailable && managedMonthly !== null && managedMonthly <= iaas.combinedTotal
+      managedAvailable &&
+      managedMonthly !== null &&
+      managedMonthly <= iaas.combinedTotal
         ? "managed"
         : "iaas";
 
@@ -690,7 +811,9 @@ function estimateForProvider(
         `MS SQL option comparison (monthly): managed ${managedMonthly} USD vs customer-managed IaaS ${iaas.combinedTotal} USD. Managed selected as cost-optimal.`,
       );
       if (dbHa) {
-        assumptions.push("Managed SQL HA pricing assumes primary + standby topology across zones.");
+        assumptions.push(
+          "Managed SQL HA pricing assumes primary + standby topology across zones.",
+        );
       }
     } else {
       breakdown.push({
@@ -718,11 +841,15 @@ function estimateForProvider(
         );
       }
       if (dbHa) {
-        assumptions.push("Database HA uses 2 dedicated SQL VMs (primary + secondary) in separate zones.");
+        assumptions.push(
+          "Database HA uses 2 dedicated SQL VMs (primary + secondary) in separate zones.",
+        );
       }
 
       if (usage.backendDeployment === "Multiple VMs with load balancer") {
-        assumptions.push("Backend VM pool and DB VM pool are separate and not shared.");
+        assumptions.push(
+          "Backend VM pool and DB VM pool are separate and not shared.",
+        );
       }
     }
   } else {
@@ -730,7 +857,9 @@ function estimateForProvider(
     const haMultiplier = dbHa ? 2 : 1;
     const managedMonthly = round2(dbBase * haMultiplier);
     const iaasVmCount = dbHa ? 2 : 1;
-    const iaasMonthly = round2(vmUnitMonthly * iaasVmCount + pricing.opsOverheadMonthly * iaasVmCount);
+    const iaasMonthly = round2(
+      vmUnitMonthly * iaasVmCount + pricing.opsOverheadMonthly * iaasVmCount,
+    );
 
     const selected = selectMostOptimalOption({
       serviceName: "Database engine",
@@ -741,7 +870,11 @@ function estimateForProvider(
           id: "managed-db",
           label: "Managed database service",
           monthly: managedMonthly,
-          available: isAvailable(MANAGED_GENERIC_DB_AVAILABILITY, providerKey, region),
+          available: isAvailable(
+            MANAGED_GENERIC_DB_AVAILABILITY,
+            providerKey,
+            region,
+          ),
           notes: dbHa
             ? "Primary + standby topology across availability zones."
             : "Single managed database instance.",
@@ -752,7 +885,8 @@ function estimateForProvider(
           label: "Customer-managed database on IaaS",
           monthly: iaasMonthly,
           available: true,
-          notes: "Database hosted on customer-managed VMs with operational overhead.",
+          notes:
+            "Database hosted on customer-managed VMs with operational overhead.",
           opsComplexity: 2,
         },
       ],
@@ -796,7 +930,11 @@ function estimateForProvider(
         id: "egress-optimized",
         label: "Egress optimization package",
         monthly: round2(outboundBase * 0.88),
-        available: isAvailable(EGRESS_OPTIMIZATION_AVAILABILITY, providerKey, region),
+        available: isAvailable(
+          EGRESS_OPTIMIZATION_AVAILABILITY,
+          providerKey,
+          region,
+        ),
         notes: "Estimated with routing and transfer optimization features.",
         opsComplexity: 1,
       },

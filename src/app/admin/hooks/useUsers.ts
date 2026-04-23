@@ -1,11 +1,6 @@
+import { Role, User } from "@/types/api";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
-
-type User = {
-  email: string;
-  name: string | null;
-  role: "user" | "admin" | "superadmin";
-};
 
 export function useUsers() {
   const { data: session } = useSession();
@@ -45,10 +40,7 @@ export function useUsers() {
     }
   };
 
-  const updateUserRole = async (
-    email: string,
-    role: "user" | "admin" | "superadmin",
-  ) => {
+  const updateUserRole = async (email: string, role: Role) => {
     if (currentUserEmail && email.toLowerCase() === currentUserEmail) {
       setUsersError("You cannot change your own role.");
       return;
@@ -59,7 +51,7 @@ export function useUsers() {
       setUpdatingUserEmail(email);
 
       const response = await fetch("/api/users", {
-        method: "POST",
+        method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, role }),
       });

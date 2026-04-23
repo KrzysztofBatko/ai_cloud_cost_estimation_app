@@ -1,4 +1,4 @@
-const PROVIDERS = ["AWS", "Azure", "GCP", "Vercel"] as const;
+const PROVIDERS = ["AWS", "Azure", "GCP", "Vercel", "Oracle"] as const;
 type Provider = (typeof PROVIDERS)[number];
 
 export const PROVIDER_HEX: Record<Provider, string> = {
@@ -6,6 +6,7 @@ export const PROVIDER_HEX: Record<Provider, string> = {
   Azure: "#5899C4",
   GCP: "#30A661",
   Vercel: "#8684BF",
+  Oracle: "#F80000",
 };
 
 export const DEFAULT_COLOR = "#7C94A6";

@@ -1,84 +1,69 @@
 import { supabase } from "@/lib/supabase/server";
-import { getServerSession, Session } from "next-auth";
 import { NextResponse } from "next/server";
-import { authOptions } from "../../auth/[...nextauth]/route";
-
-type ProviderRow = {
-  id: string;
-  name: string;
-  is_active?: boolean;
-};
-
-function toProviderDto(provider: ProviderRow) {
-  return {
-    id: provider.id,
-    name: provider.name,
-    isActive: provider.is_active ?? true,
-  };
-}
+import {
+  attachProviderRegions,
+  toProviderDto,
+  type ProviderRegionRow,
+  type ProviderRow,
+} from "@/lib/providers/regions";
+import { commonErrorResponse, requireSession } from "@/lib/api/apiAuth";
 
 export async function DELETE(
   _req: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const session: Session | null = await getServerSession(authOptions);
-  if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const auth = await requireSession({
+    allowedRoles: ["superadmin", "admin"],
+    forbiddenMessage: "Only admin can perform this action ",
+  });
 
-  if (session.user?.role !== "admin" && session.user?.role !== "superadmin") {
-    return NextResponse.json(
-      { error: "Only admins can perform this action" },
-      { status: 401 },
-    );
-  }
+  if (auth.response) return auth.response;
 
   const { id } = await params;
   if (!id) {
     return NextResponse.json({ error: "Missing id" }, { status: 400 });
   }
 
-  const { data, error } = await supabase
-    .from("providers")
-    .delete()
-    .eq("id", id)
-    .select("id, name, is_active")
-    .single();
+  try {
+    const { error } = await supabase
+      .from("providers")
+      .delete()
+      .eq("id", id)
+      .select("id, name, is_active")
+      .single();
 
-  if (error) {
-    if (error.code === "23503") {
-      return NextResponse.json(
-        {
-          error:
-            "Provider cannot be deleted because it was used in an estimations before.",
-        },
-        { status: 409 },
-      );
+    if (error) {
+      if (error.code === "23503") {
+        return NextResponse.json(
+          {
+            error:
+              "Provider cannot be deleted because it was used in an estimations before.",
+          },
+          { status: 409 },
+        );
+      }
+      return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json(
+      { message: "Provider deleted successfully" },
+      { status: 200 },
+    );
+  } catch (error: unknown) {
+    return commonErrorResponse(error);
   }
-
-  return NextResponse.json({
-    data: data ? toProviderDto(data as ProviderRow) : null,
-  });
 }
 
 export async function PATCH(
   req: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const session: Session | null = await getServerSession(authOptions);
-  if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const auth = await requireSession({
+    allowedRoles: ["superadmin", "admin"],
+    forbiddenMessage: "Only admin can perform this action ",
+  });
 
-  if (session.user?.role !== "admin" && session.user?.role !== "superadmin") {
-    return NextResponse.json(
-      { error: "Only admins can perform this action" },
-      { status: 401 },
-    );
-  }
+  if (auth.response) return auth.response;
 
   const { id } = await params;
   if (!id) {
@@ -94,19 +79,36 @@ export async function PATCH(
       { status: 400 },
     );
   }
+  try {
+    const { data, error } = await supabase
+      .from("providers")
+      .update({ is_active: isActive })
+      .eq("id", id)
+      .select("id, name, is_active")
+      .single();
 
-  const { data, error } = await supabase
-    .from("providers")
-    .update({ is_active: isActive })
-    .eq("id", id)
-    .select("id, name, is_active")
-    .single();
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    const { data: regions, error: regionsError } = await supabase
+      .from("provider_regions")
+      .select("id, provider_id, value, label, is_default")
+      .eq("provider_id", id);
+
+    if (regionsError) {
+      return NextResponse.json({ error: regionsError.message }, { status: 500 });
+    }
+
+    const [providerWithRegions] = attachProviderRegions(
+      [data as ProviderRow],
+      (regions ?? []) as ProviderRegionRow[],
+    );
+
+    return NextResponse.json({
+      data: providerWithRegions ? toProviderDto(providerWithRegions) : null,
+    });
+  } catch (error: unknown) {
+    return commonErrorResponse(error);
   }
-
-  return NextResponse.json({
-    data: data ? toProviderDto(data as ProviderRow) : null,
-  });
 }

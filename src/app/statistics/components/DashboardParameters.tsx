@@ -1,13 +1,13 @@
 import {
   CHART_MODES,
   ChartMode,
-} from "@/app/admin/components/EstimationDashboard";
+} from "@/app/statistics/components/EstimationDashboard";
 import {
   MonthOrDayPickerPopover,
   MonthOrDayPickerValue,
   RangeMonthOrDayPickerPopover,
   RangeMonthOrDayPickerValue,
-} from "@/app/admin/components/MonthOrDayPicker";
+} from "@/app/statistics/components/MonthOrDayPicker";
 import { Card, CardContent } from "@/components/ui/card";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 

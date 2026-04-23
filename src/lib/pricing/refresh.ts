@@ -1,22 +1,17 @@
 import {
   DEFAULT_PRICING_CATALOG,
   DEFAULT_SNAPSHOT_REGION,
-  type PricingCatalog,
 } from "@/lib/pricing/catalog";
 import {
   createPricingSnapshot,
   getLatestPricingSnapshot,
-  type PricingSnapshot,
 } from "@/lib/pricing/snapshots";
+import { PricingSnapshot } from "@/types/api";
 
 export type RefreshPricingSnapshotResult = {
   snapshot: PricingSnapshot;
   skipped: boolean;
 };
-
-function buildCatalogFromCurrentSources(): PricingCatalog {
-  return DEFAULT_PRICING_CATALOG;
-}
 
 function todayIsoDate() {
   return new Date().toISOString().slice(0, 10);
@@ -42,7 +37,7 @@ export async function refreshPricingSnapshot(input?: {
     region,
     pricingAsOf,
     source: "default-catalog-refresh-multi-region",
-    catalog: buildCatalogFromCurrentSources(),
+    catalog: DEFAULT_PRICING_CATALOG,
     notes:
       "Automated multi-region snapshot based on the current curated pricing catalog. Ready to swap to provider API fetchers.",
     createdBy: input?.createdBy ?? null,

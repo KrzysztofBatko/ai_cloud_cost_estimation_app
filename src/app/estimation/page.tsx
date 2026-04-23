@@ -147,13 +147,9 @@ export default function EstimationPage() {
 
   return (
     <AuthGuard>
-      <div className="container mx-auto max-w-4xl px-4 py-12">
-        <h1 className="text-3xl font-bold text-foreground">
-          Cloud Cost Estimation
-        </h1>
-        <p className="mt-2 text-muted-foreground">
-          Powered by AI for accurate cloud cost predictions
-        </p>
+      <div className="container mx-auto max-w-4xl px-4 py-6">
+        <h1>Cloud Cost Estimation</h1>
+        <h3>Powered by AI for accurate cloud cost predictions</h3>
 
         <div className="mt-5 space-y-4">
           {/* Section 1 - Providers */}

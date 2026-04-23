@@ -1,8 +1,7 @@
 "use client";
-import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, RefreshCw, Database } from "lucide-react";
+import { Loader2, RefreshCw } from "lucide-react";
 import { usePricingSnapshot } from "@/app/admin/hooks/usePricingSnapshot";
 
 export default function PricingSnapshot() {

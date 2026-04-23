@@ -1,6 +1,5 @@
 "use client";
 import { useEffect } from "react";
-import { Shield, CheckCircle2 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import CloudProvidersList from "@/app/admin/components/CloudProvidersList";
@@ -28,25 +27,14 @@ export default function Admin() {
   }
 
   return (
-    <>
-      <div className="container mx-auto max-w-4xl px-4 py-12">
-        <div className="flex items-center gap-3 mb-2">
-          <Shield className="h-7 w-7 text-accent" />
-          <h1 className="text-3xl font-bold text-foreground">Admin Panel</h1>
-        </div>
-        <div className="mb-6 text-lg flex items-center gap-3">
-          <span>Your access: {session?.user?.role}</span>
-          <CheckCircle2
-            className="h-5 w-5 text-emerald-500"
-            aria-label="Access granted"
-          />
-        </div>
+    <div className="container mx-auto max-w-4xl px-4 py-6">
+      <h1>Admin Panel</h1>
+      <h3>Your access: {session?.user?.role}</h3>
 
-        <CloudProvidersList />
-        <PricingSnapshot />
+      <CloudProvidersList />
+      <PricingSnapshot />
 
-        {isSuperAdmin && <UserManagement />}
-      </div>
-    </>
+      {isSuperAdmin && <UserManagement />}
+    </div>
   );
 }

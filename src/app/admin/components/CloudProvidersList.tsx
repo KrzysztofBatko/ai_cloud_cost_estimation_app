@@ -25,7 +25,7 @@ export default function CloudProvidersList() {
   } = useProviders();
 
   return (
-    <Card className="shadow-card">
+    <Card className="shadow-card mt-8">
       <CardHeader>
         <CardTitle>Cloud Providers</CardTitle>
       </CardHeader>

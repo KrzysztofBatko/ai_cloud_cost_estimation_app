@@ -6,7 +6,6 @@ import {
   Sparkles,
   FileText,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import Link from "next/link";
 
@@ -79,7 +78,7 @@ export default function HeroSection() {
             <ArrowRight className="ml-2 h-5 w-5" />
           </Link>
           <Link
-            href="/describe"
+            href="/description"
             className="inline-flex items-center gap-2 rounded-xl border border-white/30 bg-white/10 px-6 py-3 text-sm font-semibold text-white backdrop-blur transition hover:bg-white/20"
           >
             <Sparkles className="h-4 w-4" />I have an environment description

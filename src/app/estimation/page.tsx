@@ -1,6 +1,6 @@
 "use client";
 import AuthGuard from "../AuthGuard";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,6 +11,7 @@ import {
   Send,
   Printer,
   Mail,
+  Sparkles,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Usage from "@/app/estimation/components/Usage";
@@ -19,6 +20,8 @@ import Providers, { Provider } from "@/app/estimation/components/Providers";
 import { useStatistics } from "@/app/estimation/hooks/useStatistics";
 import { useSendToAI } from "@/app/estimation/hooks/useSendToAi";
 import { ProviderKey } from "@/types/api";
+import Link from "next/link";
+import { SessionDescription } from "@/app/estimation/components/SessionDescription";
 
 export default function EstimationPage() {
   const [selectedProviders, setSelectedProviders] = useState<Provider[]>([]);
@@ -30,6 +33,40 @@ export default function EstimationPage() {
 
   const { saveStatistics } = useStatistics();
   const { sendToAI, loading, results, setResults } = useSendToAI();
+
+  const sessionDescription = sessionStorage.getItem("descriptionInput");
+
+  useEffect(() => {
+    const storedPrefill = sessionStorage.getItem("descriptionPrefill");
+
+    if (!storedPrefill) {
+      return;
+    }
+
+    try {
+      const prefill = JSON.parse(storedPrefill) as {
+        usage?: Record<string, string>;
+        notes?: string;
+        sourceSummary?: string;
+      };
+
+      if (prefill.usage && typeof prefill.usage === "object") {
+        setAnswers(prefill.usage);
+      }
+
+      const prefilledNotes = [prefill.notes, prefill.sourceSummary]
+        .filter((value): value is string => Boolean(value?.trim()))
+        .join("\n\n");
+
+      if (prefilledNotes) {
+        setNotes(prefilledNotes);
+      }
+    } catch (error) {
+      console.error("Failed to load description prefill", error);
+    } finally {
+      sessionStorage.removeItem("descriptionPrefill");
+    }
+  }, []);
 
   const toggleProvider = (provider: Provider) => {
     setSelectedProviders((prev) => {
@@ -150,6 +187,10 @@ export default function EstimationPage() {
       <div className="container mx-auto max-w-4xl px-4 py-6">
         <h1>Cloud Cost Estimation</h1>
         <h3>Powered by AI for accurate cloud cost predictions</h3>
+
+        {sessionDescription && (
+          <SessionDescription sessionDescription={sessionDescription} />
+        )}
 
         <div className="mt-5 space-y-4">
           {/* Section 1 - Providers */}

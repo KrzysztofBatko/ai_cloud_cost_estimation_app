@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Cloud, Globe, Database, Triangle, Loader2 } from "lucide-react";
 import { useEffect } from "react";
-import { useActiveProviders } from "@/app/estimation/hooks/useActiveProviders";
+import { useActiveProviders } from "@/app/(with-description-context)/estimation/hooks/useActiveProviders";
 import { ProviderKey, ProviderRegion } from "@/types/api";
 
 export interface Provider {

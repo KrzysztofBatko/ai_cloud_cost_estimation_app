@@ -1,8 +1,9 @@
 "use client";
 
 import AuthGuard from "@/app/AuthGuard";
-import EnvironmentDescription from "@/app/description/components/environment-description";
-import UploadDocument from "@/app/description/components/upload-document";
+import { useFeatureDescriptionContext } from "@/app/(with-description-context)/DescriptionContextProvider";
+import EnvironmentDescription from "@/app/(with-description-context)/description/components/environment-description";
+import UploadDocument from "@/app/(with-description-context)/description/components/upload-document";
 import { ArrowRight, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -12,14 +13,18 @@ const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
 
 export default function DescribePage() {
   const router = useRouter();
-  const [description, setDescription] = useState("");
+  const {
+    descriptionInput,
+    setDescriptionInput,
+    setDescriptionPrefill,
+  } = useFeatureDescriptionContext();
   const [file, setFile] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const isFileTooLarge = file ? file.size > MAX_FILE_SIZE_BYTES : false;
   const canSubmit =
-    (description.trim().length > 0 || file !== null) && !isFileTooLarge;
+    (descriptionInput.trim().length > 0 || file !== null) && !isFileTooLarge;
 
   const handleSave = async () => {
     if (!canSubmit || isSubmitting) {
@@ -30,7 +35,7 @@ export default function DescribePage() {
     setIsSubmitting(true);
 
     try {
-      const trimmedDescription = description.trim();
+      const trimmedDescription = descriptionInput.trim();
       let response: Response;
 
       if (file) {
@@ -63,8 +68,7 @@ export default function DescribePage() {
       }
 
       const data = await response.json();
-      sessionStorage.setItem("descriptionPrefill", JSON.stringify(data));
-      sessionStorage.setItem("descriptionInput", JSON.stringify(description));
+      setDescriptionPrefill(data);
       router.push("/estimation");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save.");
@@ -87,8 +91,8 @@ export default function DescribePage() {
         </div>
 
         <EnvironmentDescription
-          description={description}
-          setDescription={setDescription}
+          description={descriptionInput}
+          setDescription={setDescriptionInput}
         />
 
         <div className="my-6 flex items-center gap-4 text-xs uppercase tracking-wide text-muted-foreground">

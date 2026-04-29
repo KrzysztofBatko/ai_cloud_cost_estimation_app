@@ -1,5 +1,5 @@
 "use client";
-import AuthGuard from "../AuthGuard";
+import AuthGuard from "../../AuthGuard";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -11,17 +11,18 @@ import {
   Send,
   Printer,
   Mail,
-  Sparkles,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import Usage from "@/app/estimation/components/Usage";
-import Results from "@/app/estimation/components/Result";
-import Providers, { Provider } from "@/app/estimation/components/Providers";
-import { useStatistics } from "@/app/estimation/hooks/useStatistics";
-import { useSendToAI } from "@/app/estimation/hooks/useSendToAi";
+import Usage from "@/app/(with-description-context)/estimation/components/Usage";
+import Results from "@/app/(with-description-context)/estimation/components/Result";
+import Providers, {
+  Provider,
+} from "@/app/(with-description-context)/estimation/components/Providers";
+import { useStatistics } from "@/app/(with-description-context)/estimation/hooks/useStatistics";
+import { useSendToAI } from "@/app/(with-description-context)/estimation/hooks/useSendToAi";
 import { ProviderKey } from "@/types/api";
-import Link from "next/link";
-import { SessionDescription } from "@/app/estimation/components/SessionDescription";
+import { SessionDescription } from "@/app/(with-description-context)/estimation/components/SessionDescription";
+import { useFeatureDescriptionContext } from "@/app/(with-description-context)/DescriptionContextProvider";
 
 export default function EstimationPage() {
   const [selectedProviders, setSelectedProviders] = useState<Provider[]>([]);
@@ -33,28 +34,26 @@ export default function EstimationPage() {
 
   const { saveStatistics } = useStatistics();
   const { sendToAI, loading, results, setResults } = useSendToAI();
-
-  const sessionDescription = sessionStorage.getItem("descriptionInput");
+  const { descriptionInput, descriptionPrefill, setDescriptionPrefill } =
+    useFeatureDescriptionContext();
 
   useEffect(() => {
-    const storedPrefill = sessionStorage.getItem("descriptionPrefill");
-
-    if (!storedPrefill) {
+    if (!descriptionPrefill) {
       return;
     }
 
     try {
-      const prefill = JSON.parse(storedPrefill) as {
-        usage?: Record<string, string>;
-        notes?: string;
-        sourceSummary?: string;
-      };
-
-      if (prefill.usage && typeof prefill.usage === "object") {
-        setAnswers(prefill.usage);
+      if (
+        descriptionPrefill.usage &&
+        typeof descriptionPrefill.usage === "object"
+      ) {
+        setAnswers(descriptionPrefill.usage);
       }
 
-      const prefilledNotes = [prefill.notes, prefill.sourceSummary]
+      const prefilledNotes = [
+        descriptionPrefill.notes,
+        descriptionPrefill.sourceSummary,
+      ]
         .filter((value): value is string => Boolean(value?.trim()))
         .join("\n\n");
 
@@ -64,9 +63,9 @@ export default function EstimationPage() {
     } catch (error) {
       console.error("Failed to load description prefill", error);
     } finally {
-      sessionStorage.removeItem("descriptionPrefill");
+      setDescriptionPrefill(null);
     }
-  }, []);
+  }, [descriptionPrefill, setDescriptionPrefill]);
 
   const toggleProvider = (provider: Provider) => {
     setSelectedProviders((prev) => {
@@ -188,8 +187,8 @@ export default function EstimationPage() {
         <h1>Cloud Cost Estimation</h1>
         <h3>Powered by AI for accurate cloud cost predictions</h3>
 
-        {sessionDescription && (
-          <SessionDescription sessionDescription={sessionDescription} />
+        {descriptionInput && (
+          <SessionDescription sessionDescription={descriptionInput} />
         )}
 
         <div className="mt-5 space-y-4">

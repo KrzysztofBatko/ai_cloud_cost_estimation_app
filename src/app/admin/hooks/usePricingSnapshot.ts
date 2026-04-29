@@ -1,3 +1,4 @@
+import { ENDPOINTS } from "@/lib/api/utils";
 import { useEffect, useState } from "react";
 
 type PricingSnapshot = {
@@ -31,7 +32,7 @@ export function usePricingSnapshot() {
         setFetchingPricingSnapshot(true);
       }
 
-      const response = await fetch("/api/pricing/refresh");
+      const response = await fetch(ENDPOINTS.PRICING_REFRESH);
       if (!response.ok) {
         const errorBody = await response.json().catch(() => null);
         throw new Error(
@@ -54,7 +55,7 @@ export function usePricingSnapshot() {
       setPricingSnapshotError(null);
       setRefreshingPricingSnapshot(true);
 
-      const response = await fetch("/api/pricing/refresh", {
+      const response = await fetch(ENDPOINTS.PRICING_REFRESH, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ force }),

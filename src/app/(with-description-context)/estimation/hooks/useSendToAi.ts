@@ -1,4 +1,5 @@
 import { EstimateResponse } from "@/app/api/estimation/route";
+import { ENDPOINTS } from "@/lib/api/utils";
 import { useState } from "react";
 
 export function useSendToAI() {
@@ -21,7 +22,7 @@ export function useSendToAI() {
     setResults(null);
 
     try {
-      const res = await fetch("/api/estimation", {
+      const res = await fetch(ENDPOINTS.ESTIMATION, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ body }),

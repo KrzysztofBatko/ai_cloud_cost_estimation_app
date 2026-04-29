@@ -1,81 +1,24 @@
 "use client";
 
 import AuthGuard from "@/app/AuthGuard";
-import { useFeatureDescriptionContext } from "@/app/(with-description-context)/DescriptionContextProvider";
 import EnvironmentDescription from "@/app/(with-description-context)/description/components/environment-description";
 import UploadDocument from "@/app/(with-description-context)/description/components/upload-document";
 import { ArrowRight, Loader2 } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-
-const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
+import { useDescription } from "@/app/(with-description-context)/description/hooks/useDescription";
 
 export default function DescribePage() {
-  const router = useRouter();
   const {
     descriptionInput,
     setDescriptionInput,
-    setDescriptionPrefill,
-  } = useFeatureDescriptionContext();
-  const [file, setFile] = useState<File | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const isFileTooLarge = file ? file.size > MAX_FILE_SIZE_BYTES : false;
-  const canSubmit =
-    (descriptionInput.trim().length > 0 || file !== null) && !isFileTooLarge;
-
-  const handleSave = async () => {
-    if (!canSubmit || isSubmitting) {
-      return;
-    }
-
-    setError(null);
-    setIsSubmitting(true);
-
-    try {
-      const trimmedDescription = descriptionInput.trim();
-      let response: Response;
-
-      if (file) {
-        const formData = new FormData();
-        formData.append("file", file);
-
-        if (trimmedDescription) {
-          formData.append("description", trimmedDescription);
-        }
-
-        response = await fetch("/api/description", {
-          method: "POST",
-          body: formData,
-        });
-      } else {
-        response = await fetch("/api/description", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ description: trimmedDescription }),
-        });
-      }
-
-      if (!response.ok) {
-        const errorBody = await response.json().catch(() => null);
-        throw new Error(
-          errorBody?.message ||
-            errorBody?.error ||
-            `Request failed with status ${response.status}`,
-        );
-      }
-
-      const data = await response.json();
-      setDescriptionPrefill(data);
-      router.push("/estimation");
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to save.");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+    file,
+    setFile,
+    isSubmitting,
+    error,
+    canSubmit,
+    isFileTooLarge,
+    handleSave,
+  } = useDescription();
 
   return (
     <AuthGuard>

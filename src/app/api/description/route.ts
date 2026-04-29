@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
 import { usageQuestions } from "@/app/(with-description-context)/estimation/configuration";
+import { DescriptionPrefill } from "@/app/(with-description-context)/DescriptionContextProvider";
 
 const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
 
@@ -244,20 +245,21 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    return NextResponse.json(
-      {
-        ...JSON.parse(response.output_text),
-        source: input.file
-          ? {
-              type: "file",
-              name: input.file.name,
-              size: input.file.size,
-              contentType: input.file.type,
-            }
-          : { type: "description" },
-      },
-      { status: 200 },
-    );
+    const responseData = {
+      ...JSON.parse(response.output_text),
+      source: input.file
+        ? {
+            type: "file",
+            name: input.file.name,
+            size: input.file.size,
+            contentType: input.file.type,
+          }
+        : { type: "description" },
+    };
+
+    return NextResponse.json(responseData as DescriptionPrefill, {
+      status: 200,
+    });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : String(err);
     return NextResponse.json(

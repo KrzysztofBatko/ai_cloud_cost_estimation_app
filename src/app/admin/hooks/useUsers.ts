@@ -1,3 +1,4 @@
+import { ENDPOINTS } from "@/lib/api/utils";
 import { Role, User } from "@/types/api";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
@@ -23,7 +24,7 @@ export function useUsers() {
       setUsersError(null);
       setFetchingUsers(true);
 
-      const response = await fetch("/api/users");
+      const response = await fetch(ENDPOINTS.USERS);
 
       if (!response.ok) {
         const errorBody = await response.json().catch(() => null);
@@ -50,7 +51,7 @@ export function useUsers() {
       setUsersError(null);
       setUpdatingUserEmail(email);
 
-      const response = await fetch("/api/users", {
+      const response = await fetch(ENDPOINTS.USERS, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, role }),

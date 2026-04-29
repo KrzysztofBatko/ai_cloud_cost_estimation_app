@@ -1,3 +1,4 @@
+import { ENDPOINTS } from "@/lib/api/utils";
 import { Provider, ProviderRegion } from "@/types/api";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
@@ -25,7 +26,9 @@ export function useProviders() {
     try {
       setProviderError(null);
       if (isInitial) setFetchingProviders(true);
-      const response = await fetch("/api/providers?includeInactive=true");
+      const response = await fetch(
+        `${ENDPOINTS.PROVIDERS}?includeInactive=true`,
+      );
       if (!response.ok) {
         const errorBody = await response.json().catch(() => null);
         throw new Error(
@@ -55,7 +58,7 @@ export function useProviders() {
 
     try {
       setLoading(true);
-      const response = await fetch("/api/providers", {
+      const response = await fetch(ENDPOINTS.PROVIDERS, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: newProvider.trim() }),
@@ -103,14 +106,17 @@ export function useProviders() {
     try {
       setLoading(true);
       setProviderError(null);
-      const response = await fetch(`/api/providers/${providerId}/regions`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          value: draft.value.trim(),
-          label: draft.label.trim(),
-        }),
-      });
+      const response = await fetch(
+        `${ENDPOINTS.PROVIDERS}/${providerId}/regions`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            value: draft.value.trim(),
+            label: draft.label.trim(),
+          }),
+        },
+      );
 
       if (!response.ok) {
         const errorBody = await response.json().catch(() => null);
@@ -137,10 +143,9 @@ export function useProviders() {
                       return left.isDefault ? -1 : 1;
                     },
                   ),
-                  defaultRegion:
-                    createdRegion.isDefault
-                      ? createdRegion.value
-                      : provider.defaultRegion ?? createdRegion.value,
+                  defaultRegion: createdRegion.isDefault
+                    ? createdRegion.value
+                    : (provider.defaultRegion ?? createdRegion.value),
                 }
               : provider,
           ),
@@ -170,7 +175,7 @@ export function useProviders() {
       setLoading(true);
       setProviderError(null);
       const response = await fetch(
-        `/api/providers/${providerId}/regions/${regionId}`,
+        `${ENDPOINTS.PROVIDERS}/${providerId}/regions/${regionId}`,
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
@@ -231,7 +236,7 @@ export function useProviders() {
       setLoading(true);
       setProviderError(null);
       const response = await fetch(
-        `/api/providers/${providerId}/regions/${regionId}`,
+        `${ENDPOINTS.PROVIDERS}/${providerId}/regions/${regionId}`,
         {
           method: "DELETE",
         },
@@ -263,7 +268,7 @@ export function useProviders() {
       setCanBeDeactivated(false);
       setLoading(true);
 
-      const response = await fetch(`/api/providers/${id}`, {
+      const response = await fetch(`${ENDPOINTS.PROVIDERS}/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ isActive }),
@@ -310,7 +315,7 @@ export function useProviders() {
       setProviderError(null);
       setCanBeDeactivated(false);
       setLoading(true);
-      const response = await fetch(`/api/providers/${id}`, {
+      const response = await fetch(`${ENDPOINTS.PROVIDERS}/${id}`, {
         method: "DELETE",
       });
 

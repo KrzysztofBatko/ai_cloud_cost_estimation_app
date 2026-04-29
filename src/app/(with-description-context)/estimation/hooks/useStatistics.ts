@@ -1,10 +1,11 @@
 import { Provider } from "@/app/(with-description-context)/estimation/components/Providers";
+import { ENDPOINTS } from "@/lib/api/utils";
 
 export function useStatistics() {
   const saveStatistics = async (selectedProviders: Provider[]) => {
     const providerIds = selectedProviders.map((p) => p.id);
     try {
-      const res = await fetch("/api/estimations-statistics", {
+      const res = await fetch(ENDPOINTS.ESTIMATIONS_STATISTICS, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ providerIds }),

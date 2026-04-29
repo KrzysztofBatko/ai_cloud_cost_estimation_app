@@ -22,7 +22,7 @@ import { useStatistics } from "@/app/(with-description-context)/estimation/hooks
 import { useSendToAI } from "@/app/(with-description-context)/estimation/hooks/useSendToAi";
 import { ProviderKey } from "@/types/api";
 import { SessionDescription } from "@/app/(with-description-context)/estimation/components/SessionDescription";
-import { useFeatureDescriptionContext } from "@/app/(with-description-context)/DescriptionContextProvider";
+import { useDescriptionContext } from "@/app/(with-description-context)/DescriptionContextProvider";
 
 export default function EstimationPage() {
   const [selectedProviders, setSelectedProviders] = useState<Provider[]>([]);
@@ -35,7 +35,7 @@ export default function EstimationPage() {
   const { saveStatistics } = useStatistics();
   const { sendToAI, loading, results, setResults } = useSendToAI();
   const { descriptionInput, descriptionPrefill, setDescriptionPrefill } =
-    useFeatureDescriptionContext();
+    useDescriptionContext();
 
   useEffect(() => {
     if (!descriptionPrefill) {

@@ -3,6 +3,7 @@ import { useSession } from "next-auth/react";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
+import { ENDPOINTS } from "@/lib/api/utils";
 
 export default function AuthGuard({ children }: { children: React.ReactNode }) {
   const { data: session, status } = useSession();
@@ -11,7 +12,7 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (status === "loading") return;
     if (!session) {
-      router.push("/api/auth/signin");
+      router.push(ENDPOINTS.AUTH_SIGNIN);
     }
   }, [session, status, router]);
 

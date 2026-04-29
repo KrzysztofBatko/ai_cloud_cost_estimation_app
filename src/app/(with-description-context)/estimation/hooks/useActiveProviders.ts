@@ -1,3 +1,4 @@
+import { ENDPOINTS } from "@/lib/api/utils";
 import { normalizeProviderKey } from "@/lib/pricing/catalog";
 import { ProviderKey, ProviderRegion } from "@/types/api";
 import { useCallback, useState } from "react";
@@ -18,7 +19,7 @@ export function useActiveProviders() {
     async (iconMap: Record<string, React.ReactNode>) => {
       setLoading(true);
       try {
-        const response = await fetch("/api/providers");
+        const response = await fetch(ENDPOINTS.PROVIDERS);
         if (!response.ok) throw new Error("Fetch failed");
         const result = await response.json();
         const data = Array.isArray(result?.data) ? result.data : [];

@@ -5,6 +5,7 @@ import {
 import { useEffect, useState } from "react";
 import { format } from "date-fns";
 import { SingleStatistics } from "@/types/api";
+import { ENDPOINTS } from "@/lib/api/utils";
 
 const currentDate = new Date();
 const currentMonth = new Date();
@@ -36,7 +37,7 @@ export function useStatistics() {
     try {
       setFetching(true);
       const response = await fetch(
-        `/api/estimations-statistics?${queryKey}=${date}`,
+        `${ENDPOINTS.ESTIMATIONS_STATISTICS}?${queryKey}=${date}`,
       );
 
       if (!response.ok) {
@@ -49,7 +50,7 @@ export function useStatistics() {
         setResponseSingle(result.data);
       }
     } catch (error) {
-      console.error("Error fetching providers:", error);
+      console.error("Error fetching statistics:", error);
     } finally {
       setFetching(false);
     }

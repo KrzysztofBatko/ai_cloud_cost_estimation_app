@@ -3,43 +3,22 @@
 import { createContext, useContext, useState } from "react";
 import type { Dispatch, ReactNode, SetStateAction } from "react";
 
-export type DescriptionPrefill = {
-  usage?: Record<string, string>;
-  notes?: string;
-  providers?: string[];
-  providerRegions?: Record<string, string>;
-  confidence?: string;
-  sourceSummary?: string;
-  missingDetails?: string[];
-  source?: {
-    type: string;
-    name?: string;
-    size?: number;
-    contentType?: string;
-  };
-};
-
-type FeatureDescriptionContextType = {
+type DescriptionContextType = {
   descriptionInput: string;
   setDescriptionInput: Dispatch<SetStateAction<string>>;
   descriptionPrefill: DescriptionPrefill | null;
   setDescriptionPrefill: Dispatch<SetStateAction<DescriptionPrefill | null>>;
 };
 
-const FeatureDescriptionContext =
-  createContext<FeatureDescriptionContextType | null>(null);
+const DescriptionContext = createContext<DescriptionContextType | null>(null);
 
-export function FeatureDescriptionProvider({
-  children,
-}: {
-  children: ReactNode;
-}) {
+export function DescriptionProvider({ children }: { children: ReactNode }) {
   const [descriptionInput, setDescriptionInput] = useState("");
   const [descriptionPrefill, setDescriptionPrefill] =
     useState<DescriptionPrefill | null>(null);
 
   return (
-    <FeatureDescriptionContext.Provider
+    <DescriptionContext.Provider
       value={{
         descriptionInput,
         setDescriptionInput,
@@ -48,12 +27,12 @@ export function FeatureDescriptionProvider({
       }}
     >
       {children}
-    </FeatureDescriptionContext.Provider>
+    </DescriptionContext.Provider>
   );
 }
 
-export function useFeatureDescriptionContext() {
-  const context = useContext(FeatureDescriptionContext);
+export function useDescriptionContext() {
+  const context = useContext(DescriptionContext);
 
   if (!context) {
     throw new Error(

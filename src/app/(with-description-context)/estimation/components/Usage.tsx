@@ -29,7 +29,7 @@ import {
   isQuestionVisible,
   usageQuestions,
   type UsageQuestion,
-} from "@/app/estimation/configuration";
+} from "@/app/(with-description-context)/estimation/configuration";
 
 interface Props {
   answers: Record<string, string>;

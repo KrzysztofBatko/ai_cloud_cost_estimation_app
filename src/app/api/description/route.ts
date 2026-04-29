@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
-import { usageQuestions } from "@/app/estimation/configuration";
+import { usageQuestions } from "@/app/(with-description-context)/estimation/configuration";
 
 const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
 
@@ -108,9 +108,7 @@ function getUsageQuestionContext() {
         ? Array.from(
             new Set(
               backendDeploymentSamples.flatMap((backendDeployment) =>
-                questionOptions(
-                  backendDeployment ? { backendDeployment } : {},
-                ),
+                questionOptions(backendDeployment ? { backendDeployment } : {}),
               ),
             ),
           )
@@ -143,7 +141,9 @@ async function fileToDataUrl(file: File) {
   return `data:${mediaType};base64,${buffer.toString("base64")}`;
 }
 
-async function readDescriptionInput(req: NextRequest): Promise<DescriptionInput> {
+async function readDescriptionInput(
+  req: NextRequest,
+): Promise<DescriptionInput> {
   if (!isMultipartRequest(req)) {
     const body = (await req.json()) as { description?: unknown };
     const description =

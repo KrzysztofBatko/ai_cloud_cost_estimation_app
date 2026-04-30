@@ -1,11 +1,11 @@
-import {
-  MonthOrDayPickerValue,
-  RangeMonthOrDayPickerValue,
-} from "@/app/statistics/components/MonthOrDayPicker";
 import { useEffect, useState } from "react";
 import { format } from "date-fns";
 import { SingleStatistics } from "@/types/api";
 import { ENDPOINTS } from "@/lib/api/utils";
+import {
+  MonthOrDayPickerValue,
+  RangeMonthOrDayPickerValue,
+} from "@/app/(admin-only)/statistics/components/MonthOrDayPicker";
 
 const currentDate = new Date();
 const currentMonth = new Date();

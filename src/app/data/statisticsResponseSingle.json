@@ -1,8 +1,0 @@
-{
-  "data": [
-    { "provider": "AWS", "count": 12 },
-    { "provider": "Azure", "count": 7 },
-    { "provider": "GCP", "count": 7 },
-    { "provider": "Vercel", "count": 1 }
-  ]
-}

@@ -1,8 +1,8 @@
 "use client";
+import { useUsers } from "@/app/(admin-only)/admin/hooks/useUsers";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, ChevronDown } from "lucide-react";
-import { useUsers } from "@/app/admin/hooks/useUsers";
 
 const availableRoles = [
   { value: "user", label: "User" },
@@ -22,7 +22,7 @@ export default function UserManagement() {
   } = useUsers();
 
   return (
-    <Card className="shadow-card mt-8">
+    <Card className="shadow-card">
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>User management</CardTitle>
         <Button

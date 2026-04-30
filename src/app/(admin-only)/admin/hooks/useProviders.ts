@@ -1,10 +1,8 @@
 import { ENDPOINTS } from "@/lib/api/utils";
 import { Provider, ProviderRegion } from "@/types/api";
-import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 
 export function useProviders() {
-  const { data: session } = useSession();
   const [providers, setProviders] = useState<Provider[]>([]);
   const [newProvider, setNewProvider] = useState("");
   const [loading, setLoading] = useState(false);
@@ -15,12 +13,9 @@ export function useProviders() {
     Record<string, { value: string; label: string }>
   >({});
 
-  const isAdmin =
-    session?.user?.role === "admin" || session?.user?.role === "superadmin";
-
   useEffect(() => {
-    if (isAdmin) fetchProviders(true);
-  }, [isAdmin]);
+    fetchProviders(true);
+  }, []);
 
   const fetchProviders = async (isInitial?: boolean) => {
     try {

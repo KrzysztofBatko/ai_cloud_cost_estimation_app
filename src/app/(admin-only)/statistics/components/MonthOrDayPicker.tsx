@@ -18,7 +18,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import { ViewMode } from "@/app/admin/components/DashboardParameters";
+import { ViewMode } from "@/app/(admin-only)/statistics/components/DashboardParameters";
 
 export type MonthOrDayPickerValue = { mode: ViewMode; date: Date };
 export type RangeMonthOrDayPickerValue = {

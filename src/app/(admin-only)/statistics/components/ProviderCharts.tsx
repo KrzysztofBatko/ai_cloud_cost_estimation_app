@@ -15,7 +15,7 @@ import {
 import {
   DEFAULT_COLOR,
   PROVIDER_HEX,
-} from "@/app/statistics/components/Legend";
+} from "@/app/(admin-only)/statistics/components/Legend";
 
 interface SingleData {
   provider: string;

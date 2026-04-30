@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import PageContainer from "@/components/PageContaner";
+import PageContainer from "@/components/PageContainer";
 
 export default function AuthErrorPage() {
   const searchParams = useSearchParams();

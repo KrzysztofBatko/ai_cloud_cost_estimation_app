@@ -5,7 +5,7 @@ import { getProviders, signIn } from "next-auth/react";
 import type { ClientSafeProvider } from "next-auth/react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import PageContainer from "@/components/PageContaner";
+import PageContainer from "@/components/PageContainer";
 
 export default function SignInPage() {
   const [providers, setProviders] = useState<Record<

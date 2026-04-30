@@ -12,12 +12,11 @@ export function useUsers() {
   );
   const [usersError, setUsersError] = useState<string | null>(null);
 
-  const isSuperAdmin = session?.user?.role === "superadmin";
   const currentUserEmail = session?.user?.email?.toLowerCase() ?? null;
 
   useEffect(() => {
-    if (isSuperAdmin) fetchUsers();
-  }, [isSuperAdmin]);
+    fetchUsers();
+  }, []);
 
   const fetchUsers = async () => {
     try {

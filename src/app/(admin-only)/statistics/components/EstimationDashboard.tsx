@@ -7,17 +7,17 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useState } from "react";
-import responseCompareMock from "../../data/statisticsResponseCompare.json";
-import TopProviders from "@/app/statistics/components/TopProviders";
 import { format } from "date-fns";
-import { useProviders } from "@/app/admin/hooks/useProviders";
 import DashboardParameters, {
   VIEW_MODES,
-} from "@/app/statistics/components/DashboardParameters";
-import Legend from "@/app/statistics/components/Legend";
-import ProviderCharts from "@/app/statistics/components/ProviderCharts";
-import SummaryTable from "@/app/statistics/components/SummaryTable";
-import { useStatistics } from "@/app/statistics/hooks/useStatistics";
+} from "@/app/(admin-only)/statistics/components/DashboardParameters";
+import Legend from "@/app/(admin-only)/statistics/components/Legend";
+import ProviderCharts from "@/app/(admin-only)/statistics/components/ProviderCharts";
+import SummaryTable from "@/app/(admin-only)/statistics/components/SummaryTable";
+import TopProviders from "@/app/(admin-only)/statistics/components/TopProviders";
+import { useStatistics } from "@/app/(admin-only)/statistics/hooks/useStatistics";
+import responseCompareMock from "../../../data/statisticsResponseCompare.json";
+import { useProviders } from "@/app/(admin-only)/admin/hooks/useProviders";
 
 export const CHART_MODES = ["single", "compare"] as const;
 export type ChartMode = (typeof CHART_MODES)[number];

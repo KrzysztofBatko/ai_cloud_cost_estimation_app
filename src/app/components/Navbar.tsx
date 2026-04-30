@@ -36,21 +36,24 @@ export default function Navbar() {
         ) : (
           <div className="flex items-center gap-3">
             {isAdmin && session?.user && (
-              <Link href="/admin">
-                <Button variant={isAdminActive ? "outline" : "ghost"} size="sm">
-                  Admin
-                </Button>
-              </Link>
-            )}
-            {isAdmin && session?.user && (
-              <Link href="/statistics">
-                <Button
-                  variant={isStatisticsActive ? "outline" : "ghost"}
-                  size="sm"
-                >
-                  Statistics
-                </Button>
-              </Link>
+              <>
+                <Link href="/admin">
+                  <Button
+                    variant={isAdminActive ? "outline" : "ghost"}
+                    size="sm"
+                  >
+                    Admin
+                  </Button>
+                </Link>
+                <Link href="/statistics">
+                  <Button
+                    variant={isStatisticsActive ? "outline" : "ghost"}
+                    size="sm"
+                  >
+                    Statistics
+                  </Button>
+                </Link>
+              </>
             )}
 
             {session?.user ? (

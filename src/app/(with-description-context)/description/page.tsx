@@ -6,7 +6,7 @@ import UploadDocument from "@/app/(with-description-context)/description/compone
 import { ArrowRight, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useDescription } from "@/app/(with-description-context)/description/hooks/useDescription";
-import PageContainer from "@/components/PageContaner";
+import PageContainer from "@/components/PageContainer";
 
 export default function DescribePage() {
   const {

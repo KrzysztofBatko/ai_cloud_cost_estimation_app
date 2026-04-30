@@ -1,4 +1,4 @@
-import { ProviderDot } from "@/app/statistics/components/Legend";
+import { ProviderDot } from "@/app/(admin-only)/statistics/components/Legend";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,

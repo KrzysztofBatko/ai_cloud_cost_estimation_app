@@ -2,8 +2,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Plus, Loader2 } from "lucide-react";
-import { useProviders } from "@/app/admin/hooks/useProviders";
-import CloudProvider from "@/app/admin/components/CloudProvider";
+import { useProviders } from "@/app/(admin-only)/admin/hooks/useProviders";
+import CloudProvider from "@/app/(admin-only)/admin/components/CloudProvider";
 
 export default function CloudProvidersList() {
   const {
@@ -25,7 +25,7 @@ export default function CloudProvidersList() {
   } = useProviders();
 
   return (
-    <Card className="shadow-card mt-8">
+    <Card className="shadow-card">
       <CardHeader>
         <CardTitle>Cloud Providers</CardTitle>
       </CardHeader>

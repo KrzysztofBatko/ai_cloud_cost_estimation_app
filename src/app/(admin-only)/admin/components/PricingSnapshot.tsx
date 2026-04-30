@@ -1,8 +1,8 @@
 "use client";
+import { usePricingSnapshot } from "@/app/(admin-only)/admin/hooks/usePricingSnapshot";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, RefreshCw } from "lucide-react";
-import { usePricingSnapshot } from "@/app/admin/hooks/usePricingSnapshot";
 
 export default function PricingSnapshot() {
   const {
@@ -15,7 +15,7 @@ export default function PricingSnapshot() {
   } = usePricingSnapshot();
 
   return (
-    <Card className="shadow-card mt-8">
+    <Card className="shadow-card mt-4">
       <CardHeader className="flex flex-row items-center justify-between gap-4">
         <CardTitle>Pricing Snapshot</CardTitle>
         <div className="flex gap-2">

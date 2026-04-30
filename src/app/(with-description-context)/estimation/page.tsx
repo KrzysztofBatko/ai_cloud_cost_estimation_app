@@ -23,7 +23,7 @@ import { useSendToAI } from "@/app/(with-description-context)/estimation/hooks/u
 import { ProviderKey } from "@/types/api";
 import { SessionDescription } from "@/app/(with-description-context)/estimation/components/SessionDescription";
 import { useDescriptionContext } from "@/app/(with-description-context)/DescriptionProvider";
-import PageContainer from "@/components/PageContaner";
+import PageContainer from "@/components/PageContainer";
 
 export default function EstimationPage() {
   const [selectedProviders, setSelectedProviders] = useState<Provider[]>([]);

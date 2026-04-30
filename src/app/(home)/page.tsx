@@ -1,8 +1,8 @@
 "use client";
 
-import HeroSection from "./components/landing/HeroSection";
-import FeaturesSection from "./components/landing/FeaturesSection";
-import HowItWorksSection from "./components/landing/HowItWorksSection";
+import FeaturesSection from "@/app/(home)/components/landing/FeaturesSection";
+import HeroSection from "@/app/(home)/components/landing/HeroSection";
+import HowItWorksSection from "@/app/(home)/components/landing/HowItWorksSection";
 
 export default function Home() {
   return (

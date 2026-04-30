@@ -2,30 +2,37 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import PageContainer from "@/components/PageContainer";
 
 export default function AuthErrorPage() {
   const searchParams = useSearchParams();
   const error = searchParams.get("error") ?? "Default";
 
   return (
-    <main className="container mx-auto flex min-h-[calc(100vh-4rem)] max-w-xl flex-col items-center justify-center gap-6 px-4 py-12 text-center">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight text-foreground">
-          Failed to log in
-        </h1>
-        <p className="mt-2 text-sm text-muted-foreground">code: {error}</p>
-      </div>
-      <div className="flex items-center gap-3">
-        <Link href="/auth/signin">
-          <Button size="lg">Try again</Button>
-        </Link>
-        <Link href="/">
-          <Button variant="outline" size="lg">
-            Go back to Homepage
-          </Button>
-        </Link>
-      </div>
-    </main>
+    <PageContainer>
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7 }}
+        className="flex flex-col items-center gap-6 pt-8"
+      >
+        <div className="text-center">
+          <h1>Failed to log in</h1>
+          <h3>code: {error}</h3>
+        </div>
+        <div className="flex items-center gap-3">
+          <Link href="/auth/signin">
+            <Button size="lg">Try again</Button>
+          </Link>
+          <Link href="/">
+            <Button variant="outline" size="lg">
+              Go back to Homepage
+            </Button>
+          </Link>
+        </div>
+      </motion.div>
+    </PageContainer>
   );
 }

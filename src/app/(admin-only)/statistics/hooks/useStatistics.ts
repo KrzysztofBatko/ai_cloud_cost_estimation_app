@@ -1,0 +1,70 @@
+import { useEffect, useState } from "react";
+import { format } from "date-fns";
+import { SingleStatistics } from "@/types/api";
+import { ENDPOINTS } from "@/lib/api/utils";
+import {
+  MonthOrDayPickerValue,
+  RangeMonthOrDayPickerValue,
+} from "@/app/(admin-only)/statistics/components/MonthOrDayPicker";
+
+const currentDate = new Date();
+const currentMonth = new Date();
+const previousMonth = new Date(
+  currentMonth.getFullYear(),
+  currentMonth.getMonth() - 1,
+  1,
+);
+
+export function useStatistics() {
+  const [singleValue, setSingleValue] = useState<MonthOrDayPickerValue>({
+    mode: "months",
+    date: currentDate,
+  });
+  const [rangeValue, setRangeValue] = useState<RangeMonthOrDayPickerValue>({
+    mode: "months",
+    periodA: previousMonth,
+    periodB: currentMonth,
+  });
+  const [fetching, setFetching] = useState(false);
+  const [responseSingle, setResponseSingle] = useState<SingleStatistics[]>();
+
+  async function getStatistics(singleValue: MonthOrDayPickerValue) {
+    const date = format(
+      singleValue.date,
+      singleValue.mode === "months" ? "yyyy-MM" : "yyyy-MM-dd",
+    );
+    const queryKey = singleValue.mode === "months" ? "month" : "day";
+    try {
+      setFetching(true);
+      const response = await fetch(
+        `${ENDPOINTS.ESTIMATIONS_STATISTICS}?${queryKey}=${date}`,
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+
+      if (result.data) {
+        setResponseSingle(result.data);
+      }
+    } catch (error) {
+      console.error("Error fetching statistics:", error);
+    } finally {
+      setFetching(false);
+    }
+  }
+
+  useEffect(() => {
+    getStatistics(singleValue);
+  }, [singleValue]);
+
+  return {
+    singleValue,
+    setSingleValue,
+    rangeValue,
+    setRangeValue,
+    responseSingle,
+  };
+}

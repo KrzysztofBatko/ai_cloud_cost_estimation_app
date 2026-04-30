@@ -6,6 +6,7 @@ import UploadDocument from "@/app/(with-description-context)/description/compone
 import { ArrowRight, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useDescription } from "@/app/(with-description-context)/description/hooks/useDescription";
+import PageContainer from "@/components/PageContaner";
 
 export default function DescribePage() {
   const {
@@ -22,17 +23,10 @@ export default function DescribePage() {
 
   return (
     <AuthGuard>
-      <div className="container mx-auto max-w-4xl px-4 py-6">
-        <div className="flex items-center gap-3">
-          <div>
-            <h1>Describe your environment</h1>
-            <h3>
-              Tell us about your setup or upload a document. AI will use it to
-              pre-fill the estimation.
-            </h3>
-          </div>
-        </div>
-
+      <PageContainer
+        pageTitle="Describe your environment"
+        pageDescription="Tell us about your setup or upload a document. AI will use it to pre-fill the estimation."
+      >
         <EnvironmentDescription
           description={descriptionInput}
           setDescription={setDescriptionInput}
@@ -83,7 +77,7 @@ export default function DescribePage() {
             )}
           </button>
         </div>
-      </div>
+      </PageContainer>
     </AuthGuard>
   );
 }

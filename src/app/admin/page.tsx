@@ -28,10 +28,10 @@ export default function Admin() {
   }
 
   return (
-    <PageContainer>
-      <h1>Admin Panel</h1>
-      <h3>Your access: {session?.user?.role}</h3>
-
+    <PageContainer
+      pageTitle="Admin Panel"
+      pageDescription={`Your access: ${session?.user?.role}`}
+    >
       <CloudProvidersList />
       <PricingSnapshot />
 

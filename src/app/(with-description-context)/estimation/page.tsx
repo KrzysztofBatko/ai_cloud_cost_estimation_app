@@ -184,10 +184,10 @@ export default function EstimationPage() {
 
   return (
     <AuthGuard>
-      <PageContainer>
-        <h1>Cloud Cost Estimation</h1>
-        <h3>Powered by AI for accurate cloud cost predictions</h3>
-
+      <PageContainer
+        pageTitle="Cloud Cost Estimation"
+        pageDescription="Powered by AI for accurate cloud cost predictions"
+      >
         {descriptionInput && (
           <SessionDescription sessionDescription={descriptionInput} />
         )}

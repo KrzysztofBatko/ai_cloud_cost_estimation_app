@@ -3,7 +3,7 @@
 import { createContext, useContext, useState } from "react";
 import type { Dispatch, ReactNode, SetStateAction } from "react";
 
-type DescriptionPrefill = Record<string, string>;
+export type DescriptionPrefill = Record<string, string>;
 
 type DescriptionContextType = {
   descriptionInput: string;

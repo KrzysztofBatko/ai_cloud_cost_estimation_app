@@ -1,7 +1,7 @@
-import { useDescriptionContext } from "@/app/(with-description-context)/DescriptionProvider";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ENDPOINTS } from "@/lib/api/utils";
+import { useDescriptionContext } from "@/app/(auth-users)/(with-description-context)/DescriptionProvider";
 
 const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
 

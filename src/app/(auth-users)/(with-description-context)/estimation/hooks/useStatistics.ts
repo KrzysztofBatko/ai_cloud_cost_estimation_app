@@ -1,4 +1,4 @@
-import { Provider } from "@/app/(with-description-context)/estimation/components/Providers";
+import { Provider } from "@/app/(auth-users)/(with-description-context)/estimation/hooks/useActiveProviders";
 import { ENDPOINTS } from "@/lib/api/utils";
 
 export function useStatistics() {

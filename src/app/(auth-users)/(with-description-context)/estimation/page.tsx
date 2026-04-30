@@ -1,5 +1,4 @@
 "use client";
-import AuthGuard from "../../AuthGuard";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -13,17 +12,16 @@ import {
   Mail,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import Usage from "@/app/(with-description-context)/estimation/components/Usage";
-import Results from "@/app/(with-description-context)/estimation/components/Result";
-import Providers, {
-  Provider,
-} from "@/app/(with-description-context)/estimation/components/Providers";
-import { useStatistics } from "@/app/(with-description-context)/estimation/hooks/useStatistics";
-import { useSendToAI } from "@/app/(with-description-context)/estimation/hooks/useSendToAi";
-import { ProviderKey } from "@/types/api";
-import { SessionDescription } from "@/app/(with-description-context)/estimation/components/SessionDescription";
-import { useDescriptionContext } from "@/app/(with-description-context)/DescriptionProvider";
 import PageContainer from "@/components/PageContainer";
+import { useStatistics } from "@/app/(auth-users)/(with-description-context)/estimation/hooks/useStatistics";
+import { useSendToAI } from "@/app/(auth-users)/(with-description-context)/estimation/hooks/useSendToAi";
+import { useDescriptionContext } from "@/app/(auth-users)/(with-description-context)/DescriptionProvider";
+import { SessionDescription } from "@/app/(auth-users)/(with-description-context)/estimation/components/SessionDescription";
+import Providers from "@/app/(auth-users)/(with-description-context)/estimation/components/Providers";
+import Usage from "@/app/(auth-users)/(with-description-context)/estimation/components/Usage";
+import Results from "@/app/(auth-users)/(with-description-context)/estimation/components/Result";
+import { Provider } from "@/app/(auth-users)/(with-description-context)/estimation/hooks/useActiveProviders";
+import { ProviderKey } from "@/types/api";
 
 export default function EstimationPage() {
   const [selectedProviders, setSelectedProviders] = useState<Provider[]>([]);
@@ -183,7 +181,7 @@ export default function EstimationPage() {
   };
 
   return (
-    <AuthGuard>
+    <>
       <PageContainer
         pageTitle="Cloud Cost Estimation"
         pageDescription="Powered by AI for accurate cloud cost predictions"
@@ -325,6 +323,6 @@ export default function EstimationPage() {
           </div>
         </div>
       </footer>
-    </AuthGuard>
+    </>
   );
 }

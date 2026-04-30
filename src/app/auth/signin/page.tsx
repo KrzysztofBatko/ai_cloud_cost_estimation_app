@@ -3,7 +3,9 @@
 import { useEffect, useState } from "react";
 import { getProviders, signIn } from "next-auth/react";
 import type { ClientSafeProvider } from "next-auth/react";
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import PageContainer from "@/components/PageContaner";
 
 export default function SignInPage() {
   const [providers, setProviders] = useState<Record<
@@ -16,26 +18,33 @@ export default function SignInPage() {
   }, []);
 
   return (
-    <main className="container mx-auto flex min-h-[calc(10vh)] max-w-xl flex-col items-center justify-center gap-6 px-4 py-12">
-      <div className="text-center">
-        <h1 className="text-3xl font-bold tracking-tight text-foreground">
-          Sign in
-        </h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Choose your preferred sign in method to continue to the dashboard.
-        </p>
-      </div>
-      {providers
-        ? Object.values(providers).map((provider) => (
-            <Button
-              key={provider.id}
-              size="lg"
-              onClick={() => signIn(provider.id, { callbackUrl: "/" })}
-            >
-              Sign in with {provider.name}
-            </Button>
-          ))
-        : null}
-    </main>
+    <PageContainer>
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7 }}
+        className="flex flex-col items-center gap-6 pt-8"
+      >
+        <div className="text-center">
+          <h1>Sign in</h1>
+          <h3>
+            Choose your preferred sign in method to continue to the dashboard.
+          </h3>
+        </div>
+        <div>
+          {providers
+            ? Object.values(providers).map((provider) => (
+                <Button
+                  key={provider.id}
+                  size="lg"
+                  onClick={() => signIn(provider.id, { callbackUrl: "/" })}
+                >
+                  Sign in with {provider.name}
+                </Button>
+              ))
+            : null}
+        </div>
+      </motion.div>
+    </PageContainer>
   );
 }

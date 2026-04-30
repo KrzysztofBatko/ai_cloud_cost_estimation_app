@@ -1,4 +1,4 @@
-import { useDescriptionContext } from "@/app/(with-description-context)/DescriptionContextProvider";
+import { useDescriptionContext } from "@/app/(with-description-context)/DescriptionProvider";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ENDPOINTS } from "@/lib/api/utils";

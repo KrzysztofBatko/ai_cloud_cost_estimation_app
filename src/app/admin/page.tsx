@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import CloudProvidersList from "@/app/admin/components/CloudProvidersList";
 import UserManagement from "@/app/admin/components/UserManagement";
 import PricingSnapshot from "@/app/admin/components/PricingSnapshot";
+import PageContainer from "@/components/PageContaner";
 
 export default function Admin() {
   const { data: session, status } = useSession();
@@ -27,7 +28,7 @@ export default function Admin() {
   }
 
   return (
-    <div className="container mx-auto max-w-4xl px-4 py-6">
+    <PageContainer>
       <h1>Admin Panel</h1>
       <h3>Your access: {session?.user?.role}</h3>
 
@@ -35,6 +36,6 @@ export default function Admin() {
       <PricingSnapshot />
 
       {isSuperAdmin && <UserManagement />}
-    </div>
+    </PageContainer>
   );
 }

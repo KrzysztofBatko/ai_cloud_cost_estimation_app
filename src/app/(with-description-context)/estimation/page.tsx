@@ -22,7 +22,8 @@ import { useStatistics } from "@/app/(with-description-context)/estimation/hooks
 import { useSendToAI } from "@/app/(with-description-context)/estimation/hooks/useSendToAi";
 import { ProviderKey } from "@/types/api";
 import { SessionDescription } from "@/app/(with-description-context)/estimation/components/SessionDescription";
-import { useDescriptionContext } from "@/app/(with-description-context)/DescriptionContextProvider";
+import { useDescriptionContext } from "@/app/(with-description-context)/DescriptionProvider";
+import PageContainer from "@/components/PageContaner";
 
 export default function EstimationPage() {
   const [selectedProviders, setSelectedProviders] = useState<Provider[]>([]);
@@ -183,7 +184,7 @@ export default function EstimationPage() {
 
   return (
     <AuthGuard>
-      <div className="container mx-auto max-w-4xl px-4 py-6">
+      <PageContainer>
         <h1>Cloud Cost Estimation</h1>
         <h3>Powered by AI for accurate cloud cost predictions</h3>
 
@@ -300,7 +301,7 @@ export default function EstimationPage() {
             )}
           </AnimatePresence>
         </div>
-      </div>
+      </PageContainer>
 
       {/* Footer */}
       <footer className="mt-16 border-t bg-muted/50 py-8">

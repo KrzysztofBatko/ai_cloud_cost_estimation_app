@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
 import { usageQuestions } from "@/app/(with-description-context)/estimation/configuration";
-import { DescriptionPrefill } from "@/app/(with-description-context)/DescriptionContextProvider";
+import { DescriptionPrefill } from "@/app/(with-description-context)/DescriptionProvider";
 
 const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
 

@@ -11,7 +11,7 @@ export function useSendToAI() {
     answers: Record<string, string>,
     notes: string,
     providerRegions: Record<string, string>,
-  ) => {
+  ): Promise<EstimateResponse | null> => {
     const body = {
       providers: selectedProvidersNames,
       usage: answers,
@@ -31,10 +31,12 @@ export function useSendToAI() {
         throw new Error(`HTTP error! status: ${res.status}`);
       }
 
-      const data = await res.json();
+      const data = (await res.json()) as EstimateResponse;
       setResults(data);
+      return data;
     } catch (error) {
       console.error("Error:", error);
+      return null;
     } finally {
       setLoading(false);
     }

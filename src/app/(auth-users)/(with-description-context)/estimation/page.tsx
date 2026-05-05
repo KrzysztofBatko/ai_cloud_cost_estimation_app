@@ -7,6 +7,7 @@ import {
   Loader2,
   RefreshCw,
   RotateCcw,
+  Save,
   Send,
   Printer,
   Mail,
@@ -20,6 +21,10 @@ import { SessionDescription } from "@/app/(auth-users)/(with-description-context
 import Providers from "@/app/(auth-users)/(with-description-context)/estimation/components/Providers";
 import Usage from "@/app/(auth-users)/(with-description-context)/estimation/components/Usage";
 import Results from "@/app/(auth-users)/(with-description-context)/estimation/components/Result";
+import EstimateComparison, {
+  ComparisonInputs,
+  SavedComparison,
+} from "@/app/(auth-users)/(with-description-context)/estimation/components/EstimateComparison";
 import { Provider } from "@/app/(auth-users)/(with-description-context)/estimation/hooks/useActiveProviders";
 import { ProviderKey } from "@/types/api";
 
@@ -30,6 +35,11 @@ export default function EstimationPage() {
   >({});
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [notes, setNotes] = useState("");
+  const [resultInputs, setResultInputs] = useState<ComparisonInputs | null>(
+    null,
+  );
+  const [savedComparison, setSavedComparison] =
+    useState<SavedComparison | null>(null);
 
   const { saveStatistics } = useStatistics();
   const { sendToAI, loading, results, setResults } = useSendToAI();
@@ -103,13 +113,23 @@ export default function EstimationPage() {
     setProviderRegions((prev) => ({ ...prev, [providerKey]: region }));
   };
 
+  const createComparisonInputs = (): ComparisonInputs => ({
+    providers: selectedProviders.map((p) => p.name),
+    usage: { ...answers },
+    notes,
+    providerRegions: { ...providerRegions },
+  });
+
   const handleEstimation = async () => {
+    const inputSnapshot = createComparisonInputs();
+    setResultInputs(inputSnapshot);
+
     await Promise.allSettled([
       sendToAI(
-        selectedProviders.map((p) => p.name),
-        answers,
-        notes,
-        providerRegions,
+        inputSnapshot.providers,
+        inputSnapshot.usage,
+        inputSnapshot.notes,
+        inputSnapshot.providerRegions,
       ),
       saveStatistics(selectedProviders),
     ]);
@@ -121,6 +141,18 @@ export default function EstimationPage() {
     setAnswers({});
     setNotes("");
     setResults(null);
+    setResultInputs(null);
+    setSavedComparison(null);
+  };
+
+  const saveCurrentForComparison = () => {
+    if (!results) return;
+
+    setSavedComparison({
+      savedAt: new Date().toISOString(),
+      results,
+      inputs: resultInputs ?? createComparisonInputs(),
+    });
   };
 
   const handlePrint = () => {
@@ -260,12 +292,30 @@ export default function EstimationPage() {
                 exit={{ opacity: 0 }}
               >
                 {/* Section 5 - Results */}
-                <div className="print-area">
+                <div className="print-area space-y-4">
                   <Results results={results} />
+                  {savedComparison ? (
+                    <EstimateComparison
+                      baseline={savedComparison}
+                      currentResults={results}
+                      currentInputs={resultInputs ?? createComparisonInputs()}
+                      onClear={() => setSavedComparison(null)}
+                    />
+                  ) : null}
                 </div>
 
                 {/* Section 6 - Actions */}
-                <div className="print-hidden mt-6 flex justify-center gap-4">
+                <div className="print-hidden mt-6 flex flex-wrap justify-center gap-4">
+                  <Button
+                    variant="outline"
+                    onClick={saveCurrentForComparison}
+                    disabled={!results}
+                  >
+                    <Save className="mr-2 h-4 w-4" />
+                    {savedComparison
+                      ? "Replace Comparison"
+                      : "Save Comparison"}
+                  </Button>
                   <Button
                     variant="outline"
                     onClick={handlePrint}

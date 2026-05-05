@@ -187,23 +187,29 @@ export default function EstimationPage() {
         pageDescription="Powered by AI for accurate cloud cost predictions"
       >
         {descriptionInput && (
-          <SessionDescription sessionDescription={descriptionInput} />
+          <div className="print-hidden">
+            <SessionDescription sessionDescription={descriptionInput} />
+          </div>
         )}
 
         <div className="mt-5 space-y-4">
           {/* Section 1 - Providers */}
-          <Providers
-            selectedProviders={selectedProviders}
-            selectedRegions={providerRegions}
-            onToggleProvider={toggleProvider}
-            onRegionChange={handleProviderRegionChange}
-          />
+          <div className="print-hidden">
+            <Providers
+              selectedProviders={selectedProviders}
+              selectedRegions={providerRegions}
+              onToggleProvider={toggleProvider}
+              onRegionChange={handleProviderRegionChange}
+            />
+          </div>
 
           {/* Section 2 - Usage */}
-          <Usage answers={answers} setAnswers={setAnswers} />
+          <div className="print-hidden">
+            <Usage answers={answers} setAnswers={setAnswers} />
+          </div>
 
           {/* Section 3 - Notes */}
-          <Card className="shadow-card gap-2">
+          <Card className="print-hidden shadow-card gap-2">
             <CardHeader>
               <CardTitle>3. Custom Infrastructure Notes</CardTitle>
             </CardHeader>
@@ -218,7 +224,7 @@ export default function EstimationPage() {
           </Card>
 
           {/* Section 4 - Submit */}
-          <div className="flex justify-center">
+          <div className="print-hidden flex justify-center">
             <Button
               size="lg"
               onClick={() => handleEstimation()}
@@ -236,7 +242,7 @@ export default function EstimationPage() {
 
           {/* Loading skeleton */}
           {loading && (
-            <div className="space-y-3">
+            <div className="print-hidden space-y-3">
               {selectedProviders.map((_, i) => (
                 <div
                   key={i}
@@ -259,7 +265,7 @@ export default function EstimationPage() {
                 </div>
 
                 {/* Section 6 - Actions */}
-                <div className="mt-6 flex justify-center gap-4">
+                <div className="print-hidden mt-6 flex justify-center gap-4">
                   <Button
                     variant="outline"
                     onClick={handlePrint}
@@ -287,7 +293,7 @@ export default function EstimationPage() {
                 </div>
 
                 {/* CTA Section */}
-                <div className="mt-8 text-center">
+                <div className="print-hidden mt-8 text-center">
                   <p className="text-muted-foreground mb-4">
                     Need a detailed quote or consultation?
                   </p>

@@ -178,19 +178,48 @@
 }
 
 @media print {
+  @page {
+    margin: 12mm;
+  }
+
+  html,
+  body {
+    background: white !important;
+    min-height: auto !important;
+  }
+
   body * {
-    visibility: hidden;
+    visibility: hidden !important;
   }
 
   .print-area,
   .print-area * {
-    visibility: visible;
+    visibility: visible !important;
   }
 
   .print-area {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
+    position: static !important;
+    width: 100% !important;
+  }
+
+  body:has(.print-area) nav,
+  body:has(.print-area) footer,
+  body:has(.print-area) main > h1,
+  body:has(.print-area) main > h3,
+  body:has(.print-area) .print-hidden {
+    display: none !important;
+  }
+
+  body:has(.print-area) main {
+    max-width: none !important;
+    padding: 0 !important;
+  }
+
+  body:has(.print-area) [data-slot="card"] {
+    box-shadow: none !important;
+  }
+
+  body:has(.print-area) [data-slot="table-container"] {
+    overflow: visible !important;
   }
 }

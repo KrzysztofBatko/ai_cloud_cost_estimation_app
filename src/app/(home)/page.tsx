@@ -10,9 +10,6 @@ export default function Home() {
       <HeroSection />
       <FeaturesSection />
       <HowItWorksSection />
-      <footer className="border-t border-border py-8 text-center text-sm text-muted-foreground">
-        © 2026 AI Cloud Cost Estimation. All rights reserved.
-      </footer>
     </main>
   );
 }

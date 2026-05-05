@@ -34,12 +34,13 @@ export default function RootLayout({
       >
         <AuthProvider>
           <TooltipProvider>
-            <div className="flex min-h-screen flex-col bg-zinc-50 font-sans dark:bg-black">
-              <Navbar />
-              {children}
-            </div>
+            <Navbar />
+            {children}
           </TooltipProvider>
         </AuthProvider>
+        <footer className="border-t border-border py-8 text-center text-sm text-muted-foreground">
+          © 2026 AI Cloud Cost Estimation. All rights reserved.
+        </footer>
       </body>
     </html>
   );

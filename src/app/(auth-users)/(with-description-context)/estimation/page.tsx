@@ -300,29 +300,6 @@ export default function EstimationPage() {
           </AnimatePresence>
         </div>
       </PageContainer>
-
-      {/* Footer */}
-      <footer className="mt-16 border-t bg-muted/50 py-8">
-        <div className="container mx-auto max-w-4xl px-4 text-center">
-          <p className="text-sm text-muted-foreground mb-2">
-            © 2026 Cloud Cost Estimation. All rights reserved.
-          </p>
-          <div className="flex justify-center gap-6 text-sm">
-            <a href="#" className="text-primary hover:underline">
-              Privacy Policy
-            </a>
-            <a href="#" className="text-primary hover:underline">
-              Terms of Service
-            </a>
-            <a
-              href="mailto:support@cloudcost.com"
-              className="text-primary hover:underline"
-            >
-              Contact Support
-            </a>
-          </div>
-        </div>
-      </footer>
     </>
   );
 }

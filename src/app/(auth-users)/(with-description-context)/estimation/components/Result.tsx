@@ -9,45 +9,19 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  ExternalLink,
-  Info,
-  Lightbulb,
-  Cloud,
-  Globe,
-  Database,
-  Triangle,
-} from "lucide-react";
+import { ExternalLink, Info, Lightbulb, Cloud } from "lucide-react";
 
 import { EstimateResponse } from "@/app/api/estimation/route";
-
-function formatCalculatedAt(value: string) {
-  const parsed = new Date(value);
-  if (Number.isNaN(parsed.getTime())) {
-    return value;
-  }
-
-  return new Intl.DateTimeFormat(undefined, {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(parsed);
-}
+import {
+  formatCalculatedAt,
+  formatCurrency,
+} from "@/app/(auth-users)/(with-description-context)/estimation/utils/commonFormats";
+import { iconMap } from "@/app/(auth-users)/(with-description-context)/estimation/utils/providerHelpers";
 
 const confidenceVariant = (c: string) => {
   if (c === "high") return "default" as const;
   if (c === "medium") return "warning" as const;
   return "destructive" as const;
-};
-
-const iconMap = {
-  aws: <Cloud className="w-5 h-5 text-orange-500" />,
-  azure: <Cloud className="w-5 h-5 text-blue-500" />,
-  gcp: <Globe className="w-5 h-5 text-blue-400" />,
-  oracle: <Database className="w-5 h-5 text-red-500" />,
-  vercel: <Triangle className="w-5 h-5 text-black" />,
 };
 
 type ProviderEstimate = EstimateResponse["estimates"][number];
@@ -84,7 +58,7 @@ const ProviderEstimateDetails = ({ est }: { est: ProviderEstimate }) => (
                 <p className="text-xs text-muted-foreground">{b.notes}</p>
               </div>
               <span className="text-sm font-mono whitespace-nowrap">
-                ${b.monthly}
+                {formatCurrency(b.monthly, est.currency)}
               </span>
             </div>
           ))}
@@ -147,8 +121,12 @@ const ProvidersEstimatesRow = ({
             </div>
           </div>
         </TableCell>
-        <TableCell className="font-mono">${est.monthlyTotal}</TableCell>
-        <TableCell className="font-mono">${est.dailyTotal}</TableCell>
+        <TableCell className="font-mono">
+          {formatCurrency(est.monthlyTotal, est.currency)}
+        </TableCell>
+        <TableCell className="font-mono">
+          {formatCurrency(est.dailyTotal, est.currency)}
+        </TableCell>
         <TableCell>
           <Badge variant={confidenceVariant(est.confidence)}>
             {est.confidence}
@@ -243,11 +221,15 @@ const ProviderEstimateMobileCard = ({
       <div className="flex gap-4">
         <div>
           <p className="text-xs text-muted-foreground">Monthly</p>
-          <p className="text-lg font-mono font-semibold">${est.monthlyTotal}</p>
+          <p className="text-lg font-mono font-semibold">
+            {formatCurrency(est.monthlyTotal, est.currency)}
+          </p>
         </div>
         <div>
           <p className="text-xs text-muted-foreground">Daily</p>
-          <p className="text-lg font-mono">${est.dailyTotal}</p>
+          <p className="text-lg font-mono">
+            {formatCurrency(est.dailyTotal, est.currency)}
+          </p>
         </div>
       </div>
 

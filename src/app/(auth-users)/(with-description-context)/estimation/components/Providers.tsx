@@ -2,10 +2,11 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Cloud, Globe, Database, Triangle, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useEffect } from "react";
 import { useActiveProviders } from "@/app/(auth-users)/(with-description-context)/estimation/hooks/useActiveProviders";
 import { ProviderKey, ProviderRegion } from "@/types/api";
+import { iconMap } from "@/app/(auth-users)/(with-description-context)/estimation/utils/providerHelpers";
 
 export interface Provider {
   id: string;
@@ -22,15 +23,6 @@ interface Props {
   onToggleProvider: (provider: Provider) => void;
   onRegionChange: (providerKey: ProviderKey, region: string) => void;
 }
-
-const iconMap = {
-  aws: <Cloud className="w-6 h-6 text-orange-500" />,
-  azure: <Cloud className="w-6 h-6 text-blue-500" />,
-  gcp: <Globe className="w-6 h-6 text-blue-400" />,
-  oracle: <Database className="w-6 h-6 text-red-500" />,
-  vercel: <Triangle className="w-6 h-6 text-black" />,
-  default: <Cloud className="w-6 h-6 text-muted-foreground" />,
-};
 
 export default function Providers({
   selectedProviders,

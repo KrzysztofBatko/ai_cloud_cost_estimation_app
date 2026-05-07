@@ -27,7 +27,7 @@ import EstimateComparison, {
 } from "@/app/(auth-users)/(with-description-context)/estimation/components/EstimateComparison";
 import { Provider } from "@/app/(auth-users)/(with-description-context)/estimation/hooks/useActiveProviders";
 import { ProviderKey } from "@/types/api";
-import { createEmailContent } from "@/app/(auth-users)/(with-description-context)/estimation/utils/helpers";
+import { createEmailContent } from "@/app/(auth-users)/(with-description-context)/estimation/utils/emailConentHelpers";
 
 export default function EstimationPage() {
   const [selectedProviders, setSelectedProviders] = useState<Provider[]>([]);

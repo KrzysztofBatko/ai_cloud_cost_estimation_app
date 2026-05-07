@@ -14,6 +14,10 @@ import {
 } from "@/components/ui/table";
 import { usageQuestions } from "@/app/(auth-users)/(with-description-context)/estimation/configuration";
 import { GitCompareArrows, Trash2 } from "lucide-react";
+import {
+  formatCalculatedAt,
+  formatCurrency,
+} from "@/app/(auth-users)/(with-description-context)/estimation/utils/commonFormats";
 
 export type ComparisonInputs = {
   providers: string[];
@@ -47,34 +51,6 @@ type ParameterChange = {
 const usageQuestionLabels = new Map(
   usageQuestions.map((question) => [question.id, question.label]),
 );
-
-function formatCalculatedAt(value: string) {
-  const parsed = new Date(value);
-
-  if (Number.isNaN(parsed.getTime())) {
-    return value;
-  }
-
-  return new Intl.DateTimeFormat(undefined, {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(parsed);
-}
-
-function formatCurrency(value: number, currency = "USD") {
-  try {
-    return new Intl.NumberFormat(undefined, {
-      style: "currency",
-      currency,
-      maximumFractionDigits: 2,
-    }).format(value);
-  } catch {
-    return `${currency} ${value.toFixed(2)}`;
-  }
-}
 
 function normalizeProvider(provider: string) {
   return provider.trim().toLowerCase();
@@ -214,10 +190,7 @@ function buildParameterChanges(
   const usageIds = [
     ...usageQuestions.map((question) => question.id),
     ...Array.from(
-      new Set([
-        ...Object.keys(baseline.usage),
-        ...Object.keys(current.usage),
-      ]),
+      new Set([...Object.keys(baseline.usage), ...Object.keys(current.usage)]),
     )
       .filter((id) => !knownUsageIds.has(id))
       .sort(),
@@ -263,7 +236,9 @@ function formatDelta(
   const sign = delta > 0 ? "+" : delta < 0 ? "-" : "";
   const absoluteDelta = formatCurrency(Math.abs(delta), currency);
   const percent =
-    baseline[field] > 0 ? ` (${((delta / baseline[field]) * 100).toFixed(1)}%)` : "";
+    baseline[field] > 0
+      ? ` (${((delta / baseline[field]) * 100).toFixed(1)}%)`
+      : "";
 
   return {
     value: `${sign}${absoluteDelta}${percent}`,
@@ -369,7 +344,10 @@ export default function EstimateComparison({
                   </TableCell>
                   <TableCell className="font-mono">
                     {row.current
-                      ? formatCurrency(row.current.monthlyTotal, row.current.currency)
+                      ? formatCurrency(
+                          row.current.monthlyTotal,
+                          row.current.currency,
+                        )
                       : "Removed"}
                   </TableCell>
                   <TableCell

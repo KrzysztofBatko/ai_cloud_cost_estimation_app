@@ -13,6 +13,7 @@ export default function Navbar() {
   const isAdminActive = pathname === "/admin";
   const isStatisticsActive = pathname === "/statistics";
   const isEstimationActive = pathname?.startsWith("/estimation");
+  const isProfileActive = pathname === "/profile";
 
   const isAdmin =
     session?.user?.role === "admin" || session?.user?.role === "superadmin";
@@ -66,15 +67,23 @@ export default function Navbar() {
                     Estimation
                   </Button>
                 </Link>
-                <Avatar className="h-8 w-8">
-                  <AvatarImage src={session?.user?.image ?? undefined} />
-                  <AvatarFallback className="bg-primary text-primary-foreground text-xs">
-                    {session?.user?.name?.charAt(0)?.toUpperCase() ?? "U"}
-                  </AvatarFallback>
-                </Avatar>
-                <span className="text-sm font-medium text-foreground hidden sm:inline">
-                  {session?.user?.name}
-                </span>
+                <Link
+                  href="/profile"
+                  className={`flex items-center gap-2 rounded-md px-1.5 py-1 transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+                    isProfileActive ? "bg-muted" : ""
+                  }`}
+                  aria-label="View profile"
+                >
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage src={session?.user?.image ?? undefined} />
+                    <AvatarFallback className="bg-primary text-primary-foreground text-xs">
+                      {session?.user?.name?.charAt(0)?.toUpperCase() ?? "U"}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="hidden text-sm font-medium text-foreground sm:inline">
+                    {session?.user?.name}
+                  </span>
+                </Link>
                 <Button
                   variant="destructive"
                   size="sm"

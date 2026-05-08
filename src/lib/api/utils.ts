@@ -5,6 +5,7 @@ export const ENDPOINTS = {
   DESCRIPTION_PREFILL: "/api/description-prefill",
   DESCRIPTION: "/api/description",
   PRICING_REFRESH: "/api/pricing/refresh",
+  PROFILE: "/api/profile",
   USERS: "/api/users",
   AUTH_SIGNIN: "/api/auth/signin",
 };

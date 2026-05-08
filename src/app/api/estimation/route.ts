@@ -115,7 +115,10 @@ function normalizeEstimateWording<T>(json: T): T {
   return next as T;
 }
 
-function enrichEstimateMetadata<T>(json: T, metadata: { pricingAsOf: string; calculatedAt: string }): T {
+function enrichEstimateMetadata<T>(
+  json: T,
+  metadata: { pricingAsOf: string; calculatedAt: string },
+): T {
   if (!json || typeof json !== "object") {
     return json;
   }
@@ -131,7 +134,9 @@ function enrichEstimateMetadata<T>(json: T, metadata: { pricingAsOf: string; cal
   return next as T;
 }
 
-function buildEstimationRequest(body: EstimationRequestBody): EstimationRequestBody {
+function buildEstimationRequest(
+  body: EstimationRequestBody,
+): EstimationRequestBody {
   const usage = { ...(body.usage ?? {}) };
   const enforcedArchitectureRules = [
     ...(body.enforcedArchitectureRules ?? []),
@@ -194,7 +199,8 @@ function buildEstimationRequest(body: EstimationRequestBody): EstimationRequestB
   }
 
   const isMsSqlDbHa =
-    usage.dbEngine === "MS SQL" && usage.dbHighAvailability === "Multi-zone (HA)";
+    usage.dbEngine === "MS SQL" &&
+    usage.dbHighAvailability === "Multi-zone (HA)";
 
   if (
     isMsSqlDbHa &&
@@ -231,7 +237,8 @@ export const SCHEMA_OPEN_AI = {
     },
     calculatedAt: {
       type: "string",
-      description: "Timestamp when the estimate was generated in ISO-8601 format",
+      description:
+        "Timestamp when the estimate was generated in ISO-8601 format",
     },
     estimates: {
       type: "array",
@@ -351,25 +358,27 @@ const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 export async function POST(req: NextRequest) {
   try {
     const { body } = await req.json();
-    const estimationRequest = buildEstimationRequest(body as EstimationRequestBody);
+    const estimationRequest = buildEstimationRequest(
+      body as EstimationRequestBody,
+    );
     const calculatedAt = new Date().toISOString();
 
-    const deterministicResponse = await buildDeterministicEstimates(estimationRequest);
-    if (deterministicResponse) {
-      const normalizedDeterministic = enrichEstimateMetadata(
-        normalizeEstimateWording(deterministicResponse),
-        {
-          pricingAsOf: deterministicResponse.pricingAsOf,
-          calculatedAt,
-        },
-      );
-      return NextResponse.json(normalizedDeterministic, {
-        status: 200,
-        headers: {
-          "Content-Disposition": `attachment; filename="cost-estimate-${deterministicResponse.pricingAsOf}.json"`,
-        },
-      });
-    }
+    // const deterministicResponse = await buildDeterministicEstimates(estimationRequest);
+    // if (deterministicResponse) {
+    //   const normalizedDeterministic = enrichEstimateMetadata(
+    //     normalizeEstimateWording(deterministicResponse),
+    //     {
+    //       pricingAsOf: deterministicResponse.pricingAsOf,
+    //       calculatedAt,
+    //     },
+    //   );
+    //   return NextResponse.json(normalizedDeterministic, {
+    //     status: 200,
+    //     headers: {
+    //       "Content-Disposition": `attachment; filename="cost-estimate-${deterministicResponse.pricingAsOf}.json"`,
+    //     },
+    //   });
+    // }
 
     const today = new Date().toISOString().slice(0, 10);
 
@@ -413,10 +422,13 @@ export async function POST(req: NextRequest) {
 
     // Ensure we return JSON (and fail loudly if the model didn't comply)
     const json = JSON.parse(text);
-    const normalizedJson = enrichEstimateMetadata(normalizeEstimateWording(json), {
-      pricingAsOf: today,
-      calculatedAt,
-    });
+    const normalizedJson = enrichEstimateMetadata(
+      normalizeEstimateWording(json),
+      {
+        pricingAsOf: today,
+        calculatedAt,
+      },
+    );
 
     return NextResponse.json(normalizedJson, {
       status: 200,

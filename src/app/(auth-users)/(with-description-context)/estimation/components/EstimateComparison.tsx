@@ -18,9 +18,11 @@ import {
   formatCalculatedAt,
   formatCurrency,
 } from "@/app/(auth-users)/(with-description-context)/estimation/utils/commonFormats";
+import type { EstimationCurrency } from "@/lib/estimation/currencies";
 
 export type ComparisonInputs = {
   providers: string[];
+  currency: EstimationCurrency;
   usage: Record<string, string>;
   providerRegions: Record<string, string>;
   notes: string;
@@ -162,6 +164,15 @@ function buildParameterChanges(
       label: "Providers",
       baseline: formatProviders(baseline.providers),
       current: formatProviders(current.providers),
+    });
+  }
+
+  if (baseline.currency !== current.currency) {
+    changes.push({
+      key: "currency",
+      label: "Currency",
+      baseline: baseline.currency,
+      current: current.currency,
     });
   }
 

@@ -133,7 +133,7 @@ export default function UsageModern({ answers, setAnswers }: Props) {
         <CardHeader className="gap-4">
           <div className="flex items-start justify-between gap-4">
             <div className="space-y-1">
-              <CardTitle>2. Usage</CardTitle>
+              <CardTitle>3. Usage</CardTitle>
               <CardDescription>
                 If it&apos;s not applicable, leave the question unanswered. The
                 more you answer, the better the estimate!

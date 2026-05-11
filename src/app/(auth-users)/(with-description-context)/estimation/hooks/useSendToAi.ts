@@ -1,5 +1,6 @@
-import { EstimateResponse } from "@/app/api/estimation/route";
+import type { EstimateResponse } from "@/app/api/estimation/route";
 import { ENDPOINTS } from "@/lib/api/utils";
+import type { EstimationCurrency } from "@/lib/estimation/currencies";
 import { useState } from "react";
 
 export function useSendToAI() {
@@ -11,12 +12,14 @@ export function useSendToAI() {
     answers: Record<string, string>,
     notes: string,
     providerRegions: Record<string, string>,
+    currency: EstimationCurrency,
   ): Promise<EstimateResponse | null> => {
     const body = {
       providers: selectedProvidersNames,
       usage: answers,
       notes,
       providerRegions,
+      currency,
     };
     setLoading(true);
     setResults(null);

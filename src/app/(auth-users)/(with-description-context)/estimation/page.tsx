@@ -19,6 +19,7 @@ import { useSendToAI } from "@/app/(auth-users)/(with-description-context)/estim
 import { useDescriptionContext } from "@/app/(auth-users)/(with-description-context)/DescriptionProvider";
 import { SessionDescription } from "@/app/(auth-users)/(with-description-context)/estimation/components/SessionDescription";
 import Providers from "@/app/(auth-users)/(with-description-context)/estimation/components/Providers";
+import Currency from "@/app/(auth-users)/(with-description-context)/estimation/components/Currency";
 import Usage from "@/app/(auth-users)/(with-description-context)/estimation/components/Usage";
 import Results from "@/app/(auth-users)/(with-description-context)/estimation/components/Result";
 import EstimateComparison, {
@@ -28,9 +29,16 @@ import EstimateComparison, {
 import { Provider } from "@/app/(auth-users)/(with-description-context)/estimation/hooks/useActiveProviders";
 import { ProviderKey } from "@/types/api";
 import { createEmailContent } from "@/app/(auth-users)/(with-description-context)/estimation/utils/emailConentHelpers";
+import {
+  DEFAULT_ESTIMATION_CURRENCY,
+  type EstimationCurrency,
+} from "@/lib/estimation/currencies";
 
 export default function EstimationPage() {
   const [selectedProviders, setSelectedProviders] = useState<Provider[]>([]);
+  const [currency, setCurrency] = useState<EstimationCurrency>(
+    DEFAULT_ESTIMATION_CURRENCY,
+  );
   const [providerRegions, setProviderRegions] = useState<
     Record<string, string>
   >({});
@@ -116,6 +124,7 @@ export default function EstimationPage() {
 
   const createComparisonInputs = (): ComparisonInputs => ({
     providers: selectedProviders.map((p) => p.name),
+    currency,
     usage: { ...answers },
     notes,
     providerRegions: { ...providerRegions },
@@ -131,6 +140,7 @@ export default function EstimationPage() {
         inputSnapshot.usage,
         inputSnapshot.notes,
         inputSnapshot.providerRegions,
+        inputSnapshot.currency,
       ),
       saveStatistics(selectedProviders),
     ]);
@@ -138,6 +148,7 @@ export default function EstimationPage() {
 
   const restart = () => {
     setSelectedProviders([]);
+    setCurrency(DEFAULT_ESTIMATION_CURRENCY);
     setProviderRegions({});
     setAnswers({});
     setNotes("");
@@ -191,15 +202,20 @@ export default function EstimationPage() {
           />
         </div>
 
-        {/* Section 2 - Usage */}
+        {/* Section 2 - Currency */}
+        <div className="print-hidden">
+          <Currency currency={currency} onCurrencyChange={setCurrency} />
+        </div>
+
+        {/* Section 3 - Usage */}
         <div className="print-hidden">
           <Usage answers={answers} setAnswers={setAnswers} />
         </div>
 
-        {/* Section 3 - Notes */}
+        {/* Section 4 - Notes */}
         <Card className="print-hidden shadow-card gap-2">
           <CardHeader>
-            <CardTitle>3. Custom Infrastructure Notes</CardTitle>
+            <CardTitle>4. Custom Infrastructure Notes</CardTitle>
           </CardHeader>
           <CardContent>
             <Textarea
@@ -211,7 +227,7 @@ export default function EstimationPage() {
           </CardContent>
         </Card>
 
-        {/* Section 4 - Submit */}
+        {/* Section 5 - Submit */}
         <div className="print-hidden flex justify-center">
           <Button
             size="lg"
@@ -244,7 +260,7 @@ export default function EstimationPage() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
             >
-              {/* Section 5 - Results */}
+              {/* Section 6 - Results */}
               <div className="print-area space-y-4">
                 <Results results={results} />
                 {savedComparison ? (
@@ -257,7 +273,7 @@ export default function EstimationPage() {
                 ) : null}
               </div>
 
-              {/* Section 6 - Actions */}
+              {/* Section 7 - Actions */}
               <div className="print-hidden mt-6 flex flex-wrap justify-center gap-4">
                 <Button
                   variant="outline"

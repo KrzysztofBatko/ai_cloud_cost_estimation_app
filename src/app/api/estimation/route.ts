@@ -1,23 +1,27 @@
 import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
 import { buildDeterministicEstimates } from "@/lib/pricing/deterministic-estimator";
+import {
+  DEFAULT_ESTIMATION_CURRENCY,
+  ESTIMATION_CURRENCY_OPTIONS,
+} from "@/lib/estimation/currencies";
 
-const CURRENCY = "USD";
-
-const SYSTEM_PROMPT = [
-  "You are a cloud cost estimation assistant.",
-  "Return ONLY valid JSON matching the requested schema.",
-  "Do NOT include markdown, code fences, or extra text.",
-  "You do NOT have access to live pricing. Clearly label prices as estimates.",
-  "Keep estimates deterministic: for the same request payload and date, use the same assumptions and arithmetic so totals remain consistent across reruns.",
-  "Include pricing page links for each provider (general official pricing pages).",
-  "Any enforced architecture rules included in the request are mandatory and must be reflected in the estimate breakdown and assumptions.",
-  "Use the explicitly provided provider region for each estimate. If a provider region is missing, fall back to that provider's default region.",
-  "For each service component (compute, database, networking, and frontend runtime), evaluate available alternatives for the selected provider and region, then choose the most cost-optimal feasible option.",
-  "Always include a short availability-check note and option comparison rationale in assumptions when selecting a service option.",
-  "For MS SQL, evaluate managed and customer-managed options; choose the most cost-optimal option that is available in the selected provider region and explain the decision.",
-  `Currency is always ${CURRENCY}.`,
-].join(" ");
+function generateSystemPrompt(currency: string) {
+  return [
+    "You are a cloud cost estimation assistant.",
+    "Return ONLY valid JSON matching the requested schema.",
+    "Do NOT include markdown, code fences, or extra text.",
+    "You do NOT have access to live pricing. Clearly label prices as estimates.",
+    "Keep estimates deterministic: for the same request payload and date, use the same assumptions and arithmetic so totals remain consistent across reruns.",
+    "Include pricing page links for each provider (general official pricing pages).",
+    "Any enforced architecture rules included in the request are mandatory and must be reflected in the estimate breakdown and assumptions.",
+    "Use the explicitly provided provider region for each estimate. If a provider region is missing, fall back to that provider's default region.",
+    "For each service component (compute, database, networking, and frontend runtime), evaluate available alternatives for the selected provider and region, then choose the most cost-optimal feasible option.",
+    "Always include a short availability-check note and option comparison rationale in assumptions when selecting a service option.",
+    "For MS SQL, evaluate managed and customer-managed options; choose the most cost-optimal option that is available in the selected provider region and explain the decision.",
+    `Currency is always ${currency}.`,
+  ].join(" ");
+}
 
 type EstimationRequestBody = {
   providers?: string[];
@@ -25,6 +29,7 @@ type EstimationRequestBody = {
   notes?: string;
   providerRegions?: Record<string, string>;
   enforcedArchitectureRules?: string[];
+  currency?: string;
 };
 
 function normalizeBackendVmCount(rawBackendVmCount?: string) {
@@ -272,7 +277,8 @@ export const SCHEMA_OPEN_AI = {
           },
           currency: {
             type: "string",
-            description: "Currency code, default USD",
+            enum: ESTIMATION_CURRENCY_OPTIONS.map((option) => option.value),
+            description: "Selected ISO currency code",
           },
           monthlyTotal: {
             type: "number",
@@ -358,9 +364,12 @@ const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 export async function POST(req: NextRequest) {
   try {
     const { body } = await req.json();
-    const estimationRequest = buildEstimationRequest(
-      body as EstimationRequestBody,
-    );
+    const requestBody = (body ?? {}) as EstimationRequestBody;
+    const currency = requestBody.currency;
+    const estimationRequest = buildEstimationRequest({
+      ...requestBody,
+      currency,
+    });
     const calculatedAt = new Date().toISOString();
 
     // const deterministicResponse = await buildDeterministicEstimates(estimationRequest);
@@ -389,7 +398,9 @@ export async function POST(req: NextRequest) {
       input: [
         {
           role: "system",
-          content: SYSTEM_PROMPT,
+          content: generateSystemPrompt(
+            currency ?? DEFAULT_ESTIMATION_CURRENCY,
+          ),
         },
         {
           role: "user",

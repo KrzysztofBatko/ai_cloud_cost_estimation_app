@@ -7,7 +7,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useState } from "react";
-import { format } from "date-fns";
 import DashboardParameters, {
   VIEW_MODES,
 } from "@/app/(admin-only)/statistics/components/DashboardParameters";
@@ -24,9 +23,12 @@ export type ChartMode = (typeof CHART_MODES)[number];
 
 function formatDate(date: Date | null, mode: (typeof VIEW_MODES)[number]) {
   if (!date) return "";
-  return mode === "days"
-    ? format(date, "dd LLL yyyy")
-    : format(date, "LLL yyyy");
+
+  return new Intl.DateTimeFormat("en-GB", {
+    year: "numeric",
+    month: "short",
+    ...(mode === "days" ? { day: "2-digit" } : {}),
+  }).format(date);
 }
 
 export default function EstimationDashboard() {

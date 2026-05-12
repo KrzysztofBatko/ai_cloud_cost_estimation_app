@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { format } from "date-fns";
 import { SingleStatistics } from "@/types/api";
 import { ENDPOINTS } from "@/lib/api/utils";
 import {
@@ -14,6 +13,26 @@ const previousMonth = new Date(
   currentMonth.getMonth() - 1,
   1,
 );
+const apiDateFormatter = new Intl.DateTimeFormat("en-US", {
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+});
+
+function formatApiDate(date: Date, mode: MonthOrDayPickerValue["mode"]) {
+  const dateParts = apiDateFormatter.formatToParts(date);
+  const getPart = (type: Intl.DateTimeFormatPartTypes) =>
+    dateParts.find((part) => part.type === type)?.value ?? "";
+
+  const year = getPart("year");
+  const month = getPart("month");
+
+  if (mode === "months") {
+    return `${year}-${month}`;
+  }
+
+  return `${year}-${month}-${getPart("day")}`;
+}
 
 export function useStatistics() {
   const [singleValue, setSingleValue] = useState<MonthOrDayPickerValue>({
@@ -29,10 +48,7 @@ export function useStatistics() {
   const [responseSingle, setResponseSingle] = useState<SingleStatistics[]>();
 
   async function getStatistics(singleValue: MonthOrDayPickerValue) {
-    const date = format(
-      singleValue.date,
-      singleValue.mode === "months" ? "yyyy-MM" : "yyyy-MM-dd",
-    );
+    const date = formatApiDate(singleValue.date, singleValue.mode);
     const queryKey = singleValue.mode === "months" ? "month" : "day";
     try {
       setFetching(true);
@@ -65,6 +81,7 @@ export function useStatistics() {
     setSingleValue,
     rangeValue,
     setRangeValue,
+    fetching,
     responseSingle,
   };
 }

@@ -1,14 +1,6 @@
 "use client";
 
 import * as React from "react";
-import {
-  endOfMonth,
-  format,
-  isAfter,
-  isBefore,
-  isSameMonth,
-  startOfMonth,
-} from "date-fns";
 
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -37,19 +29,65 @@ type RangeProps = {
   onChange: (value: RangeMonthOrDayPickerValue) => void;
 };
 
+const monthYearFormatter = new Intl.DateTimeFormat("en-GB", {
+  month: "short",
+  year: "numeric",
+});
+
+const dayMonthYearFormatter = new Intl.DateTimeFormat("en-GB", {
+  day: "2-digit",
+  month: "short",
+  year: "numeric",
+});
+
+const monthNameFormatter = new Intl.DateTimeFormat("en-GB", {
+  month: "short",
+});
+
 function clampToMonth(d: Date) {
-  return startOfMonth(d);
+  return new Date(d.getFullYear(), d.getMonth(), 1);
+}
+
+function endOfMonth(d: Date) {
+  return new Date(d.getFullYear(), d.getMonth() + 1, 0);
+}
+
+function isAfter(date: Date, dateToCompare: Date) {
+  return date.getTime() > dateToCompare.getTime();
+}
+
+function isBefore(date: Date, dateToCompare: Date) {
+  return date.getTime() < dateToCompare.getTime();
+}
+
+function isSameMonth(date: Date, dateToCompare: Date) {
+  return (
+    date.getFullYear() === dateToCompare.getFullYear() &&
+    date.getMonth() === dateToCompare.getMonth()
+  );
+}
+
+function formatMonthYear(date: Date) {
+  return monthYearFormatter.format(date);
+}
+
+function formatDayMonthYear(date: Date) {
+  return dayMonthYearFormatter.format(date);
+}
+
+function formatMonthName(date: Date) {
+  return monthNameFormatter.format(date);
 }
 
 function isFutureMonth(month: Date, now: Date) {
-  return isAfter(startOfMonth(month), endOfMonth(now));
+  return isAfter(clampToMonth(month), endOfMonth(now));
 }
 
 export function MonthOrDayPickerPopover({ value, onChange }: Props) {
   const selectedLabel = React.useMemo(() => {
     return value.mode === "months"
-      ? format(value.date, "LLL yyyy")
-      : format(value.date, "dd LLL yyyy");
+      ? formatMonthYear(value.date)
+      : formatDayMonthYear(value.date);
   }, [value]);
 
   // Year cursor (internal UI state)
@@ -93,7 +131,7 @@ export function MonthOrDayPickerPopover({ value, onChange }: Props) {
     const nextDay =
       currentDay && isSameMonth(currentDay, month)
         ? currentDay
-        : startOfMonth(month);
+        : clampToMonth(month);
     const day = isAfter(nextDay, new Date()) ? new Date() : nextDay;
 
     onChange({ mode: "days", date: day });
@@ -165,7 +203,7 @@ export function MonthOrDayPickerPopover({ value, onChange }: Props) {
                       }}
                       disabled={disabled}
                     >
-                      {format(m, "LLL")}
+                      {formatMonthName(m)}
                     </Button>
                   );
                 })}
@@ -195,19 +233,20 @@ export function MonthOrDayPickerPopover({ value, onChange }: Props) {
 function formatRangeLabel(value: RangeMonthOrDayPickerValue) {
   if (value.mode === "months") {
     if (value.periodA && value.periodB) {
-      return `${format(value.periodA, "LLL yyyy")} vs ${format(
+      return `${formatMonthYear(value.periodA)} vs ${formatMonthYear(
         value.periodB,
-        "LLL yyyy",
       )}`;
     }
-    if (value.periodA) return `${format(value.periodA, "LLL yyyy")} vs`;
+    if (value.periodA) return `${formatMonthYear(value.periodA)} vs`;
     return "Select months";
   }
 
   if (value.periodA && value.periodB) {
-    return `${format(value.periodA, "dd LLL yyyy")} vs ${format(value.periodB, "dd LLL yyyy")}`;
+    return `${formatDayMonthYear(value.periodA)} vs ${formatDayMonthYear(
+      value.periodB,
+    )}`;
   }
-  if (value.periodA) return `${format(value.periodA, "dd LLL yyyy")} vs`;
+  if (value.periodA) return `${formatDayMonthYear(value.periodA)} vs`;
   return "Select days";
 }
 
@@ -366,7 +405,7 @@ export function RangeMonthOrDayPickerPopover({ value, onChange }: RangeProps) {
                         onClick={() => selectFromMonth(m)}
                         disabled={disabled}
                       >
-                        {format(m, "LLL")}
+                        {formatMonthName(m)}
                       </Button>
                     );
                   })}
@@ -418,7 +457,7 @@ export function RangeMonthOrDayPickerPopover({ value, onChange }: RangeProps) {
                         onClick={() => selectToMonth(m)}
                         disabled={disabled}
                       >
-                        {format(m, "LLL")}
+                        {formatMonthName(m)}
                       </Button>
                     );
                   })}

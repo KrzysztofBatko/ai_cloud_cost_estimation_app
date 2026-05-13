@@ -1,0 +1,8 @@
+{
+  "home": {
+    "navbar": {
+      "login": "Zaloguj",
+      "logout": "Wyloguj"
+    }
+  }
+}

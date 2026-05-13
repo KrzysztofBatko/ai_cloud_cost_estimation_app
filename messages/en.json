@@ -1,0 +1,8 @@
+{
+  "home": {
+    "navbar": {
+      "login": "Login",
+      "logout": "Logout"
+    }
+  }
+}

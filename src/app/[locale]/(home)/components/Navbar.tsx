@@ -34,7 +34,7 @@ export default function Navbar() {
           {isAuthRoute ? (
             <Link href="/">
               <Button variant="ghost" size="sm">
-                Home
+                {t("home")}
               </Button>
             </Link>
           ) : (
@@ -46,7 +46,7 @@ export default function Navbar() {
                       variant={isAdminActive ? "outline" : "ghost"}
                       size="sm"
                     >
-                      Admin
+                      {t("admin")}
                     </Button>
                   </Link>
                   <Link href="/statistics">
@@ -54,7 +54,7 @@ export default function Navbar() {
                       variant={isStatisticsActive ? "outline" : "ghost"}
                       size="sm"
                     >
-                      Statistics
+                      {t("statistics")}
                     </Button>
                   </Link>
                 </>
@@ -67,7 +67,7 @@ export default function Navbar() {
                       variant={isEstimationActive ? "outline" : "ghost"}
                       size="sm"
                     >
-                      Estimation
+                      {t("estimation")}
                     </Button>
                   </Link>
                   <Link
@@ -75,7 +75,7 @@ export default function Navbar() {
                     className={`flex items-center gap-2 rounded-md px-1.5 py-1 transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
                       isProfileActive ? "bg-muted" : ""
                     }`}
-                    aria-label="View profile"
+                    aria-label={t("profile")}
                   >
                     <Avatar className="h-8 w-8">
                       <AvatarImage src={session?.user?.image ?? undefined} />

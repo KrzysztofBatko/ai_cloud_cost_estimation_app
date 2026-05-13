@@ -1,3 +1,5 @@
+"use client";
+
 import {
   ArrowRight,
   Cloud,
@@ -7,9 +9,12 @@ import {
   FileText,
 } from "lucide-react";
 import { motion } from "framer-motion";
-import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 
 export default function HeroSection() {
+  const t = useTranslations("home.hero");
+
   return (
     <section className="relative overflow-hidden gradient-hero py-24 md:py-36">
       {/* Floating icons */}
@@ -52,7 +57,7 @@ export default function HeroSection() {
           transition={{ duration: 0.7 }}
           className="mx-auto max-w-4xl text-4xl font-extrabold leading-tight tracking-tight text-primary-foreground md:text-6xl"
         >
-          AI-Powered Cloud Cost Comparison Across Providers
+          {t("title")}
         </motion.h1>
         <motion.p
           initial={{ opacity: 0, y: 20 }}
@@ -60,9 +65,7 @@ export default function HeroSection() {
           transition={{ duration: 0.7, delay: 0.2 }}
           className="mx-auto mt-6 max-w-2xl text-lg text-primary-foreground/75"
         >
-          An AI-powered application that estimates and compares cloud
-          infrastructure costs across leading cloud providers based on
-          user-provided usage, architecture, and workload data.
+          {t("description")}
         </motion.p>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -74,14 +77,15 @@ export default function HeroSection() {
             href="/estimation"
             className="inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3 text-sm font-semibold text-slate-900 shadow-lg transition hover:bg-white/90"
           >
-            Start estimating
+            {t("startEstimating")}
             <ArrowRight className="ml-2 h-5 w-5" />
           </Link>
           <Link
             href="/description"
             className="inline-flex items-center gap-2 rounded-xl border border-white/30 bg-white/10 px-6 py-3 text-sm font-semibold text-white backdrop-blur transition hover:bg-white/20"
           >
-            <Sparkles className="h-4 w-4" />I have an environment description
+            <Sparkles className="h-4 w-4" />
+            {t("environmentDescription")}
           </Link>
         </motion.div>
         <motion.div
@@ -93,19 +97,20 @@ export default function HeroSection() {
           <div className="mx-auto  grid max-w-3xl gap-4 text-left sm:grid-cols-2">
             <div className="rounded-xl border border-white/15 bg-white/5 p-5 backdrop-blur">
               <div className="flex items-center gap-2 font-semibold  text-white">
-                <ArrowRight className="h-4 w-4" /> Guided form
+                <ArrowRight className="h-4 w-4" />
+                {t("guidedForm.title")}
               </div>
               <p className="mt-2 text-sm text-white/70">
-                Answer step-by-step questions about your usage and architecture.
+                {t("guidedForm.description")}
               </p>
             </div>
             <div className="rounded-xl border border-white/15 bg-white/5 p-5 backdrop-blur">
               <div className="flex items-center gap-2 font-semibold  text-white">
-                <FileText className="h-4 w-4" /> Describe environment
+                <FileText className="h-4 w-4" />
+                {t("describeEnvironment.title")}
               </div>
               <p className="mt-2 text-sm text-white/70">
-                Paste or upload a description and let AI pre-fill the
-                estimation.
+                {t("describeEnvironment.description")}
               </p>
             </div>
           </div>

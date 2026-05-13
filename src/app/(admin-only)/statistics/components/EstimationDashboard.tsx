@@ -15,7 +15,6 @@ import ProviderCharts from "@/app/(admin-only)/statistics/components/ProviderCha
 import SummaryTable from "@/app/(admin-only)/statistics/components/SummaryTable";
 import TopProviders from "@/app/(admin-only)/statistics/components/TopProviders";
 import { useStatistics } from "@/app/(admin-only)/statistics/hooks/useStatistics";
-import responseCompareMock from "../../../data/statisticsResponseCompare.json";
 import { useProviders } from "@/app/(admin-only)/admin/hooks/useProviders";
 
 export const CHART_MODES = ["single", "compare"] as const;
@@ -39,8 +38,12 @@ export default function EstimationDashboard() {
     rangeValue,
     setRangeValue,
     responseSingle,
+    responseCompare,
   } = useStatistics();
   const { providers } = useProviders();
+  const providerNames = providers.map((provider) => provider.name);
+  const periodALabel = formatDate(rangeValue.periodA, rangeValue.mode);
+  const periodBLabel = formatDate(rangeValue.periodB, rangeValue.mode);
 
   return (
     <Card className="border border-white/15 bg-white/10 shadow-[0_8px_30px_rgba(0,0,0,0.12)] backdrop-blur-xl">
@@ -52,7 +55,7 @@ export default function EstimationDashboard() {
               Explore your cloud cost estimations with our interactive 3D
               dashboard.
             </p>
-            <Legend providers={providers.map((p) => p.name)} />
+            <Legend providers={providerNames} />
           </div>
         </CardDescription>
       </CardHeader>
@@ -77,9 +80,9 @@ export default function EstimationDashboard() {
               {mode === "compare" && (
                 <ProviderCharts
                   mode="compare"
-                  compareData={responseCompareMock.data}
-                  periodALabel={formatDate(rangeValue.periodA, rangeValue.mode)}
-                  periodBLabel={formatDate(rangeValue.periodB, rangeValue.mode)}
+                  compareData={responseCompare}
+                  periodALabel={periodALabel}
+                  periodBLabel={periodBLabel}
                 />
               )}
             </>
@@ -94,7 +97,7 @@ export default function EstimationDashboard() {
                     singleValue.mode,
                   )}
                   statistics={responseSingle ?? []}
-                  providers={providers.map((p) => p.name)}
+                  providers={providerNames}
                 />
                 <TopProviders mode="single" statistics={responseSingle ?? []} />
               </>
@@ -107,13 +110,10 @@ export default function EstimationDashboard() {
                     singleValue.date,
                     singleValue.mode,
                   )}
-                  statistics={responseCompareMock.data}
-                  providers={providers.map((p) => p.name)}
+                  statistics={responseCompare}
+                  providers={providerNames}
                 />
-                <TopProviders
-                  mode="compare"
-                  statistics={responseCompareMock.data}
-                />
+                <TopProviders mode="compare" statistics={responseCompare} />
               </>
             )}
           </div>

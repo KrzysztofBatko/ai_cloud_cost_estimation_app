@@ -90,3 +90,9 @@ export type SingleStatistics = {
   provider: string;
   count: number;
 };
+
+export type CompareStatistics = {
+  provider: string;
+  countPeriodA: number;
+  countPeriodB: number;
+};

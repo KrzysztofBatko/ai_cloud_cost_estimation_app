@@ -154,6 +154,8 @@ const ProviderCharts = ({
   periodBLabel,
 }: ProviderChartsProps) => {
   const [chartType, setChartType] = useState<"bar" | "pie">("bar");
+  const hasData =
+    mode === "single" ? singleData.length > 0 : compareData.length > 0;
 
   const singleDataWithColors: SingleDataPoint[] = singleData.map((entry) => ({
     ...entry,
@@ -225,21 +227,15 @@ const ProviderCharts = ({
         />
         <Bar
           dataKey="countPeriodA"
-          name={periodALabel}
-          fill={
-            PROVIDER_HEX[periodALabel as keyof typeof PROVIDER_HEX] ??
-            DEFAULT_COLOR
-          }
+          name={periodALabel || "Period A"}
+          fill={shadeHex(DEFAULT_COLOR, 0.2)}
           fillOpacity={0.6}
           shape={<CubeBar />}
         />
         <Bar
           dataKey="countPeriodB"
-          name={periodBLabel ?? ""}
-          fill={
-            PROVIDER_HEX[periodBLabel as keyof typeof PROVIDER_HEX] ??
-            DEFAULT_COLOR
-          }
+          name={periodBLabel || "Period B"}
+          fill={DEFAULT_COLOR}
           shape={<CubeBar />}
         />
       </BarChart>
@@ -300,14 +296,14 @@ const ProviderCharts = ({
           </Tabs>
         )}
       </CardHeader>
-      {singleData.length === 0 && (
+      {!hasData && (
         <CardContent>
           <p className="text-sm text-muted-foreground">
             No data available for the selected period.
           </p>
         </CardContent>
       )}
-      {singleData.length !== 0 && (
+      {hasData && (
         <CardContent>
           {mode === "single"
             ? chartType === "bar"

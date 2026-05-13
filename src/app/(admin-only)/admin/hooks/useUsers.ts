@@ -1,7 +1,7 @@
 import { ENDPOINTS } from "@/lib/api/utils";
 import { Role, User } from "@/types/api";
 import { useSession } from "next-auth/react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 export function useUsers() {
   const { data: session } = useSession();
@@ -18,7 +18,7 @@ export function useUsers() {
     fetchUsers();
   }, []);
 
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     try {
       setUsersError(null);
       setFetchingUsers(true);
@@ -38,51 +38,54 @@ export function useUsers() {
     } finally {
       setFetchingUsers(false);
     }
-  };
+  }, []);
 
-  const updateUserRole = async (email: string, role: Role) => {
-    if (currentUserEmail && email.toLowerCase() === currentUserEmail) {
-      setUsersError("You cannot change your own role.");
-      return;
-    }
-
-    try {
-      setUsersError(null);
-      setUpdatingUserEmail(email);
-
-      const response = await fetch(ENDPOINTS.USERS, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, role }),
-      });
-
-      if (!response.ok) {
-        const errorBody = await response.json().catch(() => null);
-        throw new Error(
-          errorBody?.error || `HTTP error! status: ${response.status}`,
-        );
+  const updateUserRole = useCallback(
+    async (email: string, role: Role) => {
+      if (currentUserEmail && email.toLowerCase() === currentUserEmail) {
+        setUsersError("You cannot change your own role.");
+        return;
       }
 
-      const result = await response.json();
-      const updated = result.data;
-      setUsers((prev) =>
-        prev.map((user) =>
-          user.email === email
-            ? {
-                ...user,
-                role: updated?.role ?? role,
-                name: updated?.name ?? user.name,
-              }
-            : user,
-        ),
-      );
-    } catch (error) {
-      console.error("Error updating user role:", error);
-      setUsersError("Could not change user role.");
-    } finally {
-      setUpdatingUserEmail(null);
-    }
-  };
+      try {
+        setUsersError(null);
+        setUpdatingUserEmail(email);
+
+        const response = await fetch(ENDPOINTS.USERS, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, role }),
+        });
+
+        if (!response.ok) {
+          const errorBody = await response.json().catch(() => null);
+          throw new Error(
+            errorBody?.error || `HTTP error! status: ${response.status}`,
+          );
+        }
+
+        const result = await response.json();
+        const updated = result.data;
+        setUsers((prev) =>
+          prev.map((user) =>
+            user.email === email
+              ? {
+                  ...user,
+                  role: updated?.role ?? role,
+                  name: updated?.name ?? user.name,
+                }
+              : user,
+          ),
+        );
+      } catch (error) {
+        console.error("Error updating user role:", error);
+        setUsersError("Could not change user role.");
+      } finally {
+        setUpdatingUserEmail(null);
+      }
+    },
+    [currentUserEmail],
+  );
 
   return {
     users,

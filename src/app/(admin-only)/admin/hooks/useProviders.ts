@@ -1,6 +1,6 @@
 import { ENDPOINTS } from "@/lib/api/utils";
 import { Provider, ProviderRegion } from "@/types/api";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 export function useProviders() {
   const [providers, setProviders] = useState<Provider[]>([]);
@@ -17,7 +17,7 @@ export function useProviders() {
     fetchProviders(true);
   }, []);
 
-  const fetchProviders = async (isInitial?: boolean) => {
+  const fetchProviders = useCallback(async (isInitial?: boolean) => {
     try {
       setProviderError(null);
       if (isInitial) setFetchingProviders(true);
@@ -46,9 +46,9 @@ export function useProviders() {
     } finally {
       setFetchingProviders(false);
     }
-  };
+  }, []);
 
-  const addProvider = async () => {
+  const addProvider = useCallback(async () => {
     if (!newProvider.trim()) return;
 
     try {
@@ -78,7 +78,7 @@ export function useProviders() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [newProvider, fetchProviders]);
 
   const setNewRegionDraft = (
     providerId: string,
@@ -94,245 +94,260 @@ export function useProviders() {
     }));
   };
 
-  const addRegion = async (providerId: string) => {
-    const draft = newRegionByProvider[providerId];
-    if (!draft?.value?.trim() || !draft?.label?.trim()) return;
+  const addRegion = useCallback(
+    async (providerId: string) => {
+      const draft = newRegionByProvider[providerId];
+      if (!draft?.value?.trim() || !draft?.label?.trim()) return;
 
-    try {
-      setLoading(true);
-      setProviderError(null);
-      const response = await fetch(
-        `${ENDPOINTS.PROVIDERS}/${providerId}/regions`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            value: draft.value.trim(),
-            label: draft.label.trim(),
-          }),
-        },
-      );
-
-      if (!response.ok) {
-        const errorBody = await response.json().catch(() => null);
-        throw new Error(
-          errorBody?.error || `HTTP error! status: ${response.status}`,
+      try {
+        setLoading(true);
+        setProviderError(null);
+        const response = await fetch(
+          `${ENDPOINTS.PROVIDERS}/${providerId}/regions`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              value: draft.value.trim(),
+              label: draft.label.trim(),
+            }),
+          },
         );
+
+        if (!response.ok) {
+          const errorBody = await response.json().catch(() => null);
+          throw new Error(
+            errorBody?.error || `HTTP error! status: ${response.status}`,
+          );
+        }
+
+        const result = await response.json();
+        const createdRegion = result?.data as ProviderRegion | undefined;
+
+        if (createdRegion?.id) {
+          setProviders((prev) =>
+            prev.map((provider) =>
+              provider.id === providerId
+                ? {
+                    ...provider,
+                    regions: [...(provider.regions ?? []), createdRegion].sort(
+                      (left, right) => {
+                        if (left.isDefault === right.isDefault) {
+                          return left.label.localeCompare(right.label);
+                        }
+
+                        return left.isDefault ? -1 : 1;
+                      },
+                    ),
+                    defaultRegion: createdRegion.isDefault
+                      ? createdRegion.value
+                      : (provider.defaultRegion ?? createdRegion.value),
+                  }
+                : provider,
+            ),
+          );
+        } else {
+          await fetchProviders();
+        }
+
+        setNewRegionByProvider((prev) => ({
+          ...prev,
+          [providerId]: { value: "", label: "" },
+        }));
+      } catch (error) {
+        console.error("Error adding region:", error);
+        const message =
+          error instanceof Error
+            ? error.message
+            : "Could not add region. Please try again.";
+        setProviderError(message);
+      } finally {
+        setLoading(false);
       }
+    },
+    [fetchProviders],
+  );
 
-      const result = await response.json();
-      const createdRegion = result?.data as ProviderRegion | undefined;
-
-      if (createdRegion?.id) {
-        setProviders((prev) =>
-          prev.map((provider) =>
-            provider.id === providerId
-              ? {
-                  ...provider,
-                  regions: [...(provider.regions ?? []), createdRegion].sort(
-                    (left, right) => {
-                      if (left.isDefault === right.isDefault) {
-                        return left.label.localeCompare(right.label);
-                      }
-
-                      return left.isDefault ? -1 : 1;
-                    },
-                  ),
-                  defaultRegion: createdRegion.isDefault
-                    ? createdRegion.value
-                    : (provider.defaultRegion ?? createdRegion.value),
-                }
-              : provider,
-          ),
+  const setDefaultRegion = useCallback(
+    async (providerId: string, regionId: string) => {
+      try {
+        setLoading(true);
+        setProviderError(null);
+        const response = await fetch(
+          `${ENDPOINTS.PROVIDERS}/${providerId}/regions/${regionId}`,
+          {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ isDefault: true }),
+          },
         );
-      } else {
+
+        if (!response.ok) {
+          const errorBody = await response.json().catch(() => null);
+          throw new Error(
+            errorBody?.error || `HTTP error! status: ${response.status}`,
+          );
+        }
+
+        const result = await response.json();
+        const updatedRegion = result?.data as ProviderRegion | undefined;
+
+        if (updatedRegion?.id) {
+          setProviders((prev) =>
+            prev.map((provider) =>
+              provider.id === providerId
+                ? {
+                    ...provider,
+                    defaultRegion: updatedRegion.value,
+                    regions: (provider.regions ?? [])
+                      .map((region) => ({
+                        ...region,
+                        isDefault: region.id === updatedRegion.id,
+                      }))
+                      .sort((left, right) => {
+                        if (left.isDefault === right.isDefault) {
+                          return left.label.localeCompare(right.label);
+                        }
+
+                        return left.isDefault ? -1 : 1;
+                      }),
+                  }
+                : provider,
+            ),
+          );
+        } else {
+          await fetchProviders();
+        }
+      } catch (error) {
+        console.error("Error updating default region:", error);
+        const message =
+          error instanceof Error
+            ? error.message
+            : "Could not update the default region.";
+        setProviderError(message);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [fetchProviders],
+  );
+
+  const deleteRegion = useCallback(
+    async (providerId: string, regionId: string) => {
+      try {
+        setLoading(true);
+        setProviderError(null);
+        const response = await fetch(
+          `${ENDPOINTS.PROVIDERS}/${providerId}/regions/${regionId}`,
+          {
+            method: "DELETE",
+          },
+        );
+
+        if (!response.ok) {
+          const errorBody = await response.json().catch(() => null);
+          throw new Error(
+            errorBody?.error || `HTTP error! status: ${response.status}`,
+          );
+        }
+
         await fetchProviders();
+      } catch (error) {
+        console.error("Error deleting region:", error);
+        const message =
+          error instanceof Error
+            ? error.message
+            : "Could not delete region. Please try again.";
+        setProviderError(message);
+      } finally {
+        setLoading(false);
       }
+    },
+    [fetchProviders],
+  );
 
-      setNewRegionByProvider((prev) => ({
-        ...prev,
-        [providerId]: { value: "", label: "" },
-      }));
-    } catch (error) {
-      console.error("Error adding region:", error);
-      const message =
-        error instanceof Error
-          ? error.message
-          : "Could not add region. Please try again.";
-      setProviderError(message);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const setProviderActive = useCallback(
+    async (id: string, isActive: boolean) => {
+      try {
+        setProviderError(null);
+        setCanBeDeactivated(false);
+        setLoading(true);
 
-  const setDefaultRegion = async (providerId: string, regionId: string) => {
-    try {
-      setLoading(true);
-      setProviderError(null);
-      const response = await fetch(
-        `${ENDPOINTS.PROVIDERS}/${providerId}/regions/${regionId}`,
-        {
+        const response = await fetch(`${ENDPOINTS.PROVIDERS}/${id}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ isDefault: true }),
-        },
-      );
+          body: JSON.stringify({ isActive }),
+        });
 
-      if (!response.ok) {
-        const errorBody = await response.json().catch(() => null);
-        throw new Error(
-          errorBody?.error || `HTTP error! status: ${response.status}`,
-        );
+        if (!response.ok) {
+          const errorBody = await response.json().catch(() => null);
+          throw new Error(
+            errorBody?.error || `HTTP error! status: ${response.status}`,
+          );
+        }
+
+        const result = await response.json();
+        const updated = result?.data;
+
+        if (updated?.id) {
+          setProviders((prev) =>
+            prev.map((provider) =>
+              provider.id === updated.id
+                ? {
+                    ...provider,
+                    isActive: updated.isActive ?? isActive,
+                  }
+                : provider,
+            ),
+          );
+        } else {
+          await fetchProviders();
+        }
+      } catch (error) {
+        const message =
+          error instanceof Error
+            ? error.message
+            : "Could not update provider status.";
+        setProviderError(message);
+        console.error("Error updating provider status:", error);
+      } finally {
+        setLoading(false);
       }
+    },
+    [fetchProviders],
+  );
 
-      const result = await response.json();
-      const updatedRegion = result?.data as ProviderRegion | undefined;
-
-      if (updatedRegion?.id) {
-        setProviders((prev) =>
-          prev.map((provider) =>
-            provider.id === providerId
-              ? {
-                  ...provider,
-                  defaultRegion: updatedRegion.value,
-                  regions: (provider.regions ?? [])
-                    .map((region) => ({
-                      ...region,
-                      isDefault: region.id === updatedRegion.id,
-                    }))
-                    .sort((left, right) => {
-                      if (left.isDefault === right.isDefault) {
-                        return left.label.localeCompare(right.label);
-                      }
-
-                      return left.isDefault ? -1 : 1;
-                    }),
-                }
-              : provider,
-          ),
-        );
-      } else {
-        await fetchProviders();
-      }
-    } catch (error) {
-      console.error("Error updating default region:", error);
-      const message =
-        error instanceof Error
-          ? error.message
-          : "Could not update the default region.";
-      setProviderError(message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const deleteRegion = async (providerId: string, regionId: string) => {
-    try {
-      setLoading(true);
-      setProviderError(null);
-      const response = await fetch(
-        `${ENDPOINTS.PROVIDERS}/${providerId}/regions/${regionId}`,
-        {
+  const deleteProvider = useCallback(
+    async (id: string) => {
+      try {
+        setProviderError(null);
+        setCanBeDeactivated(false);
+        setLoading(true);
+        const response = await fetch(`${ENDPOINTS.PROVIDERS}/${id}`, {
           method: "DELETE",
-        },
-      );
+        });
 
-      if (!response.ok) {
-        const errorBody = await response.json().catch(() => null);
-        throw new Error(
-          errorBody?.error || `HTTP error! status: ${response.status}`,
-        );
-      }
+        if (!response.ok) {
+          const errorBody = await response.json().catch(() => null);
+          if (response.status === 409) setCanBeDeactivated(true);
+          throw new Error(
+            errorBody?.error || `HTTP error! status: ${response.status}`,
+          );
+        }
 
-      await fetchProviders();
-    } catch (error) {
-      console.error("Error deleting region:", error);
-      const message =
-        error instanceof Error
-          ? error.message
-          : "Could not delete region. Please try again.";
-      setProviderError(message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const setProviderActive = async (id: string, isActive: boolean) => {
-    try {
-      setProviderError(null);
-      setCanBeDeactivated(false);
-      setLoading(true);
-
-      const response = await fetch(`${ENDPOINTS.PROVIDERS}/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ isActive }),
-      });
-
-      if (!response.ok) {
-        const errorBody = await response.json().catch(() => null);
-        throw new Error(
-          errorBody?.error || `HTTP error! status: ${response.status}`,
-        );
-      }
-
-      const result = await response.json();
-      const updated = result?.data;
-
-      if (updated?.id) {
-        setProviders((prev) =>
-          prev.map((provider) =>
-            provider.id === updated.id
-              ? {
-                  ...provider,
-                  isActive: updated.isActive ?? isActive,
-                }
-              : provider,
-          ),
-        );
-      } else {
         await fetchProviders();
-      }
-    } catch (error) {
-      const message =
-        error instanceof Error
-          ? error.message
-          : "Could not update provider status.";
-      setProviderError(message);
-      console.error("Error updating provider status:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const deleteProvider = async (id: string) => {
-    try {
-      setProviderError(null);
-      setCanBeDeactivated(false);
-      setLoading(true);
-      const response = await fetch(`${ENDPOINTS.PROVIDERS}/${id}`, {
-        method: "DELETE",
-      });
-
-      if (!response.ok) {
-        const errorBody = await response.json().catch(() => null);
-        if (response.status === 409) setCanBeDeactivated(true);
-        throw new Error(
-          errorBody?.error || `HTTP error! status: ${response.status}`,
+      } catch (error: unknown) {
+        setProviderError(
+          (error as { message: string })?.message ||
+            "An error occurred while deleting the provider.",
         );
+        console.error("Error deleting provider:", error);
+      } finally {
+        setLoading(false);
       }
-
-      await fetchProviders();
-    } catch (error: unknown) {
-      setProviderError(
-        (error as { message: string })?.message ||
-          "An error occurred while deleting the provider.",
-      );
-      console.error("Error deleting provider:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+    },
+    [fetchProviders],
+  );
 
   return {
     providers,

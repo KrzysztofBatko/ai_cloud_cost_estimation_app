@@ -7,6 +7,7 @@ import {
   StatisticsSingle,
 } from "@/app/[locale]/(admin-only)/statistics/components/SummaryTable";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useTranslations } from "next-intl";
 
 function Stats({ stats, max }: { stats: StatisticsSingle[]; max: number }) {
   return (
@@ -61,6 +62,8 @@ type Props =
     };
 
 export default function TopProviders({ mode, statistics }: Props) {
+  const t = useTranslations("statistics");
+
   if (mode === "single") {
     const top3 = [...statistics]
       .sort((a, b) => (b.count || 0) - (a.count || 0))
@@ -70,12 +73,12 @@ export default function TopProviders({ mode, statistics }: Props) {
     return (
       <Card className="shadow-card gap-0 pb-2">
         <CardHeader>
-          <CardTitle>Top 3 Providers</CardTitle>
+          <CardTitle>{t("topProviders.title")}</CardTitle>
         </CardHeader>
         <CardContent>
           {statistics.length === 0 ? (
             <div className="text-xs text-muted-foreground">
-              No data available for the selected period.
+              {t("charts.noData")}
             </div>
           ) : (
             <Stats stats={top3} max={max} />
@@ -106,18 +109,22 @@ export default function TopProviders({ mode, statistics }: Props) {
   return (
     <Card className="shadow-card gap-0 pb-2">
       <CardHeader>
-        <CardTitle>Top 3 Providers</CardTitle>
+        <CardTitle>{t("topProviders.title")}</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="flex flex-col gap-4">
           <div>
-            <div className="text-muted-foreground text-sm">Period A</div>
+            <div className="text-muted-foreground text-sm">
+              {t("periods.periodA")}
+            </div>
             <div>
               <Stats stats={top3ComparePeriodA} max={maxComparePeriodA} />
             </div>
           </div>
           <div>
-            <div className="text-muted-foreground text-sm">Period B</div>
+            <div className="text-muted-foreground text-sm">
+              {t("periods.periodB")}
+            </div>
             <div>
               <Stats stats={top3ComparePeriodB} max={maxComparePeriodB} />
             </div>

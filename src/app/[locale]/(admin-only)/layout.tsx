@@ -1,25 +1,31 @@
-"use client";
-import { useEffect } from "react";
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { NextIntlClientProvider } from "next-intl";
 
-export default function Layout({ children }: { children: React.ReactNode }) {
-  const { data: session, status } = useSession();
-  const router = useRouter();
+import AdminGuard from "@/app/[locale]/(admin-only)/AdminGuard";
+import { routing } from "@/i18n/routing";
 
-  const isAdmin =
-    session?.user?.role === "admin" || session?.user?.role === "superadmin";
+type Locale = (typeof routing.locales)[number];
 
-  useEffect(() => {
-    if (status === "loading") return;
+type AdminLayoutProps = {
+  children: React.ReactNode;
+  params: Promise<{ locale: string }>;
+};
 
-    if (!isAdmin) {
-      router.replace("/");
-    }
-  }, [status, isAdmin, router]);
+function isSupportedLocale(locale: string): locale is Locale {
+  return (routing.locales as readonly string[]).includes(locale);
+}
 
-  if (status === "loading" || !isAdmin) {
-    return null;
-  }
-  return <>{children}</>;
+export default async function Layout({ children, params }: AdminLayoutProps) {
+  const { locale } = await params;
+  const supportedLocale = isSupportedLocale(locale)
+    ? locale
+    : routing.defaultLocale;
+  const messages = (
+    await import(`../../../../messages/admin/${supportedLocale}.json`)
+  ).default;
+
+  return (
+    <NextIntlClientProvider locale={supportedLocale} messages={messages}>
+      <AdminGuard>{children}</AdminGuard>
+    </NextIntlClientProvider>
+  );
 }

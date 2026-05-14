@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -153,6 +154,7 @@ const ProviderCharts = ({
   periodALabel,
   periodBLabel,
 }: ProviderChartsProps) => {
+  const t = useTranslations("statistics");
   const [chartType, setChartType] = useState<"bar" | "pie">("bar");
   const hasData =
     mode === "single" ? singleData.length > 0 : compareData.length > 0;
@@ -227,14 +229,14 @@ const ProviderCharts = ({
         />
         <Bar
           dataKey="countPeriodA"
-          name={periodALabel || "Period A"}
+          name={periodALabel || t("periods.periodA")}
           fill={shadeHex(DEFAULT_COLOR, 0.2)}
           fillOpacity={0.6}
           shape={<CubeBar />}
         />
         <Bar
           dataKey="countPeriodB"
-          name={periodBLabel || "Period B"}
+          name={periodBLabel || t("periods.periodB")}
           fill={DEFAULT_COLOR}
           shape={<CubeBar />}
         />
@@ -278,7 +280,9 @@ const ProviderCharts = ({
     <Card>
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <CardTitle className="text-lg font-semibold">
-          {mode === "single" ? "Provider Distribution" : "Period Comparison"}
+          {mode === "single"
+            ? t("charts.providerDistribution")
+            : t("charts.periodComparison")}
         </CardTitle>
         {mode === "single" && (
           <Tabs
@@ -287,10 +291,10 @@ const ProviderCharts = ({
           >
             <TabsList className="h-8">
               <TabsTrigger value="bar" className="text-xs px-3">
-                Bar
+                {t("charts.bar")}
               </TabsTrigger>
               <TabsTrigger value="pie" className="text-xs px-3">
-                Pie
+                {t("charts.pie")}
               </TabsTrigger>
             </TabsList>
           </Tabs>
@@ -299,7 +303,7 @@ const ProviderCharts = ({
       {!hasData && (
         <CardContent>
           <p className="text-sm text-muted-foreground">
-            No data available for the selected period.
+            {t("charts.noData")}
           </p>
         </CardContent>
       )}

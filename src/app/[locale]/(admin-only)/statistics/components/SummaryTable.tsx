@@ -10,6 +10,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { MoveUp, MoveDown } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 const deltaColorClass = (delta: number) =>
   delta < 0
@@ -64,6 +65,7 @@ export default function SummaryTable({
   statistics,
   providers,
 }: Props) {
+  const t = useTranslations("statistics");
   const singleRows =
     mode === "single"
       ? providers.map((provider) => {
@@ -96,7 +98,7 @@ export default function SummaryTable({
   return (
     <Card className="shadow-card gap-0 pb-2">
       <CardHeader>
-        <CardTitle>Summary Table</CardTitle>
+        <CardTitle>{t("summary.title")}</CardTitle>
       </CardHeader>
       <CardContent className="px-2">
         {mode === "single" && (
@@ -104,7 +106,7 @@ export default function SummaryTable({
             <TableHeader>
               <TableRow>
                 <TableHead className="text-muted-foreground">
-                  Provider
+                  {t("summary.provider")}
                 </TableHead>
                 <TableHead className="text-muted-foreground text-right">
                   {singleValueDate}
@@ -126,7 +128,7 @@ export default function SummaryTable({
             </TableBody>
             <TableFooter className="bg-white border-t-2">
               <TableRow>
-                <TableCell>Total</TableCell>
+                <TableCell>{t("summary.total")}</TableCell>
                 <TableCell className="text-right">
                   {singleRows.reduce((acc, stat) => acc + (stat.count || 0), 0)}
                 </TableCell>
@@ -139,13 +141,13 @@ export default function SummaryTable({
             <TableHeader>
               <TableRow>
                 <TableHead className="text-muted-foreground">
-                  Provider
+                  {t("summary.provider")}
                 </TableHead>
                 <TableHead className="text-muted-foreground text-right">
-                  Period A
+                  {t("periods.periodA")}
                 </TableHead>
                 <TableHead className="text-muted-foreground text-right">
-                  Period B
+                  {t("periods.periodB")}
                 </TableHead>
                 <TableHead></TableHead>
               </TableRow>
@@ -176,7 +178,7 @@ export default function SummaryTable({
             <TableFooter className="bg-white border-t-2">
               {mode === "compare" && (
                 <TableRow>
-                  <TableCell>Total</TableCell>
+                  <TableCell>{t("summary.total")}</TableCell>
                   <TableCell className="text-right">
                     {compareRows.reduce(
                       (acc, stat) => acc + (stat.countPeriodA || 0),

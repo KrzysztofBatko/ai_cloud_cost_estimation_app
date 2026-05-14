@@ -2,12 +2,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Trash2, Plus, ChevronDown } from "lucide-react";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { Provider } from "@/types/api";
+import type { Provider } from "@/types/api";
 
 type CloudProviderProps = {
   provider: Provider;
@@ -36,6 +37,7 @@ export default function CloudProvider({
   newRegionByProvider,
   setNewRegionDraft,
 }: CloudProviderProps) {
+  const t = useTranslations("admin.providers");
   const [openRegions, setOpenRegions] = useState(false);
 
   return (
@@ -56,13 +58,13 @@ export default function CloudProvider({
                   : "bg-slate-100 text-slate-600"
               }`}
             >
-              {provider.isActive ? "Active" : "Inactive"}
+              {provider.isActive ? t("status.active") : t("status.inactive")}
             </span>
           </div>
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             {provider.isActive
-              ? "Visible in the estimation experience"
-              : "Hidden from active selection"}
+              ? t("visibility.active")
+              : t("visibility.inactive")}
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -72,7 +74,9 @@ export default function CloudProvider({
             onClick={() => setProviderActive(provider.id, !provider.isActive)}
             disabled={loading}
           >
-            {provider.isActive ? "Deactivate" : "Activate"}
+            {provider.isActive
+              ? t("actions.deactivate")
+              : t("actions.activate")}
           </Button>
           <Button
             variant="ghost"
@@ -99,14 +103,14 @@ export default function CloudProvider({
               </CollapsibleTrigger>
               <div>
                 <div className="text-sm font-medium text-foreground">
-                  Regions
+                  {t("regions.title")}
                 </div>
               </div>
             </div>
 
             {provider.defaultRegion ? (
               <span className="text-xs text-muted-foreground">
-                Default:{" "}
+                {t("regions.defaultLabel")}{" "}
                 <span className="font-medium font-semibold">
                   {provider.defaultRegion}
                 </span>
@@ -116,7 +120,7 @@ export default function CloudProvider({
           <CollapsibleContent>
             <div className="space-y-2 mt-2">
               <div className="text-xs text-muted-foreground">
-                Add provider regions and mark one as the default selection.
+                {t("regions.helper")}
               </div>
               {(provider.regions ?? []).map((region) => (
                 <div
@@ -136,7 +140,9 @@ export default function CloudProvider({
                     onClick={() => setDefaultRegion(provider.id, region.id)}
                     disabled={loading || region.isDefault}
                   >
-                    {region.isDefault ? "Default" : "Set default"}
+                    {region.isDefault
+                      ? t("actions.default")
+                      : t("actions.setDefault")}
                   </Button>
                   <Button
                     type="button"
@@ -151,15 +157,14 @@ export default function CloudProvider({
               ))}
               {(provider.regions ?? []).length === 0 ? (
                 <div className="rounded-md border border-dashed border-border px-3 py-4 text-sm text-muted-foreground">
-                  No regions configured yet. Add one below and mark the right
-                  default.
+                  {t("regions.empty")}
                 </div>
               ) : null}
             </div>
 
             <div className="grid gap-2 mt-2 md:grid-cols-[1fr_1fr_auto]">
               <Input
-                placeholder="New region code"
+                placeholder={t("regions.codePlaceholder")}
                 value={newRegionByProvider[provider.id]?.value ?? ""}
                 onChange={(event) =>
                   setNewRegionDraft(provider.id, "value", event.target.value)
@@ -167,7 +172,7 @@ export default function CloudProvider({
                 disabled={loading}
               />
               <Input
-                placeholder="New region label"
+                placeholder={t("regions.labelPlaceholder")}
                 value={newRegionByProvider[provider.id]?.label ?? ""}
                 onChange={(event) =>
                   setNewRegionDraft(provider.id, "label", event.target.value)
@@ -180,7 +185,7 @@ export default function CloudProvider({
                 disabled={loading}
               >
                 <Plus className="mr-2 h-4 w-4" />
-                Add region
+                {t("actions.addRegion")}
               </Button>
             </div>
           </CollapsibleContent>

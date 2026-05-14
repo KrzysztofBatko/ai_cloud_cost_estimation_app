@@ -1,9 +1,11 @@
 import { ENDPOINTS } from "@/lib/api/utils";
-import { Role, User } from "@/types/api";
+import type { Role, User } from "@/types/api";
+import { useTranslations } from "next-intl";
 import { useSession } from "next-auth/react";
 import { useCallback, useEffect, useState } from "react";
 
 export function useUsers() {
+  const t = useTranslations("admin.errors");
   const { data: session } = useSession();
   const [users, setUsers] = useState<User[]>([]);
   const [fetchingUsers, setFetchingUsers] = useState(false);
@@ -13,10 +15,6 @@ export function useUsers() {
   const [usersError, setUsersError] = useState<string | null>(null);
 
   const currentUserEmail = session?.user?.email?.toLowerCase() ?? null;
-
-  useEffect(() => {
-    fetchUsers();
-  }, []);
 
   const fetchUsers = useCallback(async () => {
     try {
@@ -34,16 +32,20 @@ export function useUsers() {
       setUsers(result.data || []);
     } catch (error) {
       console.error("Error fetching users:", error);
-      setUsersError("Could not fetch users. Please try again.");
+      setUsersError(t("usersFetch"));
     } finally {
       setFetchingUsers(false);
     }
+  }, [t]);
+
+  useEffect(() => {
+    fetchUsers();
   }, []);
 
   const updateUserRole = useCallback(
     async (email: string, role: Role) => {
       if (currentUserEmail && email.toLowerCase() === currentUserEmail) {
-        setUsersError("You cannot change your own role.");
+        setUsersError(t("ownRole"));
         return;
       }
 
@@ -79,12 +81,12 @@ export function useUsers() {
         );
       } catch (error) {
         console.error("Error updating user role:", error);
-        setUsersError("Could not change user role.");
+        setUsersError(t("userRoleUpdate"));
       } finally {
         setUpdatingUserEmail(null);
       }
     },
-    [currentUserEmail],
+    [currentUserEmail, t],
   );
 
   return {

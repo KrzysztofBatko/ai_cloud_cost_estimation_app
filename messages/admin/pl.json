@@ -1,0 +1,128 @@
+{
+  "admin": {
+    "page": {
+      "title": "Panel administracyjny",
+      "access": "Twoje uprawnienia: {role}"
+    },
+    "tabs": {
+      "estimationConfigs": "Konfiguracja estymacji",
+      "userManagement": "Zarządzanie użytkownikami"
+    },
+    "providers": {
+      "title": "Dostawcy chmury",
+      "deactivateInstead": "Możesz zamiast tego dezaktywować dostawcę.",
+      "newProviderPlaceholder": "Nazwa nowego dostawcy...",
+      "add": "Dodaj",
+      "status": {
+        "active": "Aktywny",
+        "inactive": "Nieaktywny"
+      },
+      "visibility": {
+        "active": "Widoczny podczas estymacji",
+        "inactive": "Ukryty na liście aktywnego wyboru"
+      },
+      "actions": {
+        "activate": "Aktywuj",
+        "deactivate": "Dezaktywuj",
+        "addRegion": "Dodaj region",
+        "default": "Domyślny",
+        "setDefault": "Ustaw domyślny"
+      },
+      "regions": {
+        "title": "Regiony",
+        "defaultLabel": "Domyślny:",
+        "helper": "Dodaj regiony dostawcy i oznacz jeden jako domyślny wybór.",
+        "empty": "Nie skonfigurowano jeszcze regionów. Dodaj region poniżej i ustaw właściwy domyślny.",
+        "codePlaceholder": "Kod nowego regionu",
+        "labelPlaceholder": "Etykieta nowego regionu"
+      }
+    },
+    "pricingSnapshot": {
+      "title": "Snapshot cennika",
+      "reload": "Wczytaj ponownie",
+      "refresh": "Odśwież snapshot",
+      "system": "system",
+      "fields": {
+        "pricingSnapshot": "Snapshot cennika",
+        "region": "Region",
+        "source": "Źródło",
+        "createdAt": "Utworzono",
+        "createdBy": "Utworzone przez",
+        "notes": "Notatki"
+      }
+    },
+    "users": {
+      "title": "Zarządzanie użytkownikami",
+      "refresh": "Odśwież",
+      "roleLabel": "Rola:",
+      "ownAccount": "Twoje konto ({role})",
+      "empty": "Brak użytkowników do wyświetlenia.",
+      "noName": "(brak nazwy)",
+      "roles": {
+        "user": "Użytkownik",
+        "admin": "Administrator",
+        "superadmin": "Superadministrator"
+      }
+    },
+    "errors": {
+      "providersFetch": "Nie udało się pobrać dostawców. Spróbuj ponownie.",
+      "providerAdd": "Nie udało się dodać dostawcy. Spróbuj ponownie.",
+      "regionAdd": "Nie udało się dodać regionu. Spróbuj ponownie.",
+      "defaultRegionUpdate": "Nie udało się zaktualizować domyślnego regionu.",
+      "regionDelete": "Nie udało się usunąć regionu. Spróbuj ponownie.",
+      "providerStatusUpdate": "Nie udało się zaktualizować statusu dostawcy.",
+      "providerDelete": "Wystąpił błąd podczas usuwania dostawcy.",
+      "usersFetch": "Nie udało się pobrać użytkowników. Spróbuj ponownie.",
+      "ownRole": "Nie możesz zmienić własnej roli.",
+      "userRoleUpdate": "Nie udało się zmienić roli użytkownika.",
+      "pricingSnapshotLoad": "Nie udało się wczytać metadanych migawki cennika.",
+      "pricingSnapshotRefresh": "Nie udało się odświeżyć migawki cennika."
+    }
+  },
+  "statistics": {
+    "dashboard": {
+      "title": "Statystyki",
+      "description": "Przeglądaj estymacje kosztów chmury w interaktywnym panelu 3D."
+    },
+    "parameters": {
+      "viewModes": {
+        "months": "Miesiące",
+        "days": "Dni"
+      },
+      "chartModes": {
+        "single": "Pojedynczy",
+        "compare": "Porównanie"
+      },
+      "aria": {
+        "toggleView": "Przełącz {mode}",
+        "toggleChartMode": "Przełącz tryb {mode}"
+      },
+      "comparePeriod": "Okres A vs okres B",
+      "period": "Okres"
+    },
+    "periods": {
+      "periodA": "Okres A",
+      "periodB": "Okres B",
+      "vs": "vs",
+      "selectMonths": "Wybierz miesiące",
+      "selectDays": "Wybierz dni",
+      "selectMonth": "Wybierz miesiąc",
+      "selectDay": "Wybierz dzień"
+    },
+    "charts": {
+      "providerDistribution": "Rozkład dostawców",
+      "periodComparison": "Porównanie okresów",
+      "bar": "Słupkowy",
+      "pie": "Kołowy",
+      "noData": "Brak danych dla wybranego okresu."
+    },
+    "summary": {
+      "title": "Tabela podsumowania",
+      "provider": "Dostawca",
+      "total": "Razem"
+    },
+    "topProviders": {
+      "title": "Top 3 dostawców"
+    }
+  }
+}

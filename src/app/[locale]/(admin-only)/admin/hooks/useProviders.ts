@@ -1,8 +1,10 @@
 import { ENDPOINTS } from "@/lib/api/utils";
-import { Provider, ProviderRegion } from "@/types/api";
+import type { Provider, ProviderRegion } from "@/types/api";
+import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useState } from "react";
 
 export function useProviders() {
+  const t = useTranslations("admin.errors");
   const [providers, setProviders] = useState<Provider[]>([]);
   const [newProvider, setNewProvider] = useState("");
   const [loading, setLoading] = useState(false);
@@ -13,39 +15,40 @@ export function useProviders() {
     Record<string, { value: string; label: string }>
   >({});
 
+  const fetchProviders = useCallback(
+    async (isInitial?: boolean) => {
+      try {
+        setProviderError(null);
+        if (isInitial) setFetchingProviders(true);
+        const response = await fetch(
+          `${ENDPOINTS.PROVIDERS}?includeInactive=true`,
+        );
+        if (!response.ok) {
+          const errorBody = await response.json().catch(() => null);
+          throw new Error(
+            errorBody?.error || `HTTP error! status: ${response.status}`,
+          );
+        }
+
+        const result = await response.json();
+
+        if (result.data) {
+          setProviders(result.data);
+        }
+      } catch (error) {
+        console.error("Error fetching providers:", error);
+        const message =
+          error instanceof Error ? error.message : t("providersFetch");
+        setProviderError(message);
+      } finally {
+        setFetchingProviders(false);
+      }
+    },
+    [t],
+  );
+
   useEffect(() => {
     fetchProviders(true);
-  }, []);
-
-  const fetchProviders = useCallback(async (isInitial?: boolean) => {
-    try {
-      setProviderError(null);
-      if (isInitial) setFetchingProviders(true);
-      const response = await fetch(
-        `${ENDPOINTS.PROVIDERS}?includeInactive=true`,
-      );
-      if (!response.ok) {
-        const errorBody = await response.json().catch(() => null);
-        throw new Error(
-          errorBody?.error || `HTTP error! status: ${response.status}`,
-        );
-      }
-
-      const result = await response.json();
-
-      if (result.data) {
-        setProviders(result.data);
-      }
-    } catch (error) {
-      console.error("Error fetching providers:", error);
-      const message =
-        error instanceof Error
-          ? error.message
-          : "Could not fetch providers. Please try again.";
-      setProviderError(message);
-    } finally {
-      setFetchingProviders(false);
-    }
   }, []);
 
   const addProvider = useCallback(async () => {
@@ -70,15 +73,12 @@ export function useProviders() {
       await fetchProviders();
     } catch (error) {
       console.error("Error adding provider:", error);
-      const message =
-        error instanceof Error
-          ? error.message
-          : "Could not add provider. Please try again.";
+      const message = error instanceof Error ? error.message : t("providerAdd");
       setProviderError(message);
     } finally {
       setLoading(false);
     }
-  }, [newProvider, fetchProviders]);
+  }, [newProvider, fetchProviders, t]);
 
   const setNewRegionDraft = (
     providerId: string,
@@ -156,16 +156,13 @@ export function useProviders() {
         }));
       } catch (error) {
         console.error("Error adding region:", error);
-        const message =
-          error instanceof Error
-            ? error.message
-            : "Could not add region. Please try again.";
+        const message = error instanceof Error ? error.message : t("regionAdd");
         setProviderError(message);
       } finally {
         setLoading(false);
       }
     },
-    [fetchProviders],
+    [fetchProviders, newRegionByProvider, t],
   );
 
   const setDefaultRegion = useCallback(
@@ -221,15 +218,13 @@ export function useProviders() {
       } catch (error) {
         console.error("Error updating default region:", error);
         const message =
-          error instanceof Error
-            ? error.message
-            : "Could not update the default region.";
+          error instanceof Error ? error.message : t("defaultRegionUpdate");
         setProviderError(message);
       } finally {
         setLoading(false);
       }
     },
-    [fetchProviders],
+    [fetchProviders, t],
   );
 
   const deleteRegion = useCallback(
@@ -255,15 +250,13 @@ export function useProviders() {
       } catch (error) {
         console.error("Error deleting region:", error);
         const message =
-          error instanceof Error
-            ? error.message
-            : "Could not delete region. Please try again.";
+          error instanceof Error ? error.message : t("regionDelete");
         setProviderError(message);
       } finally {
         setLoading(false);
       }
     },
-    [fetchProviders],
+    [fetchProviders, t],
   );
 
   const setProviderActive = useCallback(
@@ -305,16 +298,14 @@ export function useProviders() {
         }
       } catch (error) {
         const message =
-          error instanceof Error
-            ? error.message
-            : "Could not update provider status.";
+          error instanceof Error ? error.message : t("providerStatusUpdate");
         setProviderError(message);
         console.error("Error updating provider status:", error);
       } finally {
         setLoading(false);
       }
     },
-    [fetchProviders],
+    [fetchProviders, t],
   );
 
   const deleteProvider = useCallback(
@@ -338,15 +329,14 @@ export function useProviders() {
         await fetchProviders();
       } catch (error: unknown) {
         setProviderError(
-          (error as { message: string })?.message ||
-            "An error occurred while deleting the provider.",
+          (error as { message: string })?.message || t("providerDelete"),
         );
         console.error("Error deleting provider:", error);
       } finally {
         setLoading(false);
       }
     },
-    [fetchProviders],
+    [fetchProviders, t],
   );
 
   return {

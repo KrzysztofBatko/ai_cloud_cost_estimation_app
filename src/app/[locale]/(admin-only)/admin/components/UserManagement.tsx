@@ -2,15 +2,14 @@
 import { useUsers } from "@/app/[locale]/(admin-only)/admin/hooks/useUsers";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import type { Role } from "@/types/api";
 import { Loader2, ChevronDown } from "lucide-react";
+import { useTranslations } from "next-intl";
 
-const availableRoles = [
-  { value: "user", label: "User" },
-  { value: "admin", label: "Admin" },
-  { value: "superadmin", label: "Superadmin" },
-];
+const availableRoles: Role[] = ["user", "admin", "superadmin"];
 
 export default function UserManagement() {
+  const t = useTranslations("admin.users");
   const {
     users,
     fetchingUsers,
@@ -24,7 +23,7 @@ export default function UserManagement() {
   return (
     <Card className="shadow-card">
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>User management</CardTitle>
+        <CardTitle>{t("title")}</CardTitle>
         <Button
           variant="outline"
           size="sm"
@@ -33,7 +32,7 @@ export default function UserManagement() {
           className="gap-2"
         >
           {fetchingUsers && <Loader2 className="h-4 w-4 animate-spin" />}
-          Refresh
+          {t("refresh")}
         </Button>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -56,16 +55,18 @@ export default function UserManagement() {
               >
                 <div className="space-y-1">
                   <p className="font-medium text-foreground">
-                    {user.name || "(no name)"}
+                    {user.name || t("noName")}
                   </p>
                   <p className="text-sm text-muted-foreground">{user.email}</p>
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <span className="text-sm text-muted-foreground">Role:</span>
+                  <span className="text-sm text-muted-foreground">
+                    {t("roleLabel")}
+                  </span>
                   {isSelf ? (
                     <span className="text-xs text-muted-foreground">
-                      Your account ({user.role})
+                      {t("ownAccount", { role: t(`roles.${user.role}`) })}
                     </span>
                   ) : (
                     <div className="relative w-full">
@@ -83,8 +84,8 @@ export default function UserManagement() {
                         className="w-full appearance-none rounded-md border border-input bg-background px-3 pr-12 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
                       >
                         {availableRoles.map((role) => (
-                          <option key={role.value} value={role.value}>
-                            {role.label}
+                          <option key={role} value={role}>
+                            {t(`roles.${role}`)}
                           </option>
                         ))}
                       </select>
@@ -109,7 +110,7 @@ export default function UserManagement() {
 
           {!fetchingUsers && users.length === 0 && (
             <div className="px-4 py-6 text-center text-sm text-muted-foreground">
-              No users to display.
+              {t("empty")}
             </div>
           )}
         </div>

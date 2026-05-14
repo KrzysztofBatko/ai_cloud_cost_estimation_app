@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useLocale, useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -29,21 +30,6 @@ type RangeProps = {
   onChange: (value: RangeMonthOrDayPickerValue) => void;
 };
 
-const monthYearFormatter = new Intl.DateTimeFormat("en-GB", {
-  month: "short",
-  year: "numeric",
-});
-
-const dayMonthYearFormatter = new Intl.DateTimeFormat("en-GB", {
-  day: "2-digit",
-  month: "short",
-  year: "numeric",
-});
-
-const monthNameFormatter = new Intl.DateTimeFormat("en-GB", {
-  month: "short",
-});
-
 function clampToMonth(d: Date) {
   return new Date(d.getFullYear(), d.getMonth(), 1);
 }
@@ -67,16 +53,25 @@ function isSameMonth(date: Date, dateToCompare: Date) {
   );
 }
 
-function formatMonthYear(date: Date) {
-  return monthYearFormatter.format(date);
+function formatMonthYear(date: Date, locale: string) {
+  return new Intl.DateTimeFormat(locale, {
+    month: "short",
+    year: "numeric",
+  }).format(date);
 }
 
-function formatDayMonthYear(date: Date) {
-  return dayMonthYearFormatter.format(date);
+function formatDayMonthYear(date: Date, locale: string) {
+  return new Intl.DateTimeFormat(locale, {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  }).format(date);
 }
 
-function formatMonthName(date: Date) {
-  return monthNameFormatter.format(date);
+function formatMonthName(date: Date, locale: string) {
+  return new Intl.DateTimeFormat(locale, {
+    month: "short",
+  }).format(date);
 }
 
 function isFutureMonth(month: Date, now: Date) {
@@ -84,11 +79,13 @@ function isFutureMonth(month: Date, now: Date) {
 }
 
 export function MonthOrDayPickerPopover({ value, onChange }: Props) {
+  const locale = useLocale();
+
   const selectedLabel = React.useMemo(() => {
     return value.mode === "months"
-      ? formatMonthYear(value.date)
-      : formatDayMonthYear(value.date);
-  }, [value]);
+      ? formatMonthYear(value.date, locale)
+      : formatDayMonthYear(value.date, locale);
+  }, [locale, value]);
 
   // Year cursor (internal UI state)
   const derivedCursor = React.useMemo(() => {
@@ -147,13 +144,7 @@ export function MonthOrDayPickerPopover({ value, onChange }: Props) {
             className={"justify-between gap-2"}
           >
             <span
-              className={cn(
-                !selectedLabel ||
-                  selectedLabel === "Select month" ||
-                  selectedLabel === "Select day"
-                  ? "text-muted-foreground"
-                  : "",
-              )}
+              className={cn(!selectedLabel ? "text-muted-foreground" : "")}
             >
               {selectedLabel}
             </span>
@@ -203,7 +194,7 @@ export function MonthOrDayPickerPopover({ value, onChange }: Props) {
                       }}
                       disabled={disabled}
                     >
-                      {formatMonthName(m)}
+                      {formatMonthName(m, locale)}
                     </Button>
                   );
                 })}
@@ -230,28 +221,49 @@ export function MonthOrDayPickerPopover({ value, onChange }: Props) {
   );
 }
 
-function formatRangeLabel(value: RangeMonthOrDayPickerValue) {
+function formatRangeLabel(
+  value: RangeMonthOrDayPickerValue,
+  locale: string,
+  labels: { selectDays: string; selectMonths: string; vs: string },
+) {
   if (value.mode === "months") {
     if (value.periodA && value.periodB) {
-      return `${formatMonthYear(value.periodA)} vs ${formatMonthYear(
+      return `${formatMonthYear(value.periodA, locale)} ${labels.vs} ${formatMonthYear(
         value.periodB,
+        locale,
       )}`;
     }
-    if (value.periodA) return `${formatMonthYear(value.periodA)} vs`;
-    return "Select months";
+    if (value.periodA) {
+      return `${formatMonthYear(value.periodA, locale)} ${labels.vs}`;
+    }
+    return labels.selectMonths;
   }
 
   if (value.periodA && value.periodB) {
-    return `${formatDayMonthYear(value.periodA)} vs ${formatDayMonthYear(
+    return `${formatDayMonthYear(value.periodA, locale)} ${labels.vs} ${formatDayMonthYear(
       value.periodB,
+      locale,
     )}`;
   }
-  if (value.periodA) return `${formatDayMonthYear(value.periodA)} vs`;
-  return "Select days";
+  if (value.periodA) {
+    return `${formatDayMonthYear(value.periodA, locale)} ${labels.vs}`;
+  }
+  return labels.selectDays;
 }
 
 export function RangeMonthOrDayPickerPopover({ value, onChange }: RangeProps) {
-  const selectedLabel = React.useMemo(() => formatRangeLabel(value), [value]);
+  const locale = useLocale();
+  const t = useTranslations("statistics.periods");
+
+  const selectedLabel = React.useMemo(
+    () =>
+      formatRangeLabel(value, locale, {
+        selectDays: t("selectDays"),
+        selectMonths: t("selectMonths"),
+        vs: t("vs"),
+      }),
+    [locale, t, value],
+  );
 
   const derivedFromCursor = React.useMemo(() => {
     if (value.periodA) return clampToMonth(value.periodA);
@@ -346,8 +358,8 @@ export function RangeMonthOrDayPickerPopover({ value, onChange }: RangeProps) {
           >
             <span
               className={cn(
-                selectedLabel === "Select months" ||
-                  selectedLabel === "Select days"
+                selectedLabel === t("selectMonths") ||
+                  selectedLabel === t("selectDays")
                   ? "text-muted-foreground"
                   : "",
               )}
@@ -362,7 +374,7 @@ export function RangeMonthOrDayPickerPopover({ value, onChange }: RangeProps) {
             <div className="grid gap-4 rounded-lg border p-3 sm:grid-cols-2 ">
               <div>
                 <div className="mb-2 text-sm font-medium text-muted-foreground">
-                  Period A
+                  {t("periodA")}
                 </div>
                 <div className="mb-3 flex items-center justify-between">
                   <Button
@@ -405,7 +417,7 @@ export function RangeMonthOrDayPickerPopover({ value, onChange }: RangeProps) {
                         onClick={() => selectFromMonth(m)}
                         disabled={disabled}
                       >
-                        {formatMonthName(m)}
+                        {formatMonthName(m, locale)}
                       </Button>
                     );
                   })}
@@ -414,7 +426,7 @@ export function RangeMonthOrDayPickerPopover({ value, onChange }: RangeProps) {
 
               <div>
                 <div className="mb-2 text-sm font-medium text-muted-foreground">
-                  Period B
+                  {t("periodB")}
                 </div>
                 <div className="mb-3 flex items-center justify-between">
                   <Button
@@ -457,7 +469,7 @@ export function RangeMonthOrDayPickerPopover({ value, onChange }: RangeProps) {
                         onClick={() => selectToMonth(m)}
                         disabled={disabled}
                       >
-                        {formatMonthName(m)}
+                        {formatMonthName(m, locale)}
                       </Button>
                     );
                   })}
@@ -468,7 +480,7 @@ export function RangeMonthOrDayPickerPopover({ value, onChange }: RangeProps) {
             <div className="grid gap-4 rounded-lg border p-3 sm:grid-cols-2">
               <div>
                 <div className="mb-2 text-sm font-medium text-muted-foreground">
-                  Period A
+                  {t("periodA")}
                 </div>
                 <Calendar
                   mode="single"
@@ -480,7 +492,7 @@ export function RangeMonthOrDayPickerPopover({ value, onChange }: RangeProps) {
               </div>
               <div>
                 <div className="mb-2 text-sm font-medium text-muted-foreground">
-                  Period B
+                  {t("periodB")}
                 </div>
                 <Calendar
                   mode="single"

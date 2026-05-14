@@ -3,8 +3,11 @@ import { usePricingSnapshot } from "@/app/[locale]/(admin-only)/admin/hooks/useP
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, RefreshCw } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
 
 export default function PricingSnapshot() {
+  const locale = useLocale();
+  const t = useTranslations("admin.pricingSnapshot");
   const {
     pricingSnapshot,
     refreshingPricingSnapshot,
@@ -17,7 +20,7 @@ export default function PricingSnapshot() {
   return (
     <Card className="shadow-card mt-4">
       <CardHeader className="flex flex-row items-center justify-between gap-4">
-        <CardTitle>Pricing Snapshot</CardTitle>
+        <CardTitle>{t("title")}</CardTitle>
         <div className="flex gap-2">
           <Button
             variant="outline"
@@ -29,7 +32,7 @@ export default function PricingSnapshot() {
             {(fetchingPricingSnapshot || refreshingPricingSnapshot) && (
               <Loader2 className="h-4 w-4 animate-spin" />
             )}
-            Reload
+            {t("reload")}
           </Button>
           <Button
             size="sm"
@@ -42,7 +45,7 @@ export default function PricingSnapshot() {
             ) : (
               <RefreshCw className="h-4 w-4" />
             )}
-            Refresh snapshot
+            {t("refresh")}
           </Button>
         </div>
       </CardHeader>
@@ -56,37 +59,39 @@ export default function PricingSnapshot() {
         {pricingSnapshot ? (
           <div className="grid gap-3 rounded-xl border border-border p-4 text-sm sm:grid-cols-2">
             <div>
-              <p className="text-muted-foreground">Pricing snapshot</p>
+              <p className="text-muted-foreground">
+                {t("fields.pricingSnapshot")}
+              </p>
               <p className="font-medium text-foreground">
                 {pricingSnapshot.pricingAsOf}
               </p>
             </div>
             <div>
-              <p className="text-muted-foreground">Region</p>
+              <p className="text-muted-foreground">{t("fields.region")}</p>
               <p className="font-medium text-foreground">
                 {pricingSnapshot.region}
               </p>
             </div>
             <div>
-              <p className="text-muted-foreground">Source</p>
+              <p className="text-muted-foreground">{t("fields.source")}</p>
               <p className="font-medium text-foreground">
                 {pricingSnapshot.source}
               </p>
             </div>
             <div>
-              <p className="text-muted-foreground">Created at</p>
+              <p className="text-muted-foreground">{t("fields.createdAt")}</p>
               <p className="font-medium text-foreground">
-                {new Date(pricingSnapshot.createdAt).toLocaleString()}
+                {new Date(pricingSnapshot.createdAt).toLocaleString(locale)}
               </p>
             </div>
             <div>
-              <p className="text-muted-foreground">Created by</p>
+              <p className="text-muted-foreground">{t("fields.createdBy")}</p>
               <p className="font-medium text-foreground">
-                {pricingSnapshot.createdBy ?? "system"}
+                {pricingSnapshot.createdBy ?? t("system")}
               </p>
             </div>
             <div>
-              <p className="text-muted-foreground">Notes</p>
+              <p className="text-muted-foreground">{t("fields.notes")}</p>
               <p className="font-medium text-foreground">
                 {pricingSnapshot.notes ?? "-"}
               </p>

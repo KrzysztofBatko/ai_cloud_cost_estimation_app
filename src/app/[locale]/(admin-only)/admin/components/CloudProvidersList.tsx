@@ -2,10 +2,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Plus, Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useProviders } from "@/app/[locale]/(admin-only)/admin/hooks/useProviders";
 import CloudProvider from "@/app/[locale]/(admin-only)/admin/components/CloudProvider";
 
 export default function CloudProvidersList() {
+  const t = useTranslations("admin.providers");
   const {
     providers,
     newProvider,
@@ -27,7 +29,7 @@ export default function CloudProvidersList() {
   return (
     <Card className="shadow-card">
       <CardHeader>
-        <CardTitle>Cloud Providers</CardTitle>
+        <CardTitle>{t("title")}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         {providerError && (
@@ -35,7 +37,7 @@ export default function CloudProvidersList() {
             {providerError}
             {canBeDeactivated && (
               <div className="mt-2 text-sm text-muted-foreground">
-                You can deactivate the provider instead.
+                {t("deactivateInstead")}
               </div>
             )}
           </div>
@@ -43,7 +45,7 @@ export default function CloudProvidersList() {
 
         <div className="flex gap-3">
           <Input
-            placeholder="New provider name..."
+            placeholder={t("newProviderPlaceholder")}
             value={newProvider}
             onChange={(e) => setNewProvider(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && addProvider()}
@@ -58,7 +60,7 @@ export default function CloudProvidersList() {
             ) : (
               <Plus className="h-4 w-4" />
             )}
-            <span className="hidden sm:inline">Add</span>
+            <span className="hidden sm:inline">{t("add")}</span>
           </Button>
         </div>
 

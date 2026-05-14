@@ -10,19 +10,12 @@ import {
 } from "@/app/[locale]/(admin-only)/statistics/components/MonthOrDayPicker";
 import { Card, CardContent } from "@/components/ui/card";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { useTranslations } from "next-intl";
 
-// ── Types ────────────────────────────────────────────────────────────────────
 export const VIEW_MODES = ["months", "days"] as const;
 export type ViewMode = (typeof VIEW_MODES)[number];
 
-export default function DashboardParameters({
-  singleValue,
-  setSingleValue,
-  rangeValue,
-  setRangeValue,
-  mode,
-  setMode,
-}: {
+type DashboardParametersProps = {
   singleValue: MonthOrDayPickerValue;
   setSingleValue: React.Dispatch<React.SetStateAction<MonthOrDayPickerValue>>;
   rangeValue: RangeMonthOrDayPickerValue;
@@ -31,7 +24,18 @@ export default function DashboardParameters({
   >;
   mode: ChartMode;
   setMode: React.Dispatch<React.SetStateAction<ChartMode>>;
-}) {
+};
+
+export default function DashboardParameters({
+  singleValue,
+  setSingleValue,
+  rangeValue,
+  setRangeValue,
+  mode,
+  setMode,
+}: DashboardParametersProps) {
+  const t = useTranslations("statistics.parameters");
+
   const handleViewChange = (value: ViewMode) => {
     if (value === "months") {
       setSingleValue({ mode: "months", date: new Date() });
@@ -56,9 +60,15 @@ export default function DashboardParameters({
               handleViewChange(value as ViewMode);
             }}
           >
-            {VIEW_MODES.map((v) => (
-              <ToggleGroupItem key={v} value={v} aria-label={`Toggle ${v}`}>
-                {v.charAt(0).toUpperCase() + v.slice(1)}
+            {VIEW_MODES.map((viewMode) => (
+              <ToggleGroupItem
+                key={viewMode}
+                value={viewMode}
+                aria-label={t("aria.toggleView", {
+                  mode: t(`viewModes.${viewMode}`),
+                })}
+              >
+                {t(`viewModes.${viewMode}`)}
               </ToggleGroupItem>
             ))}
           </ToggleGroup>
@@ -71,13 +81,15 @@ export default function DashboardParameters({
               setMode(value as ChartMode);
             }}
           >
-            {CHART_MODES.map((m) => (
+            {CHART_MODES.map((chartMode) => (
               <ToggleGroupItem
-                key={m}
-                value={m}
-                aria-label={`Toggle ${m} mode`}
+                key={chartMode}
+                value={chartMode}
+                aria-label={t("aria.toggleChartMode", {
+                  mode: t(`chartModes.${chartMode}`),
+                })}
               >
-                {m.charAt(0).toUpperCase() + m.slice(1)}
+                {t(`chartModes.${chartMode}`)}
               </ToggleGroupItem>
             ))}
           </ToggleGroup>
@@ -85,7 +97,7 @@ export default function DashboardParameters({
         {mode === "compare" && (
           <div className="flex items-center gap-2 ml-auto flex-wrap">
             <p className="text-sm font-medium text-muted-foreground">
-              Period A vs Period B
+              {t("comparePeriod")}
             </p>
             <RangeMonthOrDayPickerPopover
               value={rangeValue}
@@ -95,7 +107,9 @@ export default function DashboardParameters({
         )}
         {mode === "single" && (
           <div className="flex items-center gap-2 ml-auto flex-wrap">
-            <p className="text-sm font-medium text-muted-foreground">Period</p>
+            <p className="text-sm font-medium text-muted-foreground">
+              {t("period")}
+            </p>
             <MonthOrDayPickerPopover
               value={singleValue}
               onChange={setSingleValue}

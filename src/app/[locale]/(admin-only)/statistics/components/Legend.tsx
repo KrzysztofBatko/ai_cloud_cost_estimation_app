@@ -1,5 +1,4 @@
-const PROVIDERS = ["AWS", "Azure", "GCP", "Vercel", "Oracle"] as const;
-type Provider = (typeof PROVIDERS)[number];
+type Provider = "AWS" | "Azure" | "GCP" | "Vercel" | "Oracle";
 
 export const PROVIDER_HEX: Record<Provider, string> = {
   AWS: "#CF820E",

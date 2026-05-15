@@ -1,11 +1,16 @@
+"use client";
+
 import PageContainer from "@/components/PageContainer";
 import ProfileDetails from "@/app/[locale]/(auth-users)/profile/components/ProfileDetails";
+import { useTranslations } from "next-intl";
 
 export default function ProfilePage() {
+  const t = useTranslations("profile.page");
+
   return (
     <PageContainer
-      pageTitle="My Profile"
-      pageDescription="Your signed-in account details"
+      pageTitle={t("title")}
+      pageDescription={t("description")}
     >
       <div className="h-auto lg:h-165">
         <ProfileDetails />

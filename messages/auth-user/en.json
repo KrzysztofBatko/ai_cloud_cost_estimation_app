@@ -1,0 +1,23 @@
+{
+  "profile": {
+    "page": {
+      "title": "My Profile",
+      "description": "Your signed-in account details"
+    },
+    "details": {
+      "title": "Profile",
+      "userName": "User name",
+      "email": "Email",
+      "unknownUser": "Unknown user",
+      "noEmail": "No email available"
+    },
+    "deleteAccount": {
+      "trigger": "Delete account",
+      "title": "Delete account?",
+      "description": "This will permanently remove your account from the database.",
+      "confirm": "Confirm delete",
+      "cancel": "Keep account",
+      "error": "Failed to delete account"
+    }
+  }
+}

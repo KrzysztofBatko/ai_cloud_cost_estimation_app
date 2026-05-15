@@ -1,9 +1,11 @@
 import { useProfile } from "@/app/[locale]/(auth-users)/profile/hooks/useProfile";
 import { Button } from "@/components/ui/button";
 import { AlertTriangle, Loader2, Trash2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 export default function DeleteAccount() {
+  const t = useTranslations("profile.deleteAccount");
   const { clearDeleteError, deleteAccount, deleteError, deleting } =
     useProfile();
   const [confirmingDelete, setConfirmingDelete] = useState(false);
@@ -25,9 +27,9 @@ export default function DeleteAccount() {
           <div className="flex items-start gap-3">
             <AlertTriangle className="mt-0.5 h-5 w-5 text-destructive" />
             <div className="space-y-1">
-              <h2 className="font-semibold text-foreground">Delete account?</h2>
+              <h2 className="font-semibold text-foreground">{t("title")}</h2>
               <p className="text-sm text-muted-foreground">
-                This will permanently remove your account from the database.
+                {t("description")}
               </p>
             </div>
           </div>
@@ -47,21 +49,21 @@ export default function DeleteAccount() {
               ) : (
                 <Trash2 className="h-4 w-4" />
               )}
-              Confirm delete
+              {t("confirm")}
             </Button>
             <Button
               variant="outline"
               onClick={cancelDelete}
               disabled={deleting}
             >
-              Keep account
+              {t("cancel")}
             </Button>
           </div>
         </div>
       ) : (
         <Button variant="destructive" onClick={openDeleteConfirmation}>
           <Trash2 className="h-4 w-4" />
-          Delete account
+          {t("trigger")}
         </Button>
       )}
     </div>

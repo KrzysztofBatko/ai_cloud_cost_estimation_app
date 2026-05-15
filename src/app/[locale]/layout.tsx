@@ -4,7 +4,6 @@ import "./globals.css";
 
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
-import { notFound } from "next/navigation";
 
 import { TooltipProvider } from "@/components/ui/tooltip";
 import Navbar from "@/app/[locale]/(home)/components/Navbar";
@@ -40,11 +39,11 @@ export default async function RootLayout({
   children: React.ReactNode;
   params: Promise<{ locale: string }>;
 }>) {
-  const { locale } = await params;
+  const { locale: requestedLocale } = await params;
 
-  if (!isLocale(locale)) {
-    notFound();
-  }
+  const locale = isLocale(requestedLocale)
+    ? requestedLocale
+    : routing.defaultLocale;
 
   const messages = await getMessages({ locale });
 

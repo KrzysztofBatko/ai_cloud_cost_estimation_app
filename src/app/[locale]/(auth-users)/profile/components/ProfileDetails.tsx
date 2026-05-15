@@ -1,6 +1,7 @@
 "use client";
 
 import { Mail, UserRound } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useProfile } from "@/app/[locale]/(auth-users)/profile/hooks/useProfile";
@@ -12,12 +13,13 @@ function getInitial(name: string) {
 }
 
 export default function ProfileDetails() {
+  const t = useTranslations("profile.details");
   const { profile } = useProfile();
 
   return (
     <Card className="mt-6 shadow-card">
       <CardHeader>
-        <CardTitle>Profile</CardTitle>
+        <CardTitle>{t("title")}</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="flex flex-col gap-6 sm:flex-row sm:items-center">
@@ -31,10 +33,10 @@ export default function ProfileDetails() {
           <dl className="grid gap-4">
             <DescriptionRow
               Icon={UserRound}
-              label="User name"
+              label={t("userName")}
               value={profile.name}
             />
-            <DescriptionRow Icon={Mail} label="Email" value={profile.email} />
+            <DescriptionRow Icon={Mail} label={t("email")} value={profile.email} />
           </dl>
         </div>
 

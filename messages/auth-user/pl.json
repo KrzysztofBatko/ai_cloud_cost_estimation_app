@@ -1,0 +1,23 @@
+{
+  "profile": {
+    "page": {
+      "title": "Mój profil",
+      "description": "Szczegóły Twojego zalogowanego konta"
+    },
+    "details": {
+      "title": "Profil",
+      "userName": "Nazwa użytkownika",
+      "email": "Email",
+      "unknownUser": "Nieznany użytkownik",
+      "noEmail": "Brak dostępnego adresu email"
+    },
+    "deleteAccount": {
+      "trigger": "Usuń konto",
+      "title": "Usunąć konto?",
+      "description": "Ta akcja trwale usunie Twoje konto z bazy danych.",
+      "confirm": "Potwierdź usunięcie",
+      "cancel": "Zachowaj konto",
+      "error": "Nie udało się usunąć konta"
+    }
+  }
+}

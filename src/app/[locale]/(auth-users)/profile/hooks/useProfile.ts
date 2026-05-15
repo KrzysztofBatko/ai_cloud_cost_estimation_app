@@ -1,10 +1,13 @@
 "use client";
 
 import { ENDPOINTS } from "@/lib/api/utils";
+import { useLocale, useTranslations } from "next-intl";
 import { signOut, useSession } from "next-auth/react";
 import { useCallback, useState } from "react";
 
 export function useProfile() {
+  const locale = useLocale();
+  const t = useTranslations("profile");
   const { data: session, status } = useSession();
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
@@ -28,18 +31,18 @@ export function useProfile() {
           error?: string;
         } | null;
 
-        throw new Error(body?.error ?? "Failed to delete account");
+        throw new Error(body?.error ?? t("deleteAccount.error"));
       }
 
-      await signOut({ callbackUrl: "/" });
+      await signOut({ callbackUrl: `/${locale}` });
     } catch (error) {
       setDeleteError(
-        error instanceof Error ? error.message : "Failed to delete account",
+        error instanceof Error ? error.message : t("deleteAccount.error"),
       );
     } finally {
       setDeleting(false);
     }
-  }, []);
+  }, [locale, t]);
 
   return {
     status,
@@ -48,8 +51,8 @@ export function useProfile() {
     deleteError,
     deleting,
     profile: {
-      name: user?.name?.trim() || "Unknown user",
-      email: user?.email?.trim() || "No email available",
+      name: user?.name?.trim() || t("details.unknownUser"),
+      email: user?.email?.trim() || t("details.noEmail"),
       image: user?.image ?? null,
       role: user?.role ?? "user",
     },

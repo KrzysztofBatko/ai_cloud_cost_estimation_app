@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { useEffect, useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import {
   Card,
@@ -44,6 +45,7 @@ type Group = {
 };
 
 export default function UsageModern({ answers, setAnswers }: Props) {
+  const t = useTranslations("estimation.usage");
   const [open, setOpen] = useState(true);
 
   const visibleQuestions = useMemo(
@@ -58,7 +60,7 @@ export default function UsageModern({ answers, setAnswers }: Props) {
     for (const q of visibleQuestions) {
       const meta = categoryMeta[q.category];
       const Icon = meta?.icon ?? Monitor;
-      const label = meta?.label ?? "Unknown";
+      const label = meta?.label ?? t("unknown");
 
       if (!byCat.has(q.category)) {
         byCat.set(q.category, {
@@ -72,7 +74,7 @@ export default function UsageModern({ answers, setAnswers }: Props) {
     }
 
     return Array.from(byCat.values());
-  }, [visibleQuestions]);
+  }, [t, visibleQuestions]);
 
   const total = visibleQuestions.length;
   const answered = visibleQuestions.reduce(
@@ -133,16 +135,15 @@ export default function UsageModern({ answers, setAnswers }: Props) {
         <CardHeader className="gap-4">
           <div className="flex items-start justify-between gap-4">
             <div className="space-y-1">
-              <CardTitle>3. Usage</CardTitle>
+              <CardTitle>{t("title")}</CardTitle>
               <CardDescription>
-                If it&apos;s not applicable, leave the question unanswered. The
-                more you answer, the better the estimate!
+                {t("description")}
               </CardDescription>
             </div>
 
             <div className="flex items-center gap-2">
               <Badge variant="secondary" className="rounded-full">
-                {answered}/{total} answered
+                {t("answered", { answered, total })}
               </Badge>
 
               <Button
@@ -151,7 +152,7 @@ export default function UsageModern({ answers, setAnswers }: Props) {
                 size="icon"
                 onClick={resetAnswers}
                 className="text-muted-foreground hover:text-foreground"
-                aria-label="Clear all usage answers"
+                aria-label={t("clearAll")}
               >
                 <XIcon className="h-4 w-4" />
               </Button>
@@ -160,7 +161,7 @@ export default function UsageModern({ answers, setAnswers }: Props) {
                 <Button
                   variant="ghost"
                   size="icon"
-                  aria-label={open ? "Collapse" : "Expand"}
+                  aria-label={open ? t("collapse") : t("expand")}
                 >
                   <ChevronDownIcon
                     className={cn(
@@ -175,7 +176,7 @@ export default function UsageModern({ answers, setAnswers }: Props) {
 
           <div className="space-y-2">
             <div className="flex items-center justify-between text-xs text-muted-foreground">
-              <span>Progress</span>
+              <span>{t("progress")}</span>
               <span>{progress}%</span>
             </div>
             <Progress value={progress} />
@@ -205,7 +206,10 @@ export default function UsageModern({ answers, setAnswers }: Props) {
                       <div>
                         <div className="text-sm font-semibold">{g.label}</div>
                         <div className="text-xs text-muted-foreground">
-                          {answeredInGroup}/{g.items.length} answered
+                          {t("answered", {
+                            answered: answeredInGroup,
+                            total: g.items.length,
+                          })}
                         </div>
                       </div>
                     </div>
@@ -239,7 +243,7 @@ export default function UsageModern({ answers, setAnswers }: Props) {
                                 onClick={() => clearQuestion(q.id)}
                                 className="text-muted-foreground hover:text-foreground"
                               >
-                                Clear
+                                {t("clear")}
                               </Button>
                             ) : null}
                           </div>

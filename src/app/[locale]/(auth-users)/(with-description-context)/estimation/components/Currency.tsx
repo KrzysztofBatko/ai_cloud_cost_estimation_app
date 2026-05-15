@@ -2,6 +2,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { useTranslations } from "next-intl";
 import {
   ESTIMATION_CURRENCY_OPTIONS,
   type EstimationCurrency,
@@ -13,10 +14,12 @@ interface Props {
 }
 
 export default function Currency({ currency, onCurrencyChange }: Props) {
+  const t = useTranslations("estimation.currency");
+
   return (
     <Card className="shadow-card gap-3">
       <CardHeader>
-        <CardTitle>2. Currency</CardTitle>
+        <CardTitle>{t("title")}</CardTitle>
       </CardHeader>
       <CardContent>
         <RadioGroup

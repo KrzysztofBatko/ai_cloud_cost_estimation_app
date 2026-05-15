@@ -1,6 +1,6 @@
 import { ENDPOINTS } from "@/lib/api/utils";
 import { normalizeProviderKey } from "@/lib/pricing/catalog";
-import { ProviderKey, ProviderRegion } from "@/types/api";
+import type { ProviderKey, ProviderRegion } from "@/types/api";
 import { useCallback, useState } from "react";
 
 export interface Provider {

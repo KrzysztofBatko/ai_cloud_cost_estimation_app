@@ -3,9 +3,10 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useEffect } from "react";
 import { useActiveProviders } from "@/app/[locale]/(auth-users)/(with-description-context)/estimation/hooks/useActiveProviders";
-import { ProviderKey, ProviderRegion } from "@/types/api";
+import type { ProviderKey, ProviderRegion } from "@/types/api";
 import { iconMap } from "@/app/[locale]/(auth-users)/(with-description-context)/estimation/utils/providerHelpers";
 
 export interface Provider {
@@ -30,6 +31,7 @@ export default function Providers({
   onToggleProvider,
   onRegionChange,
 }: Props) {
+  const t = useTranslations("estimation.providers");
   const { providers, loading, fetchProviders } = useActiveProviders();
 
   useEffect(() => {
@@ -39,7 +41,7 @@ export default function Providers({
   return (
     <Card className="shadow-card gap-3">
       <CardHeader>
-        <CardTitle>1. Cloud Providers</CardTitle>
+        <CardTitle>{t("title")}</CardTitle>
       </CardHeader>
       <CardContent className="flex flex-wrap gap-4">
         {loading ? (
@@ -77,7 +79,7 @@ export default function Providers({
                 {isSelected && regionOptions.length > 0 ? (
                   <div className="mt-3 space-y-1">
                     <div className="text-xs font-medium text-muted-foreground">
-                      Region
+                      {t("region")}
                     </div>
                     <select
                       value={selectedRegion}

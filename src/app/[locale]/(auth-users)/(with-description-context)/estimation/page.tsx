@@ -13,6 +13,7 @@ import {
   Mail,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTranslations } from "next-intl";
 import PageContainer from "@/components/PageContainer";
 import { useStatistics } from "@/app/[locale]/(auth-users)/(with-description-context)/estimation/hooks/useStatistics";
 import { useSendToAI } from "@/app/[locale]/(auth-users)/(with-description-context)/estimation/hooks/useSendToAi";
@@ -23,11 +24,11 @@ import Currency from "@/app/[locale]/(auth-users)/(with-description-context)/est
 import Usage from "@/app/[locale]/(auth-users)/(with-description-context)/estimation/components/Usage";
 import Results from "@/app/[locale]/(auth-users)/(with-description-context)/estimation/components/Result";
 import EstimateComparison, {
-  ComparisonInputs,
-  SavedComparison,
+  type ComparisonInputs,
+  type SavedComparison,
 } from "@/app/[locale]/(auth-users)/(with-description-context)/estimation/components/EstimateComparison";
-import { Provider } from "@/app/[locale]/(auth-users)/(with-description-context)/estimation/hooks/useActiveProviders";
-import { ProviderKey } from "@/types/api";
+import type { Provider } from "@/app/[locale]/(auth-users)/(with-description-context)/estimation/hooks/useActiveProviders";
+import type { ProviderKey } from "@/types/api";
 import { createEmailContent } from "@/app/[locale]/(auth-users)/(with-description-context)/estimation/utils/emailConentHelpers";
 import {
   DEFAULT_ESTIMATION_CURRENCY,
@@ -35,6 +36,9 @@ import {
 } from "@/lib/estimation/currencies";
 
 export default function EstimationPage() {
+  const t = useTranslations("estimation.page");
+  const emailT = useTranslations("estimation.email");
+  const resultsT = useTranslations("estimation.results");
   const [selectedProviders, setSelectedProviders] = useState<Provider[]>([]);
   const [currency, setCurrency] = useState<EstimationCurrency>(
     DEFAULT_ESTIMATION_CURRENCY,
@@ -174,16 +178,34 @@ export default function EstimationPage() {
   const handleEmail = () => {
     if (!results) return;
 
-    const emailContent = createEmailContent(results, notes);
+    const emailContent = createEmailContent(results, notes, {
+      title: emailT("title"),
+      pricingSnapshot: emailT("pricingSnapshot"),
+      calculatedAt: emailT("calculatedAt"),
+      region: emailT("region"),
+      monthly: emailT("monthly"),
+      daily: emailT("daily"),
+      assumptions: emailT("assumptions"),
+      breakdown: emailT("breakdown"),
+      pricingLinks: emailT("pricingLinks"),
+      notes: emailT("notes"),
+      generatedBy: emailT("generatedBy"),
+      confidence: {
+        high: resultsT("confidenceLevels.high"),
+        medium: resultsT("confidenceLevels.medium"),
+        low: resultsT("confidenceLevels.low"),
+      },
+    });
     // Use CRLF to improve rendering in Outlook
+    const subject = encodeURIComponent(t("emailSubject"));
     const body = encodeURIComponent(emailContent);
-    window.location.href = `mailto:?subject=Cloud cost estimate&body=${body}`;
+    window.location.href = `mailto:?subject=${subject}&body=${body}`;
   };
 
   return (
     <PageContainer
-      pageTitle="Cloud Cost Estimation"
-      pageDescription="Powered by AI for accurate cloud cost predictions"
+      pageTitle={t("title")}
+      pageDescription={t("description")}
     >
       {descriptionInput && (
         <div className="print-hidden">
@@ -215,11 +237,11 @@ export default function EstimationPage() {
         {/* Section 4 - Notes */}
         <Card className="print-hidden shadow-card gap-2">
           <CardHeader>
-            <CardTitle>4. Custom Infrastructure Notes</CardTitle>
+            <CardTitle>{t("notesTitle")}</CardTitle>
           </CardHeader>
           <CardContent>
             <Textarea
-              placeholder="Add additional infrastructure details not covered above..."
+              placeholder={t("notesPlaceholder")}
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               rows={4}
@@ -240,7 +262,7 @@ export default function EstimationPage() {
             ) : (
               <Send className="mr-2 h-5 w-5" />
             )}
-            Get Estimates
+            {t("getEstimates")}
           </Button>
         </div>
 
@@ -281,41 +303,43 @@ export default function EstimationPage() {
                   disabled={!results}
                 >
                   <Save className="mr-2 h-4 w-4" />
-                  {savedComparison ? "Replace Comparison" : "Save Comparison"}
+                  {savedComparison
+                    ? t("replaceComparison")
+                    : t("saveComparison")}
                 </Button>
                 <Button
                   variant="outline"
                   onClick={handlePrint}
                   disabled={!results}
                 >
-                  <Printer className="mr-2 h-4 w-4" /> Export PDF
+                  <Printer className="mr-2 h-4 w-4" /> {t("exportPdf")}
                 </Button>
                 <Button
                   variant="outline"
                   onClick={handleEmail}
                   disabled={!results}
                 >
-                  <Mail className="mr-2 h-4 w-4" /> Email me
+                  <Mail className="mr-2 h-4 w-4" /> {t("emailMe")}
                 </Button>
                 <Button
                   variant="outline"
                   onClick={() => handleEstimation()}
                   disabled={loading}
                 >
-                  <RefreshCw className="mr-2 h-4 w-4" /> Regenerate
+                  <RefreshCw className="mr-2 h-4 w-4" /> {t("regenerate")}
                 </Button>
                 <Button variant="outline" onClick={restart}>
-                  <RotateCcw className="mr-2 h-4 w-4" /> Start Over
+                  <RotateCcw className="mr-2 h-4 w-4" /> {t("startOver")}
                 </Button>
               </div>
 
               {/* CTA Section */}
               <div className="print-hidden mt-8 text-center">
                 <p className="text-muted-foreground mb-4">
-                  Need a detailed quote or consultation?
+                  {t("consultationPrompt")}
                 </p>
                 <Button size="lg" className="px-6 py-3">
-                  Contact Us for Custom Quote
+                  {t("customQuote")}
                 </Button>
               </div>
             </motion.div>

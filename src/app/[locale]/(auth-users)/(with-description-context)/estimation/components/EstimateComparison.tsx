@@ -1,6 +1,7 @@
 "use client";
 
 import type { EstimateResponse } from "@/app/api/estimation/route";
+import { useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -50,6 +51,17 @@ type ParameterChange = {
   current: string;
 };
 
+type ComparisonLabels = {
+  providers: string;
+  currency: string;
+  customInfrastructureNotes: string;
+  notAvailable: string;
+  defaultRegion: string;
+  notSet: string;
+  provided: string;
+  regionLabel: (provider: string) => string;
+};
+
 const usageQuestionLabels = new Map(
   usageQuestions.map((question) => [question.id, question.label]),
 );
@@ -66,17 +78,20 @@ function estimateFallbackKey(est: ProviderEstimate) {
   return normalizeProvider(est.provider);
 }
 
-function describeRegion(est?: ProviderEstimate) {
+function describeRegion(
+  est: ProviderEstimate | undefined,
+  labels: Pick<ComparisonLabels, "defaultRegion" | "notAvailable">,
+) {
   if (!est) {
-    return "Not available";
+    return labels.notAvailable;
   }
 
-  return est.regionLabel ?? est.region ?? "Default region";
+  return est.regionLabel ?? est.region ?? labels.defaultRegion;
 }
 
-function formatOptionalValue(value?: string) {
+function formatOptionalValue(value: string | undefined, notSet: string) {
   if (!value?.trim()) {
-    return "Not set";
+    return notSet;
   }
 
   if (value.length > 90) {
@@ -86,16 +101,12 @@ function formatOptionalValue(value?: string) {
   return value;
 }
 
-function formatProviders(providers: string[]) {
-  return providers.length ? providers.join(", ") : "Not set";
+function formatProviders(providers: string[], notSet: string) {
+  return providers.length ? providers.join(", ") : notSet;
 }
 
-function formatNotesValue(notes: string) {
-  return notes.trim() ? "Provided" : "Not set";
-}
-
-function formatRegionLabel(regionKey: string) {
-  return `${regionKey.toUpperCase()} region`;
+function formatNotesValue(notes: string, labels: ComparisonLabels) {
+  return notes.trim() ? labels.provided : labels.notSet;
 }
 
 function buildComparisonRows(
@@ -152,6 +163,7 @@ function buildComparisonRows(
 function buildParameterChanges(
   baseline: ComparisonInputs,
   current: ComparisonInputs,
+  labels: ComparisonLabels,
 ): ParameterChange[] {
   const changes: ParameterChange[] = [];
 
@@ -161,16 +173,16 @@ function buildParameterChanges(
   if (baselineProviders !== currentProviders) {
     changes.push({
       key: "providers",
-      label: "Providers",
-      baseline: formatProviders(baseline.providers),
-      current: formatProviders(current.providers),
+      label: labels.providers,
+      baseline: formatProviders(baseline.providers, labels.notSet),
+      current: formatProviders(current.providers, labels.notSet),
     });
   }
 
   if (baseline.currency !== current.currency) {
     changes.push({
       key: "currency",
-      label: "Currency",
+      label: labels.currency,
       baseline: baseline.currency,
       current: current.currency,
     });
@@ -190,9 +202,9 @@ function buildParameterChanges(
     if (baselineRegion !== currentRegion) {
       changes.push({
         key: `region:${regionKey}`,
-        label: formatRegionLabel(regionKey),
-        baseline: formatOptionalValue(baselineRegion),
-        current: formatOptionalValue(currentRegion),
+        label: labels.regionLabel(regionKey.toUpperCase()),
+        baseline: formatOptionalValue(baselineRegion, labels.notSet),
+        current: formatOptionalValue(currentRegion, labels.notSet),
       });
     }
   });
@@ -215,8 +227,8 @@ function buildParameterChanges(
       changes.push({
         key: `usage:${usageId}`,
         label: usageQuestionLabels.get(usageId) ?? usageId,
-        baseline: formatOptionalValue(baselineValue),
-        current: formatOptionalValue(currentValue),
+        baseline: formatOptionalValue(baselineValue, labels.notSet),
+        current: formatOptionalValue(currentValue, labels.notSet),
       });
     }
   });
@@ -224,9 +236,9 @@ function buildParameterChanges(
   if (baseline.notes.trim() !== current.notes.trim()) {
     changes.push({
       key: "notes",
-      label: "Custom infrastructure notes",
-      baseline: formatNotesValue(baseline.notes),
-      current: formatNotesValue(current.notes),
+      label: labels.customInfrastructureNotes,
+      baseline: formatNotesValue(baseline.notes, labels),
+      current: formatNotesValue(current.notes, labels),
     });
   }
 
@@ -284,10 +296,22 @@ export default function EstimateComparison({
   currentInputs: ComparisonInputs;
   onClear: () => void;
 }) {
+  const t = useTranslations("estimation.comparison");
+  const labels: ComparisonLabels = {
+    providers: t("providers"),
+    currency: t("currency"),
+    customInfrastructureNotes: t("customInfrastructureNotes"),
+    notAvailable: t("notAvailable"),
+    defaultRegion: t("defaultRegion"),
+    notSet: t("notSet"),
+    provided: t("provided"),
+    regionLabel: (provider) => t("regionLabel", { provider }),
+  };
   const rows = buildComparisonRows(baseline.results, currentResults);
   const parameterChanges = buildParameterChanges(
     baseline.inputs,
     currentInputs,
+    labels,
   );
   const canCompareCurrencies =
     baseline.inputs.currency === currentInputs.currency;
@@ -297,7 +321,7 @@ export default function EstimateComparison({
       <CardHeader className="flex flex-row items-center justify-between gap-4">
         <CardTitle className="flex items-center gap-2">
           <GitCompareArrows className="h-4 w-4" />
-          Comparison
+          {t("title")}
         </CardTitle>
         <Button
           type="button"
@@ -305,34 +329,35 @@ export default function EstimateComparison({
           size="sm"
           onClick={onClear}
           className="print-hidden text-muted-foreground hover:text-foreground"
-          aria-label="Clear saved comparison"
+          aria-label={t("clearSavedComparison")}
         >
           <Trash2 className="h-4 w-4" />
-          Clear
+          {t("clear")}
         </Button>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border bg-muted/30 p-3">
           <div>
-            <div className="text-sm font-medium">Saved baseline</div>
+            <div className="text-sm font-medium">{t("savedBaseline")}</div>
             <div className="text-xs text-muted-foreground">
               {formatCalculatedAt(baseline.savedAt)}
             </div>
           </div>
           <Badge variant="secondary">
-            {baseline.results.estimates.length} provider
-            {baseline.results.estimates.length === 1 ? "" : "s"}
+            {t("providerCount", {
+              count: baseline.results.estimates.length,
+            })}
           </Badge>
         </div>
 
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[24%]">Provider</TableHead>
-              <TableHead className="w-[19%]">Saved monthly</TableHead>
-              <TableHead className="w-[19%]">Current monthly</TableHead>
-              <TableHead className="w-[19%]">Monthly change</TableHead>
-              <TableHead className="w-[19%]">Daily change</TableHead>
+              <TableHead className="w-[24%]">{t("provider")}</TableHead>
+              <TableHead className="w-[19%]">{t("savedMonthly")}</TableHead>
+              <TableHead className="w-[19%]">{t("currentMonthly")}</TableHead>
+              <TableHead className="w-[19%]">{t("monthlyChange")}</TableHead>
+              <TableHead className="w-[19%]">{t("dailyChange")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -355,10 +380,10 @@ export default function EstimateComparison({
                   <TableCell className="whitespace-normal">
                     <div className="font-medium">{row.provider}</div>
                     <div className="text-xs text-muted-foreground">
-                      Saved: {describeRegion(row.baseline)}
+                      {t("saved")}: {describeRegion(row.baseline, labels)}
                     </div>
                     <div className="text-xs text-muted-foreground">
-                      Current: {describeRegion(row.current)}
+                      {t("current")}: {describeRegion(row.current, labels)}
                     </div>
                   </TableCell>
                   <TableCell className="font-mono">
@@ -367,7 +392,7 @@ export default function EstimateComparison({
                           row.baseline.monthlyTotal,
                           row.baseline.currency,
                         )
-                      : "New"}
+                      : t("new")}
                   </TableCell>
                   <TableCell className="font-mono">
                     {row.current
@@ -375,17 +400,17 @@ export default function EstimateComparison({
                           row.current.monthlyTotal,
                           row.current.currency,
                         )
-                      : "Removed"}
+                      : t("removed")}
                   </TableCell>
                   <TableCell
                     className={`font-mono ${deltaClass(monthlyDelta?.delta)}`}
                   >
-                    {monthlyDelta?.value ?? "N/A"}
+                    {monthlyDelta?.value ?? t("notApplicable")}
                   </TableCell>
                   <TableCell
                     className={`font-mono ${deltaClass(dailyDelta?.delta)}`}
                   >
-                    {dailyDelta?.value ?? "N/A"}
+                    {dailyDelta?.value ?? t("notApplicable")}
                   </TableCell>
                 </TableRow>
               );
@@ -396,7 +421,7 @@ export default function EstimateComparison({
         <div className="space-y-3">
           <div className="flex flex-wrap items-center gap-2">
             <h3 className="font-semibold text-foreground">
-              Changed parameters
+              {t("changedParameters")}
             </h3>
             <Badge variant="outline">{parameterChanges.length}</Badge>
           </div>
@@ -406,9 +431,9 @@ export default function EstimateComparison({
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-[34%]">Parameter</TableHead>
-                    <TableHead className="w-[33%]">Saved</TableHead>
-                    <TableHead className="w-[33%]">Current</TableHead>
+                    <TableHead className="w-[34%]">{t("parameter")}</TableHead>
+                    <TableHead className="w-[33%]">{t("saved")}</TableHead>
+                    <TableHead className="w-[33%]">{t("current")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -430,7 +455,7 @@ export default function EstimateComparison({
             </div>
           ) : (
             <p className="text-sm text-muted-foreground">
-              No parameter differences captured for these result sets.
+              {t("noParameterDifferences")}
             </p>
           )}
         </div>

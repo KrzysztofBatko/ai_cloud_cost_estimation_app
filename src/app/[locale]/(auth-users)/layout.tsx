@@ -22,9 +22,15 @@ export default async function Layout({
   const supportedLocale = isSupportedLocale(locale)
     ? locale
     : routing.defaultLocale;
-  const messages = (
-    await import(`../../../../messages/auth-user/${supportedLocale}.json`)
-  ).default;
+  const [authUserMessages, usageQuestionsMessages] = await Promise.all([
+    import(`../../../../messages/auth-user/${supportedLocale}.json`),
+    import(`../../../../messages/usage-questions/${supportedLocale}.json`),
+  ]);
+
+  const messages = {
+    ...authUserMessages.default,
+    "usage-questions": usageQuestionsMessages.default,
+  };
 
   return (
     <NextIntlClientProvider locale={supportedLocale} messages={messages}>

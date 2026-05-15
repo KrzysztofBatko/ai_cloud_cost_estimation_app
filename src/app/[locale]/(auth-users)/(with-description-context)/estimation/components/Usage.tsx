@@ -46,7 +46,49 @@ type Group = {
 
 export default function UsageModern({ answers, setAnswers }: Props) {
   const t = useTranslations("estimation.usage");
+  const usageQuestionsT = useTranslations("usage-questions");
   const [open, setOpen] = useState(true);
+
+  const readUsageQuestionMessage = React.useCallback(
+    (key: string) => {
+      try {
+        return usageQuestionsT.raw(key);
+      } catch {
+        return undefined;
+      }
+    },
+    [usageQuestionsT],
+  );
+
+  const getTranslatedCategoryLabel = React.useCallback(
+    (category: string, fallback: string) => {
+      const label = readUsageQuestionMessage(`categories.${category}`);
+      return typeof label === "string" ? label : fallback;
+    },
+    [readUsageQuestionMessage],
+  );
+
+  const getTranslatedQuestionLabel = React.useCallback(
+    (question: UsageQuestion) => {
+      const label = readUsageQuestionMessage(`${question.id}.label`);
+      return typeof label === "string" ? label : question.label;
+    },
+    [readUsageQuestionMessage],
+  );
+
+  const getTranslatedOptionLabel = React.useCallback(
+    (question: UsageQuestion, option: string) => {
+      const options = readUsageQuestionMessage(`${question.id}.options`);
+
+      if (options && typeof options === "object" && !Array.isArray(options)) {
+        const label = (options as Record<string, unknown>)[option];
+        return typeof label === "string" ? label : option;
+      }
+
+      return option;
+    },
+    [readUsageQuestionMessage],
+  );
 
   const visibleQuestions = useMemo(
     () =>
@@ -60,7 +102,10 @@ export default function UsageModern({ answers, setAnswers }: Props) {
     for (const q of visibleQuestions) {
       const meta = categoryMeta[q.category];
       const Icon = meta?.icon ?? Monitor;
-      const label = meta?.label ?? t("unknown");
+      const label = getTranslatedCategoryLabel(
+        q.category,
+        meta?.label ?? t("unknown"),
+      );
 
       if (!byCat.has(q.category)) {
         byCat.set(q.category, {
@@ -74,7 +119,7 @@ export default function UsageModern({ answers, setAnswers }: Props) {
     }
 
     return Array.from(byCat.values());
-  }, [t, visibleQuestions]);
+  }, [getTranslatedCategoryLabel, t, visibleQuestions]);
 
   const total = visibleQuestions.length;
   const answered = visibleQuestions.reduce(
@@ -136,9 +181,7 @@ export default function UsageModern({ answers, setAnswers }: Props) {
           <div className="flex items-start justify-between gap-4">
             <div className="space-y-1">
               <CardTitle>{t("title")}</CardTitle>
-              <CardDescription>
-                {t("description")}
-              </CardDescription>
+              <CardDescription>{t("description")}</CardDescription>
             </div>
 
             <div className="flex items-center gap-2">
@@ -231,7 +274,7 @@ export default function UsageModern({ answers, setAnswers }: Props) {
                           <div className="flex items-start justify-between gap-4">
                             <div className="space-y-1">
                               <div className="text-sm font-medium leading-snug">
-                                {q.label}
+                                {getTranslatedQuestionLabel(q)}
                               </div>
                             </div>
 
@@ -265,7 +308,7 @@ export default function UsageModern({ answers, setAnswers }: Props) {
                                   <RadioGroupItem value={opt} />
                                   <div className="flex items-start gap-3">
                                     <span className="text-sm leading-snug">
-                                      {opt}
+                                      {getTranslatedOptionLabel(q, opt)}
                                     </span>
                                   </div>
                                 </label>

@@ -19,5 +19,33 @@
       "cancel": "Zachowaj konto",
       "error": "Nie udało się usunąć konta"
     }
+  },
+  "description": {
+    "page": {
+      "title": "Opisz swoje środowisko",
+      "description": "Opowiedz nam o swojej konfiguracji lub prześlij dokument. AI użyje tych danych, aby wstępnie uzupełnić estymację.",
+      "divider": "lub",
+      "fileTooLarge": "Plik musi mieć maksymalnie 10 MB.",
+      "cancel": "Anuluj",
+      "processing": "Przetwarzanie",
+      "saveContinue": "Zapisz i kontynuuj"
+    },
+    "environment": {
+      "title": "Opis środowiska",
+      "description": "Opisz aplikację, przewidywany ruch, usługi, regiony itd.",
+      "placeholder": "np. Uruchamiamy aplikację SaaS z ok. 20 tys. aktywnych użytkowników miesięcznie. Frontend to aplikacja Next.js serwowana przez CDN, backend to API Node.js na Kubernetesie (ok. 3 usługi), baza Postgres (ok. 50 GB), storage na pliki użytkowników (ok. 2 TB), wdrożenie w regionach UE...",
+      "characterCount": "{count, plural, one {# znak} few {# znaki} many {# znaków} other {# znaku}}"
+    },
+    "upload": {
+      "title": "Prześlij dokument",
+      "description": "PDF, DOCX, TXT lub Markdown. Maksymalnie 10 MB.",
+      "prompt": "Kliknij, aby przesłać albo przeciągnij i upuść",
+      "formats": "PDF, DOCX, TXT, MD",
+      "removeFile": "Usuń plik"
+    },
+    "errors": {
+      "requestFailed": "Żądanie nie powiodło się. Status: {status}",
+      "save": "Nie udało się zapisać."
+    }
   }
 }

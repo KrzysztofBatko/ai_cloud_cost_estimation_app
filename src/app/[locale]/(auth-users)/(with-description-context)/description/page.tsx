@@ -1,14 +1,16 @@
 "use client";
 
 import { ArrowRight, Loader2 } from "lucide-react";
-import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 import PageContainer from "@/components/PageContainer";
+import { Link } from "@/i18n/navigation";
 import { useDescription } from "@/app/[locale]/(auth-users)/(with-description-context)/description/hooks/useDescription";
 import EnvironmentDescription from "@/app/[locale]/(auth-users)/(with-description-context)/description/components/environment-description";
 import UploadDocument from "@/app/[locale]/(auth-users)/(with-description-context)/description/components/upload-document";
 
 export default function DescribePage() {
+  const t = useTranslations("description.page");
   const {
     descriptionInput,
     setDescriptionInput,
@@ -23,8 +25,8 @@ export default function DescribePage() {
 
   return (
     <PageContainer
-      pageTitle="Describe your environment"
-      pageDescription="Tell us about your setup or upload a document. AI will use it to pre-fill the estimation."
+      pageTitle={t("title")}
+      pageDescription={t("description")}
     >
       <EnvironmentDescription
         description={descriptionInput}
@@ -33,7 +35,7 @@ export default function DescribePage() {
 
       <div className="my-6 flex items-center gap-4 text-xs uppercase tracking-wide text-muted-foreground">
         <div className="h-px flex-1 bg-border" />
-        or
+        {t("divider")}
         <div className="h-px flex-1 bg-border" />
       </div>
 
@@ -41,7 +43,7 @@ export default function DescribePage() {
 
       {isFileTooLarge ? (
         <div className="mt-4 rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
-          File must be 10MB or smaller.
+          {t("fileTooLarge")}
         </div>
       ) : null}
 
@@ -56,7 +58,7 @@ export default function DescribePage() {
           href="/"
           className="rounded-lg border bg-background px-5 py-2.5 text-sm font-medium hover:bg-accent"
         >
-          Cancel
+          {t("cancel")}
         </Link>
         <button
           onClick={handleSave}
@@ -66,11 +68,11 @@ export default function DescribePage() {
           {isSubmitting ? (
             <>
               <Loader2 className="h-4 w-4 animate-spin" />
-              Processing
+              {t("processing")}
             </>
           ) : (
             <>
-              Save & continue
+              {t("saveContinue")}
               <ArrowRight className="h-4 w-4" />
             </>
           )}

@@ -6,6 +6,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
+import { useTranslations } from "next-intl";
 
 export default function EnvironmentDescription({
   description,
@@ -14,13 +15,13 @@ export default function EnvironmentDescription({
   description: string;
   setDescription: (desc: string) => void;
 }) {
+  const t = useTranslations("description.environment");
+
   return (
     <Card className="shadow-card mt-8">
       <CardHeader>
-        <CardTitle>Environment description</CardTitle>
-        <CardDescription>
-          Describe your application, expected traffic, services, regions, etc.
-        </CardDescription>
+        <CardTitle>{t("title")}</CardTitle>
+        <CardDescription>{t("description")}</CardDescription>
       </CardHeader>
 
       <CardContent className="space-y-2">
@@ -28,10 +29,10 @@ export default function EnvironmentDescription({
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           rows={10}
-          placeholder="e.g. We run a SaaS web app with ~20k MAU. Frontend is a Next.js app served via CDN, backend is a Node.js API on Kubernetes (~3 services), Postgres database (~50GB), object storage for user uploads (~2TB), deployed in EU regions..."
+          placeholder={t("placeholder")}
         />
         <div className="mt-2 text-right text-xs text-muted-foreground">
-          {description.length} characters
+          {t("characterCount", { count: description.length })}
         </div>
       </CardContent>
     </Card>

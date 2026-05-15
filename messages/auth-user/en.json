@@ -19,5 +19,33 @@
       "cancel": "Keep account",
       "error": "Failed to delete account"
     }
+  },
+  "description": {
+    "page": {
+      "title": "Describe your environment",
+      "description": "Tell us about your setup or upload a document. AI will use it to pre-fill the estimation.",
+      "divider": "or",
+      "fileTooLarge": "File must be 10MB or smaller.",
+      "cancel": "Cancel",
+      "processing": "Processing",
+      "saveContinue": "Save & continue"
+    },
+    "environment": {
+      "title": "Environment description",
+      "description": "Describe your application, expected traffic, services, regions, etc.",
+      "placeholder": "e.g. We run a SaaS web app with ~20k MAU. Frontend is a Next.js app served via CDN, backend is a Node.js API on Kubernetes (~3 services), Postgres database (~50GB), object storage for user uploads (~2TB), deployed in EU regions...",
+      "characterCount": "{count, plural, one {# character} other {# characters}}"
+    },
+    "upload": {
+      "title": "Upload a document",
+      "description": "PDF, DOCX, TXT, or Markdown. Max 10MB.",
+      "prompt": "Click to upload or drag & drop",
+      "formats": "PDF, DOCX, TXT, MD",
+      "removeFile": "Remove file"
+    },
+    "errors": {
+      "requestFailed": "Request failed with status {status}",
+      "save": "Failed to save."
+    }
   }
 }

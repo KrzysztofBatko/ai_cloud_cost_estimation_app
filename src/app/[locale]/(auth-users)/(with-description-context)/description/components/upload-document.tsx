@@ -6,6 +6,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { FileText, Upload, X } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 export default function UploadDocument({
   file,
@@ -14,13 +15,13 @@ export default function UploadDocument({
   file: File | null;
   setFile: React.Dispatch<React.SetStateAction<File | null>>;
 }) {
+  const t = useTranslations("description.upload");
+
   return (
     <Card className="shadow-card mt-8">
       <CardHeader>
-        <CardTitle>Upload a document</CardTitle>
-        <CardDescription>
-          PDF, DOCX, TXT, or Markdown. Max 10MB.
-        </CardDescription>
+        <CardTitle>{t("title")}</CardTitle>
+        <CardDescription>{t("description")}</CardDescription>
       </CardHeader>
 
       <CardContent className="space-y-2">
@@ -28,10 +29,10 @@ export default function UploadDocument({
           <label className="mt-3 flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-border bg-background py-10 text-center transition hover:border-primary/40 hover:bg-accent/30">
             <Upload className="h-6 w-6 text-muted-foreground" />
             <div className="text-sm font-medium">
-              Click to upload or drag & drop
+              {t("prompt")}
             </div>
             <div className="text-xs text-muted-foreground">
-              PDF, DOCX, TXT, MD
+              {t("formats")}
             </div>
             <input
               type="file"
@@ -56,7 +57,7 @@ export default function UploadDocument({
             <button
               onClick={() => setFile(null)}
               className="rounded-md p-2 text-muted-foreground hover:bg-muted hover:text-foreground"
-              aria-label="Remove file"
+              aria-label={t("removeFile")}
             >
               <X className="h-4 w-4" />
             </button>

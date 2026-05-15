@@ -1,11 +1,13 @@
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { ENDPOINTS } from "@/lib/api/utils";
+import { useRouter } from "@/i18n/navigation";
 import { useDescriptionContext } from "@/app/[locale]/(auth-users)/(with-description-context)/DescriptionProvider";
 
 const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
 
 export function useDescription() {
+  const t = useTranslations("description.errors");
   const router = useRouter();
   const { descriptionInput, setDescriptionInput, setDescriptionPrefill } =
     useDescriptionContext();
@@ -54,7 +56,7 @@ export function useDescription() {
         throw new Error(
           errorBody?.message ||
             errorBody?.error ||
-            `Request failed with status ${response.status}`,
+            t("requestFailed", { status: response.status }),
         );
       }
 
@@ -62,7 +64,7 @@ export function useDescription() {
       setDescriptionPrefill(data);
       router.push("/estimation");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to save.");
+      setError(err instanceof Error ? err.message : t("save"));
     } finally {
       setIsSubmitting(false);
     }

@@ -1,0 +1,65 @@
+{
+  "home": {
+    "navbar": {
+      "login": "Zaloguj",
+      "logout": "Wyloguj",
+      "home": "Strona główna",
+      "admin": "Admin",
+      "statistics": "Statystyki",
+      "estimation": "Estymacja",
+      "profile": "Zobacz profil"
+    },
+    "hero": {
+      "title": "Porównanie kosztów chmury między dostawcami z pomocą AI",
+      "description": "Szacuj i porównuj koszty infrastruktury chmurowej u wiodących dostawców na podstawie użycia, architektury i charakterystyki obciążenia.",
+      "startEstimating": "Rozpocznij wycenę",
+      "environmentDescription": "Mam opis środowiska",
+      "guidedForm": {
+        "title": "Formularz krok po kroku",
+        "description": "Odpowiedz na pytania dotyczące użycia i architektury."
+      },
+      "describeEnvironment": {
+        "title": "Opisz środowisko",
+        "description": "Wklej lub prześlij opis, a AI wstępnie uzupełni wycenę."
+      }
+    },
+    "features": {
+      "title": "Dlaczego warto wybrać naszą platformę",
+      "description": "Wszystko, czego potrzebujesz do podejmowania decyzji o infrastrukturze chmurowej na podstawie danych.",
+      "items": {
+        "multiCloud": {
+          "title": "Porównanie wielu chmur",
+          "description": "Porównuj koszty AWS, Azure, Google Cloud i innych dostawców obok siebie w jednym widoku."
+        },
+        "aiEstimation": {
+          "title": "Szacowanie kosztów z pomocą AI",
+          "description": "Wykorzystaj AI do tworzenia kontekstowych zestawień kosztów dla swoich obciążeń."
+        },
+        "architectureAnalysis": {
+          "title": "Analiza uwzględniająca architekturę",
+          "description": "Podaj szczegóły infrastruktury i otrzymaj wyceny dopasowane do rzeczywistej architektury."
+        }
+      }
+    },
+    "howItWorks": {
+      "title": "Jak to działa",
+      "steps": {
+        "selectUsage": {
+          "title": "Wybierz dostawców i użycie",
+          "description": "Wybierz dostawców chmury, określ obciążenie i zakresy użycia."
+        },
+        "aiAnalysis": {
+          "title": "AI analizuje infrastrukturę",
+          "description": "Silnik AI przetwarza wymagania i tworzy szczegółowe modele kosztów."
+        },
+        "compareCosts": {
+          "title": "Natychmiast porównaj szacowane koszty",
+          "description": "Przejrzyj uporządkowane zestawienia kosztów i wybierz najlepszą opcję."
+        }
+      }
+    },
+    "footer": {
+      "copyright": "© {year} AI Cloud Cost Estimation. Wszelkie prawa zastrzeżone."
+    }
+  }
+}

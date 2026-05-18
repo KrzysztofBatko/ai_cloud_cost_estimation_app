@@ -1,0 +1,154 @@
+{
+  "profile": {
+    "page": {
+      "title": "My Profile",
+      "description": "Your signed-in account details"
+    },
+    "details": {
+      "title": "Profile",
+      "userName": "User name",
+      "email": "Email",
+      "unknownUser": "Unknown user",
+      "noEmail": "No email available"
+    },
+    "deleteAccount": {
+      "trigger": "Delete account",
+      "title": "Delete account?",
+      "description": "This will permanently remove your account from the database.",
+      "confirm": "Confirm delete",
+      "cancel": "Keep account",
+      "error": "Failed to delete account"
+    }
+  },
+  "description": {
+    "page": {
+      "title": "Describe your environment",
+      "description": "Tell us about your setup or upload a document. AI will use it to pre-fill the estimation.",
+      "divider": "or",
+      "fileTooLarge": "File must be 10MB or smaller.",
+      "cancel": "Cancel",
+      "processing": "Processing",
+      "saveContinue": "Save & continue"
+    },
+    "environment": {
+      "title": "Environment description",
+      "description": "Describe your application, expected traffic, services, regions, etc.",
+      "placeholder": "e.g. We run a SaaS web app with ~20k MAU. Frontend is a Next.js app served via CDN, backend is a Node.js API on Kubernetes (~3 services), Postgres database (~50GB), object storage for user uploads (~2TB), deployed in EU regions...",
+      "characterCount": "{count, plural, one {# character} other {# characters}}"
+    },
+    "upload": {
+      "title": "Upload a document",
+      "description": "PDF, DOCX, TXT, or Markdown. Max 10MB.",
+      "prompt": "Click to upload or drag & drop",
+      "formats": "PDF, DOCX, TXT, MD",
+      "removeFile": "Remove file"
+    },
+    "errors": {
+      "requestFailed": "Request failed with status {status}",
+      "save": "Failed to save."
+    }
+  },
+  "estimation": {
+    "page": {
+      "title": "Cloud Cost Estimation",
+      "description": "Powered by AI for accurate cloud cost predictions",
+      "notesTitle": "4. Custom Infrastructure Notes",
+      "notesPlaceholder": "Add additional infrastructure details not covered above...",
+      "getEstimates": "Get Estimates",
+      "replaceComparison": "Replace Comparison",
+      "saveComparison": "Save Comparison",
+      "exportPdf": "Export PDF",
+      "emailMe": "Email me",
+      "regenerate": "Regenerate",
+      "startOver": "Start Over",
+      "consultationPrompt": "Need a detailed quote or consultation?",
+      "customQuote": "Contact Us for Custom Quote",
+      "emailSubject": "Cloud cost estimate"
+    },
+    "sessionDescription": {
+      "title": "Estimation pre-filled from your description",
+      "badge": "AI",
+      "description": "We've analyzed your input and pre-selected providers and answers below. Review and adjust as needed.",
+      "edit": "Edit description →"
+    },
+    "providers": {
+      "title": "1. Cloud Providers",
+      "region": "Region"
+    },
+    "currency": {
+      "title": "2. Currency"
+    },
+    "usage": {
+      "title": "3. Usage",
+      "description": "If it's not applicable, leave the question unanswered. The more you answer, the better the estimate!",
+      "answered": "{answered}/{total} answered",
+      "clearAll": "Clear all usage answers",
+      "collapse": "Collapse",
+      "expand": "Expand",
+      "progress": "Progress",
+      "unknown": "Unknown",
+      "clear": "Clear"
+    },
+    "results": {
+      "title": "Cost Estimates",
+      "pricingSnapshot": "Pricing snapshot: {date}",
+      "calculatedAt": "Calculated at: {date}",
+      "region": "Region",
+      "assumptions": "Assumptions",
+      "breakdown": "Breakdown",
+      "provider": "Provider",
+      "monthly": "Monthly",
+      "daily": "Daily",
+      "confidence": "Confidence",
+      "details": "Details",
+      "hideDetails": "Hide details",
+      "showDetails": "Show details",
+      "confidenceLevels": {
+        "high": "High",
+        "medium": "Medium",
+        "low": "Low"
+      }
+    },
+    "comparison": {
+      "title": "Comparison",
+      "clearSavedComparison": "Clear saved comparison",
+      "clear": "Clear",
+      "savedBaseline": "Saved baseline",
+      "providerCount": "{count, plural, one {# provider} other {# providers}}",
+      "provider": "Provider",
+      "savedMonthly": "Saved monthly",
+      "currentMonthly": "Current monthly",
+      "monthlyChange": "Monthly change",
+      "dailyChange": "Daily change",
+      "saved": "Saved",
+      "current": "Current",
+      "changedParameters": "Changed parameters",
+      "parameter": "Parameter",
+      "noParameterDifferences": "No parameter differences captured for these result sets.",
+      "providers": "Providers",
+      "currency": "Currency",
+      "customInfrastructureNotes": "Custom infrastructure notes",
+      "notAvailable": "Not available",
+      "defaultRegion": "Default region",
+      "notSet": "Not set",
+      "provided": "Provided",
+      "regionLabel": "{provider} region",
+      "new": "New",
+      "removed": "Removed",
+      "notApplicable": "N/A"
+    },
+    "email": {
+      "title": "Cloud cost estimate",
+      "pricingSnapshot": "Pricing snapshot",
+      "calculatedAt": "Calculated at",
+      "region": "Region",
+      "monthly": "Monthly",
+      "daily": "Daily",
+      "assumptions": "Assumptions",
+      "breakdown": "Breakdown",
+      "pricingLinks": "Pricing links",
+      "notes": "Notes",
+      "generatedBy": "Generated by Cloud Cost Estimation"
+    }
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "home": {
+    "navbar": {
+      "login": "Login",
+      "logout": "Logout",
+      "home": "Home",
+      "admin": "Admin",
+      "statistics": "Statistics",
+      "estimation": "Estimation",
+      "profile": "View profile"
+    },
+    "hero": {
+      "title": "AI-Powered Cloud Cost Comparison Across Providers",
+      "description": "Estimate and compare cloud infrastructure costs across leading providers based on your usage, architecture, and workload details.",
+      "startEstimating": "Start estimating",
+      "environmentDescription": "I have an environment description",
+      "guidedForm": {
+        "title": "Guided form",
+        "description": "Answer step-by-step questions about your usage and architecture."
+      },
+      "describeEnvironment": {
+        "title": "Describe environment",
+        "description": "Paste or upload a description and let AI pre-fill the estimation."
+      }
+    },
+    "features": {
+      "title": "Why Choose Our Platform",
+      "description": "Everything you need to make data-driven cloud infrastructure decisions.",
+      "items": {
+        "multiCloud": {
+          "title": "Multi-Cloud Comparison",
+          "description": "Compare costs across AWS, Azure, Google Cloud and more, side by side in a single view."
+        },
+        "aiEstimation": {
+          "title": "AI-Based Cost Estimation",
+          "description": "Use AI to generate context-aware cost breakdowns for your workloads."
+        },
+        "architectureAnalysis": {
+          "title": "Architecture-Aware Analysis",
+          "description": "Provide your infrastructure details and get tailored estimates that match your real architecture."
+        }
+      }
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "steps": {
+        "selectUsage": {
+          "title": "Select providers and usage",
+          "description": "Choose cloud providers, specify your workload, and define usage ranges."
+        },
+        "aiAnalysis": {
+          "title": "AI analyzes your infrastructure",
+          "description": "Our AI engine processes your requirements and builds detailed cost models."
+        },
+        "compareCosts": {
+          "title": "Compare estimated costs instantly",
+          "description": "Review structured cost breakdowns and choose the best option for you."
+        }
+      }
+    },
+    "footer": {
+      "copyright": "© {year} AI Cloud Cost Estimation. All rights reserved."
+    }
+  }
+}

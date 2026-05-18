@@ -1,0 +1,154 @@
+{
+  "profile": {
+    "page": {
+      "title": "Mój profil",
+      "description": "Szczegóły Twojego zalogowanego konta"
+    },
+    "details": {
+      "title": "Profil",
+      "userName": "Nazwa użytkownika",
+      "email": "Email",
+      "unknownUser": "Nieznany użytkownik",
+      "noEmail": "Brak dostępnego adresu email"
+    },
+    "deleteAccount": {
+      "trigger": "Usuń konto",
+      "title": "Usunąć konto?",
+      "description": "Ta akcja trwale usunie Twoje konto z bazy danych.",
+      "confirm": "Potwierdź usunięcie",
+      "cancel": "Zachowaj konto",
+      "error": "Nie udało się usunąć konta"
+    }
+  },
+  "description": {
+    "page": {
+      "title": "Opisz swoje środowisko",
+      "description": "Opowiedz nam o swojej konfiguracji lub prześlij dokument. AI użyje tych danych, aby wstępnie uzupełnić estymację.",
+      "divider": "lub",
+      "fileTooLarge": "Plik musi mieć maksymalnie 10 MB.",
+      "cancel": "Anuluj",
+      "processing": "Przetwarzanie",
+      "saveContinue": "Zapisz i kontynuuj"
+    },
+    "environment": {
+      "title": "Opis środowiska",
+      "description": "Opisz aplikację, przewidywany ruch, usługi, regiony itd.",
+      "placeholder": "np. Uruchamiamy aplikację SaaS z ok. 20 tys. aktywnych użytkowników miesięcznie. Frontend to aplikacja Next.js serwowana przez CDN, backend to API Node.js na Kubernetesie (ok. 3 usługi), baza Postgres (ok. 50 GB), storage na pliki użytkowników (ok. 2 TB), wdrożenie w regionach UE...",
+      "characterCount": "{count, plural, one {# znak} few {# znaki} many {# znaków} other {# znaku}}"
+    },
+    "upload": {
+      "title": "Prześlij dokument",
+      "description": "PDF, DOCX, TXT lub Markdown. Maksymalnie 10 MB.",
+      "prompt": "Kliknij, aby przesłać albo przeciągnij i upuść",
+      "formats": "PDF, DOCX, TXT, MD",
+      "removeFile": "Usuń plik"
+    },
+    "errors": {
+      "requestFailed": "Żądanie nie powiodło się. Status: {status}",
+      "save": "Nie udało się zapisać."
+    }
+  },
+  "estimation": {
+    "page": {
+      "title": "Estymacja kosztów chmury",
+      "description": "Dokładne prognozy kosztów chmury wspierane przez AI",
+      "notesTitle": "4. Dodatkowe notatki o infrastrukturze",
+      "notesPlaceholder": "Dodaj dodatkowe szczegóły infrastruktury, których nie ma powyżej...",
+      "getEstimates": "Pobierz estymacje",
+      "replaceComparison": "Zastąp porównanie",
+      "saveComparison": "Zapisz porównanie",
+      "exportPdf": "Eksportuj PDF",
+      "emailMe": "Wyślij mi email",
+      "regenerate": "Wygeneruj ponownie",
+      "startOver": "Zacznij od nowa",
+      "consultationPrompt": "Potrzebujesz szczegółowej wyceny lub konsultacji?",
+      "customQuote": "Skontaktuj się po indywidualną wycenę",
+      "emailSubject": "Estymacja kosztów chmury"
+    },
+    "sessionDescription": {
+      "title": "Estymacja wstępnie uzupełniona z Twojego opisu",
+      "badge": "AI",
+      "description": "Przeanalizowaliśmy Twoje dane wejściowe i wstępnie wybraliśmy dostawców oraz odpowiedzi poniżej. Sprawdź je i dostosuj w razie potrzeby.",
+      "edit": "Edytuj opis →"
+    },
+    "providers": {
+      "title": "1. Dostawcy chmury",
+      "region": "Region"
+    },
+    "currency": {
+      "title": "2. Waluta"
+    },
+    "usage": {
+      "title": "3. Użycie",
+      "description": "Jeśli pytanie nie dotyczy Twojej sytuacji, zostaw je bez odpowiedzi. Im więcej odpowiesz, tym lepsza będzie estymacja!",
+      "answered": "{answered}/{total} odpowiedzi",
+      "clearAll": "Wyczyść wszystkie odpowiedzi o użyciu",
+      "collapse": "Zwiń",
+      "expand": "Rozwiń",
+      "progress": "Postęp",
+      "unknown": "Nieznane",
+      "clear": "Wyczyść"
+    },
+    "results": {
+      "title": "Estymacje kosztów",
+      "pricingSnapshot": "Snapshot cennika: {date}",
+      "calculatedAt": "Obliczono: {date}",
+      "region": "Region",
+      "assumptions": "Założenia",
+      "breakdown": "Podział kosztów",
+      "provider": "Dostawca",
+      "monthly": "Miesięcznie",
+      "daily": "Dziennie",
+      "confidence": "Pewność",
+      "details": "Szczegóły",
+      "hideDetails": "Ukryj szczegóły",
+      "showDetails": "Pokaż szczegóły",
+      "confidenceLevels": {
+        "high": "Wysoka",
+        "medium": "Średnia",
+        "low": "Niska"
+      }
+    },
+    "comparison": {
+      "title": "Porównanie",
+      "clearSavedComparison": "Wyczyść zapisane porównanie",
+      "clear": "Wyczyść",
+      "savedBaseline": "Zapisana baza",
+      "providerCount": "{count, plural, one {# dostawca} few {# dostawców} many {# dostawców} other {# dostawcy}}",
+      "provider": "Dostawca",
+      "savedMonthly": "Zapisane miesięcznie",
+      "currentMonthly": "Aktualne miesięcznie",
+      "monthlyChange": "Zmiana miesięczna",
+      "dailyChange": "Zmiana dzienna",
+      "saved": "Zapisane",
+      "current": "Aktualne",
+      "changedParameters": "Zmienione parametry",
+      "parameter": "Parametr",
+      "noParameterDifferences": "Nie znaleziono różnic parametrów dla tych wyników.",
+      "providers": "Dostawcy",
+      "currency": "Waluta",
+      "customInfrastructureNotes": "Dodatkowe notatki o infrastrukturze",
+      "notAvailable": "Niedostępne",
+      "defaultRegion": "Region domyślny",
+      "notSet": "Nie ustawiono",
+      "provided": "Podano",
+      "regionLabel": "Region {provider}",
+      "new": "Nowy",
+      "removed": "Usunięto",
+      "notApplicable": "Nie dotyczy"
+    },
+    "email": {
+      "title": "Estymacja kosztów chmury",
+      "pricingSnapshot": "Migawka cennika",
+      "calculatedAt": "Obliczono",
+      "region": "Region",
+      "monthly": "Miesięcznie",
+      "daily": "Dziennie",
+      "assumptions": "Założenia",
+      "breakdown": "Podział kosztów",
+      "pricingLinks": "Linki do cenników",
+      "notes": "Notatki",
+      "generatedBy": "Wygenerowano przez Cloud Cost Estimation"
+    }
+  }
+}

@@ -1,0 +1,128 @@
+{
+  "admin": {
+    "page": {
+      "title": "Admin Panel",
+      "access": "Your access: {role}"
+    },
+    "tabs": {
+      "estimationConfigs": "Estimation configs",
+      "userManagement": "User management"
+    },
+    "providers": {
+      "title": "Cloud Providers",
+      "deactivateInstead": "You can deactivate the provider instead.",
+      "newProviderPlaceholder": "New provider name...",
+      "add": "Add",
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive"
+      },
+      "visibility": {
+        "active": "Visible in the estimation experience",
+        "inactive": "Hidden from active selection"
+      },
+      "actions": {
+        "activate": "Activate",
+        "deactivate": "Deactivate",
+        "addRegion": "Add region",
+        "default": "Default",
+        "setDefault": "Set default"
+      },
+      "regions": {
+        "title": "Regions",
+        "defaultLabel": "Default:",
+        "helper": "Add provider regions and mark one as the default selection.",
+        "empty": "No regions configured yet. Add one below and mark the right default.",
+        "codePlaceholder": "New region code",
+        "labelPlaceholder": "New region label"
+      }
+    },
+    "pricingSnapshot": {
+      "title": "Pricing Snapshot",
+      "reload": "Reload",
+      "refresh": "Refresh snapshot",
+      "system": "system",
+      "fields": {
+        "pricingSnapshot": "Pricing snapshot",
+        "region": "Region",
+        "source": "Source",
+        "createdAt": "Created at",
+        "createdBy": "Created by",
+        "notes": "Notes"
+      }
+    },
+    "users": {
+      "title": "User management",
+      "refresh": "Refresh",
+      "roleLabel": "Role:",
+      "ownAccount": "Your account ({role})",
+      "empty": "No users to display.",
+      "noName": "(no name)",
+      "roles": {
+        "user": "User",
+        "admin": "Admin",
+        "superadmin": "Superadmin"
+      }
+    },
+    "errors": {
+      "providersFetch": "Could not fetch providers. Please try again.",
+      "providerAdd": "Could not add provider. Please try again.",
+      "regionAdd": "Could not add region. Please try again.",
+      "defaultRegionUpdate": "Could not update the default region.",
+      "regionDelete": "Could not delete region. Please try again.",
+      "providerStatusUpdate": "Could not update provider status.",
+      "providerDelete": "An error occurred while deleting the provider.",
+      "usersFetch": "Could not fetch users. Please try again.",
+      "ownRole": "You cannot change your own role.",
+      "userRoleUpdate": "Could not change user role.",
+      "pricingSnapshotLoad": "Could not load pricing snapshot metadata.",
+      "pricingSnapshotRefresh": "Could not refresh pricing snapshot."
+    }
+  },
+  "statistics": {
+    "dashboard": {
+      "title": "Statistics",
+      "description": "Explore your cloud cost estimations with our interactive 3D dashboard."
+    },
+    "parameters": {
+      "viewModes": {
+        "months": "Months",
+        "days": "Days"
+      },
+      "chartModes": {
+        "single": "Single",
+        "compare": "Compare"
+      },
+      "aria": {
+        "toggleView": "Toggle {mode}",
+        "toggleChartMode": "Toggle {mode} mode"
+      },
+      "comparePeriod": "Period A vs Period B",
+      "period": "Period"
+    },
+    "periods": {
+      "periodA": "Period A",
+      "periodB": "Period B",
+      "vs": "vs",
+      "selectMonths": "Select months",
+      "selectDays": "Select days",
+      "selectMonth": "Select month",
+      "selectDay": "Select day"
+    },
+    "charts": {
+      "providerDistribution": "Provider Distribution",
+      "periodComparison": "Period Comparison",
+      "bar": "Bar",
+      "pie": "Pie",
+      "noData": "No data available for the selected period."
+    },
+    "summary": {
+      "title": "Summary Table",
+      "provider": "Provider",
+      "total": "Total"
+    },
+    "topProviders": {
+      "title": "Top 3 Providers"
+    }
+  }
+}

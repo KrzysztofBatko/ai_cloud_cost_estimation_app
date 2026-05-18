@@ -1,0 +1,159 @@
+{
+  "categories": {
+    "ApplicationUsage": "Application Usage",
+    "Frontend": "Frontend",
+    "Backend": "Backend",
+    "Database": "Database",
+    "BackupDR": "Backup & DR",
+    "Environments": "Environments",
+    "Availability": "Availability"
+  },
+  "MAU": {
+    "label": "Monthly active users (MAU)",
+    "options": {
+      "1_100": "1–100",
+      "100_1000": "100–1,000",
+      "1000_10000": "1,000–10,000",
+      "10000_50000": "10,000–50,000",
+      "50000_": "50,000+"
+    }
+  },
+  "outboundTraffic": {
+    "label": "Outbound internet traffic (TB/month)",
+    "options": {
+      "_1": "<1 TB",
+      "1_5": "1–5 TB",
+      "5_10": "5–10 TB",
+      "10_": "10+ TB"
+    }
+  },
+  "frontendType": {
+    "label": "Frontend architecture",
+    "options": {
+      "Static site (SSG) + CDN": "Static site (SSG) + CDN",
+      "Server-side rendering (SSR)": "Server-side rendering (SSR)",
+      "Hybrid (SSG + SSR)": "Hybrid (SSG + SSR)"
+    }
+  },
+  "backendDeployment": {
+    "label": "Backend deployment model",
+    "options": {
+      "Single VM": "Single VM",
+      "Multiple VMs with load balancer": "Multiple VMs with load balancer",
+      "Containers (Kubernetes)": "Containers (Kubernetes)",
+      "Serverless functions": "Serverless functions"
+    }
+  },
+  "serverlessWorkloadType": {
+    "label": "Serverless workload type",
+    "options": {
+      "HTTP / light API": "HTTP / light API",
+      "Event-driven processing": "Event-driven processing",
+      "Background jobs / scheduled tasks": "Background jobs / scheduled tasks"
+    }
+  },
+  "backendVmCount": {
+    "label": "How many backend VMs do you want behind the load balancer?",
+    "options": {
+      "2": "2",
+      "3": "3",
+      "4": "4",
+      "5": "5",
+      "6+": "6+"
+    }
+  },
+  "backendSize": {
+    "label": "Backend instance size (per instance)",
+    "options": {
+      "Small (1–2 vCPU, 2–4 GB RAM)": "Small (1–2 vCPU, 2–4 GB RAM)",
+      "Medium (2–4 vCPU, 4–8 GB RAM)": "Medium (2–4 vCPU, 4–8 GB RAM)",
+      "Large (4+ vCPU, 8+ GB RAM)": "Large (4+ vCPU, 8+ GB RAM)"
+    }
+  },
+  "backendScaling": {
+    "label": "Backend scaling strategy",
+    "options": {
+      "Single instance only": "Single instance only",
+      "Fixed number of instances": "Fixed number of instances",
+      "Auto-scaling enabled": "Auto-scaling enabled"
+    }
+  },
+  "dbEngine": {
+    "label": "Database engine",
+    "options": {
+      "PostgreSQL": "PostgreSQL",
+      "MySQL": "MySQL",
+      "MS SQL": "MS SQL",
+      "Oracle Database": "Oracle Database",
+      "Other": "Other"
+    }
+  },
+  "dbSize": {
+    "label": "Database storage size",
+    "options": {
+      "_100": "<100 GB",
+      "100_1000": "100 GB – 1 TB",
+      "1000_5000": "1–5 TB",
+      "5000_10000": "5–10 TB",
+      "10000_": "10+ TB"
+    }
+  },
+  "dbHighAvailability": {
+    "label": "Database high availability",
+    "options": {
+      "Single instance": "Single instance",
+      "Multi-zone (HA)": "Multi-zone (HA)"
+    }
+  },
+  "backupRetention": {
+    "label": "Backup retention period",
+    "options": {
+      "7 days": "7 days",
+      "30 days": "30 days",
+      "90 days": "90 days",
+      "180+ days": "180+ days"
+    }
+  },
+  "disasterRecovery": {
+    "label": "Cross-region disaster recovery",
+    "options": {
+      "No": "No",
+      "Backup only": "Backup only",
+      "Active standby (warm replica)": "Active standby (warm replica)"
+    }
+  },
+  "environments": {
+    "label": "Environments required",
+    "options": {
+      "Production only": "Production only",
+      "Prod + Dev": "Prod + Dev",
+      "Prod + Dev + Test": "Prod + Dev + Test",
+      "Prod + Dev + Test + PreProd": "Prod + Dev + Test + PreProd"
+    }
+  },
+  "nonProdScaling": {
+    "label": "Non-production environment size",
+    "options": {
+      "Same size as production": "Same size as production",
+      "50% of production": "50% of production",
+      "30% of production": "30% of production",
+      "Minimal (dev-sized only)": "Minimal (dev-sized only)"
+    }
+  },
+  "nonProdSchedule": {
+    "label": "Non-production runtime",
+    "options": {
+      "24/7": "24/7",
+      "Business hours only": "Business hours only",
+      "On-demand (manual start/stop)": "On-demand (manual start/stop)"
+    }
+  },
+  "availability": {
+    "label": "Target availability (SLA)",
+    "options": {
+      "99": "99%",
+      "99_9": "99.9%",
+      "99_99": "99.99%"
+    }
+  }
+}

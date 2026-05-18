@@ -25,13 +25,13 @@ export const usageQuestions: UsageQuestion[] = [
   {
     id: "MAU",
     label: "Monthly active users (MAU)",
-    options: ["1–100", "100–1,000", "1,000–10,000", "10,000–50,000", "50,000+"],
+    options: ["1_100", "100_1000", "1000_10000", "10000_50000", "50000_"],
     category: "ApplicationUsage",
   },
   {
     id: "outboundTraffic",
     label: "Outbound internet traffic (TB/month)",
-    options: ["<1 TB", "1–5 TB", "5–10 TB", "10+ TB"],
+    options: ["_1", "1_5", "5_10", "10_"],
     category: "ApplicationUsage",
   },
 
@@ -127,7 +127,7 @@ export const usageQuestions: UsageQuestion[] = [
   {
     id: "dbSize",
     label: "Database storage size",
-    options: ["<100 GB", "100 GB – 1 TB", "1–5 TB", "5–10 TB", "10+ TB"],
+    options: ["_100", "100_1000", "1000_5000", "5000_10000", "10000_"],
     category: "Database",
   },
   {
@@ -191,16 +191,22 @@ export const usageQuestions: UsageQuestion[] = [
   {
     id: "availability",
     label: "Target availability (SLA)",
-    options: ["99%", "99.9%", "99.99%"],
+    options: ["99", "99_9", "99_99"],
     category: "Availability",
   },
 ];
 
-export function isQuestionVisible(question: UsageQuestion, answers: UsageAnswers) {
+export function isQuestionVisible(
+  question: UsageQuestion,
+  answers: UsageAnswers,
+) {
   return question.showWhen ? question.showWhen(answers) : true;
 }
 
-export function getQuestionOptions(question: UsageQuestion, answers: UsageAnswers) {
+export function getQuestionOptions(
+  question: UsageQuestion,
+  answers: UsageAnswers,
+) {
   return typeof question.options === "function"
     ? question.options(answers)
     : question.options;

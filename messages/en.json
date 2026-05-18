@@ -57,6 +57,9 @@
           "description": "Review structured cost breakdowns and choose the best option for you."
         }
       }
+    },
+    "footer": {
+      "copyright": "© {year} AI Cloud Cost Estimation. All rights reserved."
     }
   }
 }

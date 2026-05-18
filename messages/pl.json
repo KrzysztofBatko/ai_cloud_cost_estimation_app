@@ -6,7 +6,7 @@
       "home": "Strona główna",
       "admin": "Admin",
       "statistics": "Statystyki",
-      "estimation": "Wycena",
+      "estimation": "Estymacja",
       "profile": "Zobacz profil"
     },
     "hero": {
@@ -57,6 +57,9 @@
           "description": "Przejrzyj uporządkowane zestawienia kosztów i wybierz najlepszą opcję."
         }
       }
+    },
+    "footer": {
+      "copyright": "© {year} AI Cloud Cost Estimation. Wszelkie prawa zastrzeżone."
     }
   }
 }

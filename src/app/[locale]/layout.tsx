@@ -7,6 +7,7 @@ import { getMessages } from "next-intl/server";
 
 import { TooltipProvider } from "@/components/ui/tooltip";
 import Navbar from "@/app/[locale]/(home)/components/Navbar";
+import Footer from "@/app/[locale]/(home)/components/Footer";
 import AuthProvider from "@/app/[locale]/AuthProvider";
 import { routing } from "@/i18n/routing";
 
@@ -58,10 +59,8 @@ export default async function RootLayout({
               <Navbar />
               {children}
             </TooltipProvider>
+            <Footer />
           </AuthProvider>
-          <footer className="border-t border-border py-8 text-center text-sm text-muted-foreground">
-            © 2026 AI Cloud Cost Estimation. All rights reserved.
-          </footer>
         </NextIntlClientProvider>
       </body>
     </html>

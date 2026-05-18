@@ -60,11 +60,9 @@ type ComparisonLabels = {
   notSet: string;
   provided: string;
   regionLabel: (provider: string) => string;
+  usageQuestionLabel: (usageId: string) => string;
+  usageQuestionValue: (usageId: string, value: string) => string;
 };
-
-const usageQuestionLabels = new Map(
-  usageQuestions.map((question) => [question.id, question.label]),
-);
 
 function normalizeProvider(provider: string) {
   return provider.trim().toLowerCase();
@@ -226,9 +224,9 @@ function buildParameterChanges(
     if (baselineValue !== currentValue) {
       changes.push({
         key: `usage:${usageId}`,
-        label: usageQuestionLabels.get(usageId) ?? usageId,
-        baseline: formatOptionalValue(baselineValue, labels.notSet),
-        current: formatOptionalValue(currentValue, labels.notSet),
+        label: labels.usageQuestionLabel(usageId),
+        baseline: labels.usageQuestionValue(usageId, baselineValue),
+        current: labels.usageQuestionValue(usageId, currentValue),
       });
     }
   });
@@ -297,6 +295,16 @@ export default function EstimateComparison({
   onClear: () => void;
 }) {
   const t = useTranslations("estimation.comparison");
+  const usageQuestionsT = useTranslations("usage-questions");
+
+  const readUsageQuestionMessage = (key: string) => {
+    try {
+      return usageQuestionsT.raw(key);
+    } catch {
+      return undefined;
+    }
+  };
+
   const labels: ComparisonLabels = {
     providers: t("providers"),
     currency: t("currency"),
@@ -306,6 +314,36 @@ export default function EstimateComparison({
     notSet: t("notSet"),
     provided: t("provided"),
     regionLabel: (provider) => t("regionLabel", { provider }),
+    usageQuestionLabel: (usageId) => {
+      const label = readUsageQuestionMessage(`${usageId}.label`);
+
+      if (typeof label === "string") {
+        return label;
+      }
+
+      const fallbackQuestion = usageQuestions.find(
+        (question) => question.id === usageId,
+      );
+
+      return fallbackQuestion?.label ?? usageId;
+    },
+    usageQuestionValue: (usageId, value) => {
+      if (!value.trim()) {
+        return t("notSet");
+      }
+
+      const options = readUsageQuestionMessage(`${usageId}.options`);
+
+      if (options && typeof options === "object" && !Array.isArray(options)) {
+        const label = (options as Record<string, unknown>)[value];
+
+        if (typeof label === "string") {
+          return label;
+        }
+      }
+
+      return value;
+    },
   };
   const rows = buildComparisonRows(baseline.results, currentResults);
   const parameterChanges = buildParameterChanges(
